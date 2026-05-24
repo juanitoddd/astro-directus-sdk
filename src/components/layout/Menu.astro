@@ -11,6 +11,20 @@ type Props = {
 const { slug, lang, class: className } = Astro.props as Props;
 const menu = await fetchMenuBySlug(slug);
 const items = menu?.items ?? [];
+
+function resolveMenuUrl(url: string | null | undefined, lang: string): string {
+  if (!url) return "#";
+  // External, protocol-prefixed, or hash-only URLs: leave untouched
+  if (/^([a-z][a-z0-9+.-]*:|\/\/|#)/i.test(url)) return url;
+  // Absolute path
+  if (url.startsWith("/")) {
+    if (url === "/") return `/${lang}`;
+    if (url === `/${lang}` || url.startsWith(`/${lang}/`)) return url;
+    return `/${lang}${url}`;
+  }
+  // Relative path ("about", "projects/details", etc.) — prepend lang root
+  return `/${lang}/${url.replace(/^\.?\//, "")}`;
+}
 ---
 
 {items.length > 0 && (
@@ -19,12 +33,10 @@ const items = menu?.items ?? [];
       {items.map((item) => {
         const translation = pickTranslation(item.translations, lang);
         const label = translation?.label ?? item.url;
-        const url = item.url.startsWith("/") && !item.url.startsWith(`/${lang}/`) && item.url !== "/"
-          ? `/${lang}${item.url}`
-          : item.url;
+        const href = resolveMenuUrl(item.url, lang);
         return (
           <li>
-            <a href={url} class="hover:underline">{label}</a>
+            <a href={href} class="hover:underline">{label}</a>
           </li>
         );
       })}
