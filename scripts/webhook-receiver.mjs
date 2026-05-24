@@ -8,6 +8,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, "..");
 
 const PORT = Number(process.env.WEBHOOK_PORT || 4400);
+const HOST = process.env.WEBHOOK_HOST || "0.0.0.0";
 const TOKEN = process.env.WEBHOOK_TOKEN;
 
 if (!TOKEN) {
@@ -61,6 +62,6 @@ app.get("/status", (req, res) => {
 
 app.get("/health", (_req, res) => res.json({ ok: true }));
 
-app.listen(PORT, () => {
-  console.log(`webhook receiver listening on :${PORT}`);
+app.listen(PORT, HOST, () => {
+  console.log(`webhook receiver listening on ${HOST}:${PORT}`);
 });
