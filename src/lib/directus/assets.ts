@@ -46,7 +46,6 @@ export function getDirectusAssetUrl(
   transform?: DirectusAssetTransform,
 ) {
   const relativeURL = false
-  console.log("asset::::", asset)
   if (!asset) return null;
   if (typeof asset === "string") return appendTransform(buildAssetUrl(asset), transform);
 

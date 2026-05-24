@@ -26,6 +26,7 @@ const sectionsItemFields = {
   ],
   slider: [
     'id',
+    'fullwidth',
     'slides.id',
     'slides.sort',
     'slides.collection',
