@@ -73,16 +73,16 @@ The site runs as three decoupled processes. Preview and webhook receiver are bar
    - `GET /status` — auth-required; returns `inFlight` flag plus the last build's result.
    - `GET /health` — unauthenticated liveness check.
 
-3. **Production nginx** — containerised, configured by [deploy/nginx.conf](../deploy/nginx.conf). Bind-mounts `web/dist` (a symlink — see below) as the document root. Serves pure static HTML, encodes the redirects from astro.config.mjs as 302s at the edge, and applies tiered cache headers (`/_astro/*` immutable, media short-cache, HTML `no-cache`).
+3. **Production nginx** — containerised, configured by [deploy/nginx.conf](../deploy/nginx.conf). Bind-mounts `web/dist` (a real directory whose contents are rsynced in by each deploy — see below) as the document root. Serves pure static HTML, encodes the redirects from astro.config.mjs as 302s at the edge, and applies tiered cache headers (`/_astro/*` immutable, media short-cache, HTML `no-cache`).
 
 ### Build flow
 
 A POST from a Directus Flow (or manual `npm run deploy`) runs [scripts/deploy.sh](../scripts/deploy.sh):
 
 1. Build into `releases/staging-<timestamp>/` using `node scripts/build-static.mjs --out-dir <staging>` — this is the SSG variant: [scripts/build-static.mjs](../scripts/build-static.mjs) swaps in [src/page-variants/slug-static.astro](../src/page-variants/slug-static.astro) (which has `getStaticPaths`) over the SSR `[...slug].astro`, runs `astro build`, then restores the SSR file in a `finally` block (a `.ssr.bak` next to the route during the build).
-2. On success, rename staging to `releases/<timestamp>/` and atomically update the `dist` symlink to point at it (`ln -sfn` is atomic on Linux when replacing a symlink). On a fresh checkout where `dist` is a real directory, the script removes it once before creating the symlink.
-3. On failure, the staging dir is removed and the previous release stays live — `dist` never points at a half-built site.
-4. Garbage-collect: keep the last `KEEP_RELEASES` (default 5) timestamped release dirs for rollback. Rollback is `ln -sfn releases/<older> dist`.
+2. On success, rename staging to `releases/<timestamp>/`, then `rsync -a --delete-after releases/<timestamp>/client/ dist/`. `dist/` is a fixed directory — its inode never changes — so docker bind mounts on it stay valid across deploys. `--delete-after` writes new files first and removes stale ones only after the sync completes, giving per-file atomicity. A request that races a deploy sees either the old file or the new file, never a missing one.
+3. On failure, the staging dir is removed and the previous release stays live — `dist/` is untouched.
+4. Garbage-collect: keep the last `KEEP_RELEASES` (default 5) timestamped release dirs for rollback. Rollback is `rsync -a --delete-after releases/<older>/client/ dist/`.
 
 Build logs go to `logs/build-<timestamp>.log`.
 
@@ -101,8 +101,8 @@ Manual trigger on the relevant collection → "Webhook / Request URL" operation:
 
 ### Operational notes
 
-- The webhook receiver is the only thing that should write to `dist/` or `releases/` in production. Don't run `npm run build:static` directly on the prod host — it writes to `dist/` unconditionally, which would clobber the served release.
-- nginx follows symlinks, so the atomic swap is invisible to in-flight requests.
+- The webhook receiver is the only thing that should write to `dist/` or `releases/` in production. Don't run `npm run build:static` directly on the prod host — it writes to `dist/` unconditionally and would corrupt the live release.
+- `dist/` is a stable directory (no symlink), so docker bind mounts stay valid across deploys without container restarts.
 - If editors need pre-publication review, point them at the preview SSR instance (`gmjo-preview`) — production reflects only what's been Published in Directus *and* deployed via a webhook trigger.
 
 

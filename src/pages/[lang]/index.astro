@@ -1,14 +1,16 @@
 ---
-export const prerender = false;
-
 import Layout from "@/layouts/Layout.astro";
 import SectionRenderer from "@/components/directus/SectionRenderer.astro";
 import { fetchPageBySlug } from "@/lib/directus/page";
+import { languagePrefixes } from "@/constants/languages";
+
+export async function getStaticPaths() {
+  return languagePrefixes.map((lang) => ({ params: { lang } }));
+}
 
 const { lang } = Astro.params;
-const page = await fetchPageBySlug('home');
-if (!page) return new Response(null, { status: 404 });
-const sections = page.sections ?? [];
+const page = await fetchPageBySlug("home");
+const sections = page?.sections ?? [];
 ---
 
 <Layout>

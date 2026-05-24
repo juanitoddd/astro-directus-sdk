@@ -1,10 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Atomic-swap deploy: build into a staging release dir, swap the dist symlink on
-# success, keep the last N releases for rollback. nginx serves whatever the dist
-# symlink currently points at, so a half-finished or failed build never reaches
-# production.
+# Rsync deploy: build into a versioned release dir, then rsync the new release
+# into a fixed `dist/` directory. dist is always a real directory (never a
+# symlink), so docker bind mounts on it stay valid across deploys.
+#
+# rsync --delete-after writes new/changed files first and only removes stale
+# files after the sync finishes, so the served tree is never half-empty —
+# per-file atomic. A request mid-rsync sees either the old file or the new
+# file (or for a brief moment, both — duplicates aren't a problem in HTML).
+#
+# Previous releases are retained for rollback. Rollback:
+#   rsync -a --delete-after releases/<older>/client/ dist/
 
 cd "$(dirname "$0")/.."
 
@@ -27,18 +34,18 @@ fi
 
 mv "$STAGING_DIR" "$FINAL_DIR"
 
-# Atomic swap: if dist is already a symlink, `ln -sfn` replaces it atomically.
-# If it's a real directory (first deploy after a non-deploy `npm run build`),
-# remove it first. Brief window of nonexistence in that bootstrap case only.
-if [ -L dist ] || [ ! -e dist ]; then
-  ln -sfn "$FINAL_DIR" dist
-else
-  rm -rf dist
-  ln -sfn "$FINAL_DIR" dist
+# If dist was a symlink from a previous Option-A deploy, remove it so we can
+# replace it with a real directory. After this one-time conversion, dist stays
+# a directory and the docker bind mount on ./web/dist keeps the same inode.
+if [ -L dist ]; then
+  rm dist
 fi
-echo "[deploy $TIMESTAMP] swapped: dist -> $FINAL_DIR"
+mkdir -p dist
 
-# Garbage collect: keep the most recent KEEP_RELEASES
+rsync -a --delete-after "$FINAL_DIR/client/" dist/
+echo "[deploy $TIMESTAMP] synced: dist/ <- $FINAL_DIR/client/"
+
+# Garbage collect: keep the most recent KEEP_RELEASES timestamped dirs.
 KEEP_RELEASES_TAIL=$((KEEP_RELEASES + 1))
 ls -1dt "$RELEASES_DIR"/[0-9]*/ 2>/dev/null \
   | tail -n "+$KEEP_RELEASES_TAIL" \

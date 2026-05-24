@@ -1,9 +1,7 @@
 # build output
 dist/
-dist.next/
-dist.tmp/
 
-# atomic-swap release dirs and build logs produced by scripts/deploy.sh
+# release dirs and build logs produced by scripts/deploy.sh
 releases/
 logs/
 
