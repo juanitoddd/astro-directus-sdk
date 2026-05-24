@@ -3,6 +3,7 @@ import Block from "@/components/directus/Block.astro";
 import Grid from "@/components/directus/Grid.astro";
 import Hero from "@/components/directus/Hero.astro";
 import type { Slider } from "@/lib/directus/types";
+import { getDirectusEditAttr, type DirectusVisualEditable } from "@/lib/directus/visual-editor";
 
 type Props = {
   slider: Slider;
@@ -12,9 +13,22 @@ type Props = {
 const { slider, lang } = Astro.props as Props;
 const slides = (slider.slides ?? []).slice().sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0));
 const sliderId = `slider-${slider.id}`;
+
+const editable: DirectusVisualEditable = {
+  __directus: {
+    collection: "slider",
+    item: slider.id,
+    translationCollection: "slider",
+    translationItem: null,
+  },
+};
 ---
 
-<section class="slider relative py-4" data-slider-id={sliderId}>
+<section
+  class="slider relative py-4"
+  data-slider-id={sliderId}
+  data-directus={getDirectusEditAttr(editable, "slides", { translated: false })}
+>
   <div
     id={sliderId}
     class="flex overflow-x-auto snap-x snap-mandatory scroll-smooth gap-4 -mx-4 px-4"

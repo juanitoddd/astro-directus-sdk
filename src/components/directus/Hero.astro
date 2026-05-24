@@ -2,6 +2,7 @@
 import EditorJs from "@/components/directus/EditorJs.astro";
 import { getDirectusAssetAlt, getDirectusAssetUrl } from "@/lib/directus/assets";
 import { pickTranslation, type Hero } from "@/lib/directus/types";
+import { getDirectusEditAttr, type DirectusVisualEditable } from "@/lib/directus/visual-editor";
 
 type Props = {
   hero: Hero;
@@ -12,15 +13,28 @@ const { hero, lang } = Astro.props as Props;
 const translation = pickTranslation(hero.translations, lang);
 const imageUrl = getDirectusAssetUrl(hero.image);
 const imageAlt = getDirectusAssetAlt(hero.image);
+
+const editable: DirectusVisualEditable = {
+  __directus: {
+    collection: "hero",
+    item: hero.id,
+    translationCollection: "hero_translations",
+    translationItem: translation?.id ?? null,
+  },
+};
 ---
 
 <section
   class="relative w-full min-h-[60vh] flex items-center justify-center text-white"
   style={imageUrl ? `background-image:url('${imageUrl}');background-size:cover;background-position:center` : undefined}
   aria-label={imageAlt || undefined}
+  data-directus={getDirectusEditAttr(editable, "image", { translated: false })}
 >
   <div class="absolute inset-0 bg-black/40" aria-hidden="true"></div>
-  <div class="relative z-10 max-w-3xl text-center px-6 py-12">
+  <div
+    class="relative z-10 max-w-3xl text-center px-6 py-12"
+    data-directus={getDirectusEditAttr(editable, "content")}
+  >
     <EditorJs content={translation?.content} />
   </div>
 </section>
