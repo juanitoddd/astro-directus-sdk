@@ -31,3 +31,8 @@
   stroke: var(--color-ring);
   color: var(--color-ring);
 }
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}

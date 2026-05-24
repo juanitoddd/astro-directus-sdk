@@ -8,9 +8,16 @@ const translationsFields = [
   'translations.content',
 ] as const;
 
+const gridTranslationsFields = [
+  'translations.id',
+  'translations.languages_code',
+  'translations.content_left',
+  'translations.content_right',
+] as const;
+
 const sectionsItemFields = {
   block: ['id', ...translationsFields],
-  grid: ['id', ...translationsFields],
+  grid: ['id', ...gridTranslationsFields],
   hero: ['id', 'image.id', 'image.filename_disk', 'image.title', 'image.description', 'image.width', 'image.height', ...translationsFields],
   slider: [
     'id',
@@ -24,7 +31,8 @@ const sectionsItemFields = {
     'slides.item:grid.id',
     'slides.item:grid.translations.id',
     'slides.item:grid.translations.languages_code',
-    'slides.item:grid.translations.content',
+    'slides.item:grid.translations.content_left',
+    'slides.item:grid.translations.content_right',
     'slides.item:hero.id',
     'slides.item:hero.image.id',
     'slides.item:hero.image.filename_disk',

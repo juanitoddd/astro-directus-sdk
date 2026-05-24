@@ -21,6 +21,11 @@ const editable: DirectusVisualEditable = {
 };
 ---
 
-<section class="py-4" data-directus={getDirectusEditAttr(editable, "content")}>
-  <EditorJs content={translation?.content} class="columns-1 md:columns-2 gap-6" />
+<section class="container py-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+  <div data-directus={getDirectusEditAttr(editable, "content_left")}>
+    <EditorJs content={translation?.content_left} />
+  </div>
+  <div data-directus={getDirectusEditAttr(editable, "content_right")}>
+    <EditorJs content={translation?.content_right} />
+  </div>
 </section>
