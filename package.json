@@ -6,6 +6,8 @@
     "dev": "astro dev --host 0.0.0.0",
     "build": "astro build",
     "build:static": "node scripts/build-static.mjs",
+    "deploy": "bash scripts/deploy.sh",
+    "webhook": "node scripts/webhook-receiver.mjs",
     "preview": "astro preview",
     "astro": "astro"
   },
@@ -22,6 +24,7 @@
     "clsx": "^2.1.1",
     "dayjs": "^1.11.20",
     "embla-carousel-react": "^8.6.0",
+    "express": "^5.2.1",
     "framer-motion": "^12.36.0",
     "lucide-react": "^0.574.0",
     "radix-ui": "^1.4.3",

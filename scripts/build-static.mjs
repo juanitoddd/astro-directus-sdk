@@ -25,11 +25,30 @@ if (existsSync(backup)) {
   process.exit(1);
 }
 
+function getCliArg(name) {
+  const prefix = `--${name}=`;
+  const inline = process.argv.find((a) => a.startsWith(prefix));
+  if (inline) return inline.slice(prefix.length);
+  const idx = process.argv.findIndex((a) => a === `--${name}`);
+  if (idx >= 0 && process.argv[idx + 1]) return process.argv[idx + 1];
+  return undefined;
+}
+
+const outDir = getCliArg("out-dir");
+const astroArgs = ["build"];
+if (outDir) astroArgs.push("--outDir", outDir);
+
+const astroBin = resolve(root, "node_modules/.bin/astro");
+if (!existsSync(astroBin)) {
+  console.error(`Astro binary not found at ${astroBin}. Run \`npm install\` first.`);
+  process.exit(1);
+}
+
 await rename(target, backup);
 let exitCode = 0;
 try {
   await copyFile(variant, target);
-  const result = spawnSync("astro", ["build"], { stdio: "inherit", cwd: root, shell: false });
+  const result = spawnSync(astroBin, astroArgs, { stdio: "inherit", cwd: root, shell: false });
   exitCode = result.status ?? 1;
 } finally {
   await rm(target, { force: true });

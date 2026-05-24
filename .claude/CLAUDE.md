@@ -60,5 +60,50 @@ There should also be a component under `./web/src/components/layout` that handle
 ## Glossary
 - **Block editor**: Block-styled editor for rich media stories, outputs clean data in JSON using Editor.js
 
+## Deployment architecture
+
+The site runs as three decoupled processes. Preview and webhook receiver are bare-metal Node managed by pm2 (see [ecosystem.config.cjs](../ecosystem.config.cjs)); production HTML is served by an nginx container that mounts the build output.
+
+### Processes
+
+1. **Preview (`gmjo-preview`)** — `npm run dev` under pm2. Hybrid SSR via `@astrojs/node`: most routes are prerendered at startup, the `[lang]/[...slug].astro` route is SSR (`export const prerender = false`) so Directus edits show up on next page load with no rebuild. Editors use this for the visual editor (`?visual-editing=true`).
+
+2. **Webhook receiver (`gmjo-webhook`)** — `scripts/webhook-receiver.mjs` under pm2. Express server, default port `4400`. Reads `WEBHOOK_TOKEN` (and other env) from [.env](../.env) via Node's native `--env-file` flag (set as `interpreter_args` in the pm2 config). Endpoints:
+   - `POST /rebuild` — bearer-token auth, in-flight mutex (returns `409` if a build is running), returns `202` immediately and runs `scripts/deploy.sh` in the background.
+   - `GET /status` — auth-required; returns `inFlight` flag plus the last build's result.
+   - `GET /health` — unauthenticated liveness check.
+
+3. **Production nginx** — containerised, configured by [deploy/nginx.conf](../deploy/nginx.conf). Bind-mounts `web/dist` (a symlink — see below) as the document root. Serves pure static HTML, encodes the redirects from astro.config.mjs as 302s at the edge, and applies tiered cache headers (`/_astro/*` immutable, media short-cache, HTML `no-cache`).
+
+### Build flow
+
+A POST from a Directus Flow (or manual `npm run deploy`) runs [scripts/deploy.sh](../scripts/deploy.sh):
+
+1. Build into `releases/staging-<timestamp>/` using `node scripts/build-static.mjs --out-dir <staging>` — this is the SSG variant: [scripts/build-static.mjs](../scripts/build-static.mjs) swaps in [src/page-variants/slug-static.astro](../src/page-variants/slug-static.astro) (which has `getStaticPaths`) over the SSR `[...slug].astro`, runs `astro build`, then restores the SSR file in a `finally` block (a `.ssr.bak` next to the route during the build).
+2. On success, rename staging to `releases/<timestamp>/` and atomically update the `dist` symlink to point at it (`ln -sfn` is atomic on Linux when replacing a symlink). On a fresh checkout where `dist` is a real directory, the script removes it once before creating the symlink.
+3. On failure, the staging dir is removed and the previous release stays live — `dist` never points at a half-built site.
+4. Garbage-collect: keep the last `KEEP_RELEASES` (default 5) timestamped release dirs for rollback. Rollback is `ln -sfn releases/<older> dist`.
+
+Build logs go to `logs/build-<timestamp>.log`.
+
+### Where the secrets live
+
+[.env](../.env) holds `DIRECTUS_URL`, `DIRECTUS_TOKEN`, `WEBHOOK_TOKEN`. The webhook receiver picks them up via Node's `--env-file`; the astro preview process picks them up via Astro's built-in `import.meta.env`. Subprocess inheritance carries them through to `astro build` during a deploy. Never commit `.env` — it's in [.gitignore](../.gitignore) along with `dist/`, `releases/`, `logs/`, and the `*.ssr.bak` transient files.
+
+### Wiring a Directus Flow
+
+Manual trigger on the relevant collection → "Webhook / Request URL" operation:
+
+- URL: `http://<host>:4400/rebuild` (from inside docker-compose use `host.docker.internal:4400` or the host gateway IP)
+- Method: `POST`
+- Headers: `Authorization: Bearer <WEBHOOK_TOKEN>`
+- Optional body: `{ "triggered_by": "{{$accountability.user}}" }` — the receiver logs this.
+
+### Operational notes
+
+- The webhook receiver is the only thing that should write to `dist/` or `releases/` in production. Don't run `npm run build:static` directly on the prod host — it writes to `dist/` unconditionally, which would clobber the served release.
+- nginx follows symlinks, so the atomic swap is invisible to in-flight requests.
+- If editors need pre-publication review, point them at the preview SSR instance (`gmjo-preview`) — production reflects only what's been Published in Directus *and* deployed via a webhook trigger.
+
 
 

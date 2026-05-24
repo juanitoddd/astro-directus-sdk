@@ -1,5 +1,15 @@
 # build output
 dist/
+dist.next/
+dist.tmp/
+
+# atomic-swap release dirs and build logs produced by scripts/deploy.sh
+releases/
+logs/
+
+# transient route variant backups produced by scripts/build-static.mjs
+# (should only exist while a build is mid-flight, but guard against crashes)
+src/pages/**/*.ssr.bak
 
 # generated types
 .astro/
