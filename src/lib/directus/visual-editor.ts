@@ -34,6 +34,7 @@ export function getDirectusEditAttr(
     collection,
     item,
     fields,
-    mode: options.mode ?? "popover",
+    // mode: options.mode ?? "popover",
+    mode: options.mode ?? "drawer",
   });
 }
