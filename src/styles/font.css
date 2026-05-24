@@ -1,0 +1,20 @@
+@layer fonts {
+    .font-montserrat {
+        font-family: var(--font-montserrat);
+    }
+    .font-roboto {
+        font-family: var(--font-roboto);
+    }
+    .font-playfair {
+        font-family: var(--font-playfair-display);
+    }
+    .tracking-wide {
+        letter-spacing: .025em;
+    }
+    .tracking-tight {
+        letter-spacing: -2px;
+    }
+    .leading-tight {
+        line-height: 1.25;
+    }
+}

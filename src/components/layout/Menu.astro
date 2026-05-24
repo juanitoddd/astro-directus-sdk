@@ -1,0 +1,33 @@
+---
+import { fetchMenuBySlug } from "@/lib/directus/menu";
+import { pickTranslation } from "@/lib/directus/types";
+
+type Props = {
+  slug: string;
+  lang: string;
+  class?: string;
+};
+
+const { slug, lang, class: className } = Astro.props as Props;
+const menu = await fetchMenuBySlug(slug);
+const items = menu?.items ?? [];
+---
+
+{items.length > 0 && (
+  <nav class={className} aria-label={slug}>
+    <ul class="flex gap-4 items-center">
+      {items.map((item) => {
+        const translation = pickTranslation(item.translations, lang);
+        const label = translation?.label ?? item.url;
+        const url = item.url.startsWith("/") && !item.url.startsWith(`/${lang}/`) && item.url !== "/"
+          ? `/${lang}${item.url}`
+          : item.url;
+        return (
+          <li>
+            <a href={url} class="hover:underline">{label}</a>
+          </li>
+        );
+      })}
+    </ul>
+  </nav>
+)}

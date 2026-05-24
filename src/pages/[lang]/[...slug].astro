@@ -1,0 +1,16 @@
+---
+export const prerender = false;
+
+import Layout from "@/layouts/Layout.astro";
+import SectionRenderer from "@/components/directus/SectionRenderer.astro";
+import { fetchPageBySlug } from "@/lib/directus/page";
+
+const { lang, slug } = Astro.params;
+const page = await fetchPageBySlug(slug as string);
+if (!page) return new Response(null, { status: 404 });
+const sections = page.sections ?? [];
+---
+
+<Layout>
+  {sections.map((section) => <SectionRenderer section={section} lang={lang as string} />)}
+</Layout>

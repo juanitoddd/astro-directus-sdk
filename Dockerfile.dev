@@ -1,0 +1,14 @@
+FROM node:24-alpine
+
+WORKDIR /app
+
+# Install dependencies first for better layer caching
+COPY package*.json ./
+RUN npm install
+
+# App source will usually be bind-mounted in docker-compose for dev
+COPY . .
+
+EXPOSE 4321
+
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

@@ -1,0 +1,16 @@
+---
+import EditorJs from "@/components/directus/EditorJs.astro";
+import { pickTranslation, type Block } from "@/lib/directus/types";
+
+type Props = {
+  block: Block;
+  lang: string;
+};
+
+const { block, lang } = Astro.props as Props;
+const translation = pickTranslation(block.translations, lang);
+---
+
+<section class="block-section py-4">
+  <EditorJs content={translation?.content} />
+</section>

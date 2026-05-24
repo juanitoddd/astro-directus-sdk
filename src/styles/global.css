@@ -1,0 +1,33 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "./utilities.css";
+@import "./theme.css";
+@import "./media.css";
+@import "./font.css";
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    }
+  body {
+    @apply bg-background text-foreground;
+    }
+}
+
+
+/* ------- layout --------- */
+.home-header {
+    height: var(--header-height);
+}
+.home-hero-screen {
+    height: calc(100vh - var(--header-height));
+}
+.grid-cols-header {
+  grid-template-columns: auto 1fr 70px;
+}
+.grid-cols-header img {
+  fill: var(--color-ring);
+  stroke: var(--color-ring);
+  color: var(--color-ring);
+}

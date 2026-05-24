@@ -1,0 +1,30 @@
+---
+import { languagePrefixes } from "@/constants/languages";
+import { getLangFromUrl, switchLang, type Lang } from "@/lib/i18n";
+
+type Props = {
+  class?: string;
+};
+
+const { class: className } = Astro.props as Props;
+const current = getLangFromUrl(Astro.url);
+const langs = languagePrefixes as readonly Lang[];
+---
+
+<div class={className} role="group" aria-label="Language">
+  <ul class="flex gap-2 items-center text-sm">
+    {langs.map((lang) => {
+      const isActive = lang === current;
+      const href = switchLang(Astro.url, lang);
+      return (
+        <li>
+          <a
+            href={href}
+            class={`uppercase px-2 py-1 rounded ${isActive ? "font-bold underline" : "opacity-70 hover:opacity-100"}`}
+            aria-current={isActive ? "true" : undefined}
+          >{lang}</a>
+        </li>
+      );
+    })}
+  </ul>
+</div>

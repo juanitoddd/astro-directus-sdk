@@ -1,0 +1,16 @@
+---
+import EditorJs from "@/components/directus/EditorJs.astro";
+import { pickTranslation, type Grid } from "@/lib/directus/types";
+
+type Props = {
+  grid: Grid;
+  lang: string;
+};
+
+const { grid, lang } = Astro.props as Props;
+const translation = pickTranslation(grid.translations, lang);
+---
+
+<section class="py-4">
+  <EditorJs content={translation?.content} class="columns-1 md:columns-2 gap-6" />
+</section>

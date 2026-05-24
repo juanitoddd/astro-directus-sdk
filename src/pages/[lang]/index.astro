@@ -1,0 +1,14 @@
+---
+import Layout from "@/layouts/Layout.astro";
+
+export async function getStaticPaths() {
+  return [
+    { params: {lang: 'de'}, props: {}},
+    { params: {lang: 'en'}, props: {}}
+  ]
+}
+---
+
+<Layout title={Astro.params.lang}>  
+  <div>{Astro.params.lang}</div>
+</Layout>

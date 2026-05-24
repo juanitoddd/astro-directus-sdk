@@ -1,0 +1,64 @@
+---
+import Block from "@/components/directus/Block.astro";
+import Grid from "@/components/directus/Grid.astro";
+import Hero from "@/components/directus/Hero.astro";
+import type { Slider } from "@/lib/directus/types";
+
+type Props = {
+  slider: Slider;
+  lang: string;
+};
+
+const { slider, lang } = Astro.props as Props;
+const slides = (slider.slides ?? []).slice().sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0));
+const sliderId = `slider-${slider.id}`;
+---
+
+<section class="slider relative py-4" data-slider-id={sliderId}>
+  <div
+    id={sliderId}
+    class="flex overflow-x-auto snap-x snap-mandatory scroll-smooth gap-4 -mx-4 px-4"
+    style="scrollbar-width:none"
+  >
+    {slides.map((slide) => (
+      <div class="slide shrink-0 snap-center w-full">
+        {slide.collection === "block" && <Block block={slide.item} lang={lang} />}
+        {slide.collection === "grid" && <Grid grid={slide.item} lang={lang} />}
+        {slide.collection === "hero" && <Hero hero={slide.item} lang={lang} />}
+      </div>
+    ))}
+  </div>
+
+  {slides.length > 1 && (
+    <div class="flex justify-center gap-2 mt-3">
+      <button
+        type="button"
+        class="px-3 py-1 border rounded"
+        data-slider-prev={sliderId}
+        aria-label="Previous slide"
+      >‹</button>
+      <button
+        type="button"
+        class="px-3 py-1 border rounded"
+        data-slider-next={sliderId}
+        aria-label="Next slide"
+      >›</button>
+    </div>
+  )}
+</section>
+
+<script>
+  function step(id: string, direction: 1 | -1) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const slide = el.querySelector<HTMLElement>(".slide");
+    const delta = slide ? slide.offsetWidth + 16 : el.clientWidth;
+    el.scrollBy({ left: delta * direction, behavior: "smooth" });
+  }
+  document.querySelectorAll<HTMLButtonElement>("[data-slider-prev]").forEach((btn) => {
+    btn.addEventListener("click", () => step(btn.dataset.sliderPrev!, -1));
+  });
+  document.querySelectorAll<HTMLButtonElement>("[data-slider-next]").forEach((btn) => {
+    btn.addEventListener("click", () => step(btn.dataset.sliderNext!, 1));
+  });
+</script>

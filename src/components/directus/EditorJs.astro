@@ -1,0 +1,80 @@
+---
+import { getDirectusAssetUrl, type DirectusAsset } from "@/lib/directus/assets";
+import type { EditorJsBlock, EditorJsContent } from "@/lib/directus/types";
+
+type Props = {
+  content: EditorJsContent | null | undefined;
+  class?: string;
+};
+
+const { content, class: className } = Astro.props as Props;
+const blocks: EditorJsBlock[] = content?.blocks ?? [];
+
+type ListItem = { content?: string; items?: ListItem[] };
+
+function renderListItems(items: ListItem[] = [], style: string): string {
+  const tag = style === "ordered" ? "ol" : "ul";
+  const li = items
+    .map((it) => {
+      const inner = it.items && it.items.length > 0 ? renderListItems(it.items, style) : "";
+      return `<li>${it.content ?? ""}${inner}</li>`;
+    })
+    .join("");
+  return `<${tag} class="${style === "ordered" ? "list-decimal" : "list-disc"} ml-6 my-2">${li}</${tag}>`;
+}
+---
+
+<div class={className}>
+  {blocks.map((block) => {
+    const data = block.data ?? {};
+    switch (block.type) {
+      case "paragraph": {
+        const text = (data.text as string) ?? "";
+        return <p class="py-2" set:html={text} />;
+      }
+      case "header": {
+        const level = Math.min(Math.max(Number(data.level ?? 2), 1), 6);
+        const text = (data.text as string) ?? "";
+        const Tag = `h${level}` as "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+        return <Tag class="font-bold py-2" set:html={text} />;
+      }
+      case "image": {
+        const file = (data.file ?? {}) as { url?: string } & DirectusAsset;
+        const url = file.url ?? getDirectusAssetUrl(file as DirectusAsset);
+        const caption = (data.caption as string) ?? "";
+        if (!url) return null;
+        return (
+          <figure class="my-4">
+            <img src={url} alt={caption} class="max-w-full h-auto" />
+            {caption && <figcaption class="text-sm opacity-70 mt-1" set:html={caption} />}
+          </figure>
+        );
+      }
+      case "list":
+      case "nestedlist": {
+        const style = (data.style as string) ?? "unordered";
+        const items = (data.items as ListItem[]) ?? [];
+        return <Fragment set:html={renderListItems(items, style)} />;
+      }
+      case "quote": {
+        const text = (data.text as string) ?? "";
+        const caption = (data.caption as string) ?? "";
+        return (
+          <blockquote class="border-l-4 pl-4 my-4 italic">
+            <p set:html={text} />
+            {caption && <cite class="text-sm not-italic opacity-70" set:html={caption} />}
+          </blockquote>
+        );
+      }
+      case "delimiter": {
+        return <hr class="my-6" />;
+      }
+      case "code": {
+        const code = (data.code as string) ?? "";
+        return <pre class="my-4 p-3 bg-gray-100 overflow-x-auto"><code>{code}</code></pre>;
+      }
+      default:
+        return null;
+    }
+  })}
+</div>

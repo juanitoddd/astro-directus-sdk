@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p /opt/local/bin/dir/web/src/lib/directus/types /opt/local/bin/dir/web/src/lib/directus/menu /opt/local/bin/dir/web/src/components/layout)",
+      "Read(//usr/local/bin/**)",
+      "Read(//home/arty/.nvm/versions/node/**)",
+      "Bash(command -v fnm)",
+      "Bash(command -v volta)"
+    ],
+    "additionalDirectories": [
+      "/opt/local/bin/dir/web/src/lib/directus"
+    ]
+  }
+}

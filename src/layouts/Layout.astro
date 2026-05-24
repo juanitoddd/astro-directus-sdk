@@ -1,0 +1,70 @@
+---
+import "@/styles/global.css";
+import { getLangFromUrl } from '@/lib/i18n';
+import { Font } from "astro:assets";
+import Menu from "@/components/layout/Menu.astro";
+import LanguageSwitcher from "@/components/layout/LanguageSwitcher.astro";
+
+type Props = { title?: string; menuSlug?: string };
+const { title = "Gustav Mahler JUGENDORCHESTER", menuSlug = "main" } = Astro.props as Props;
+const currentLang = getLangFromUrl(Astro.url);
+---
+
+<!doctype html>
+<html lang={currentLang}>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css"
+			/>
+			<link
+			rel="stylesheet"
+			type="text/css"
+			href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css"
+			/>
+		<meta name="generator" content={Astro.generator} />
+		<Font cssVariable="--font-roboto" preload />
+		<Font cssVariable="--font-montserrat" preload />
+    	<Font cssVariable="--font-playfair-display" preload />
+		<title>{title}</title>
+		<script>		const initDirectusVisualEditor = async () => {
+			const directusUrl = 'http://192.168.0.9:8055/';
+			// const directusUrl = 'https://cms.uponthe.top';
+
+			try {
+				const { apply } = await import('@directus/visual-editing');
+				await apply({ directusUrl });
+			} catch (e) {
+				console.error('Directus visual editor init failed:', e);
+			}
+		};
+
+		document.readyState === 'loading'
+			? document.addEventListener('DOMContentLoaded', initDirectusVisualEditor)
+			: initDirectusVisualEditor();
+	</script>
+	</head>
+	<body class="overflow-x-hidden">
+		<header class="flex items-center justify-between px-6 py-4 border-b">
+			<Menu slug={menuSlug} lang={currentLang} />
+			<LanguageSwitcher />
+		</header>
+		<main>
+			<slot />
+		</main>
+	</body>
+</html>
+
+<style>
+	html,
+	body {
+		margin: 0;
+		width: 100%;
+		height: 100%;
+	}
+</style>
