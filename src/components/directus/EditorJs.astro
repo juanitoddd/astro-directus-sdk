@@ -40,7 +40,9 @@ function renderListItems(items: ListItem[] = [], style: string): string {
       }
       case "image": {
         const file = (data.file ?? {}) as { url?: string } & DirectusAsset;
-        const url = file.url ?? getDirectusAssetUrl(file as DirectusAsset);
+        // const url = file.url ?? getDirectusAssetUrl(file as DirectusAsset);
+        const url = getDirectusAssetUrl(file as DirectusAsset);
+        console.log("url", url)
         const caption = (data.caption as string) ?? "";
         if (!url) return null;
         return (
