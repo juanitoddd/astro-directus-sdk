@@ -1,14 +1,16 @@
 ---
-import Layout from "@/layouts/Layout.astro";
+export const prerender = false;
 
-export async function getStaticPaths() {
-  return [
-    { params: {lang: 'de'}, props: {}},
-    { params: {lang: 'en'}, props: {}}
-  ]
-}
+import Layout from "@/layouts/Layout.astro";
+import SectionRenderer from "@/components/directus/SectionRenderer.astro";
+import { fetchPageBySlug } from "@/lib/directus/page";
+
+const { lang } = Astro.params;
+const page = await fetchPageBySlug('home');
+if (!page) return new Response(null, { status: 404 });
+const sections = page.sections ?? [];
 ---
 
-<Layout title={Astro.params.lang}>  
-  <div>{Astro.params.lang}</div>
+<Layout>
+  {sections.map((section) => <SectionRenderer section={section} lang={lang as string} />)}
 </Layout>

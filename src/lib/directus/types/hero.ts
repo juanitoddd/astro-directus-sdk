@@ -9,4 +9,5 @@ export type HeroTranslation = TranslationBase & {
 export type Hero = WithTranslations<HeroTranslation> & {
   id: number;
   image?: DirectusAsset | string | null;
+  background?: DirectusAsset | string | null;
 };

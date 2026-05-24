@@ -34,11 +34,11 @@ const editable: DirectusVisualEditable = {
     class="flex overflow-x-auto snap-x snap-mandatory scroll-smooth gap-4 -mx-4 px-4"
     style="scrollbar-width:none"
   >
-    {slides.map((slide) => (
+    {slides.map((slide, idx) => (
       <div class="slide shrink-0 snap-center w-full">
         {slide.collection === "block" && <Block block={slide.item} lang={lang} />}
         {slide.collection === "grid" && <Grid grid={slide.item} lang={lang} />}
-        {slide.collection === "hero" && <Hero hero={slide.item} lang={lang} />}
+        {slide.collection === "hero" && <Hero hero={slide.item} lang={lang} eager={idx === 0} />}
       </div>
     ))}
   </div>
