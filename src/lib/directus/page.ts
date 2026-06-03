@@ -15,7 +15,7 @@ const gridTranslationsFields = [
   'translations.content_right',
 ] as const;
 
-const sectionsItemFields = {
+export const sectionsItemFields = {
   block: ['id', ...translationsFields],
   grid: ['id', ...gridTranslationsFields],
   hero: [
@@ -55,6 +55,18 @@ const sectionsItemFields = {
     'slides.item:hero.translations.id',
     'slides.item:hero.translations.languages_code',
     'slides.item:hero.translations.content',
+    'slides.item:news.id',
+    'slides.item:news.slug',
+    'slides.item:news.name',
+    'slides.item:news.image.id',
+    'slides.item:news.image.filename_disk',
+    'slides.item:news.image.title',
+    'slides.item:news.image.description',
+    'slides.item:news.image.width',
+    'slides.item:news.image.height',
+    'slides.item:news.translations.id',
+    'slides.item:news.translations.languages_code',
+    'slides.item:news.translations.preview',
   ],
 } as const;
 

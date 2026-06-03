@@ -2,6 +2,7 @@
 import Block from "@/components/directus/Block.astro";
 import Grid from "@/components/directus/Grid.astro";
 import Hero from "@/components/directus/Hero.astro";
+import News from "@/components/directus/News.astro";
 import type { Slider } from "@/lib/directus/types";
 import { getDirectusEditAttr, type DirectusVisualEditable } from "@/lib/directus/visual-editor";
 
@@ -40,6 +41,7 @@ const editable: DirectusVisualEditable = {
         {slide.collection === "block" && <Block block={slide.item} lang={lang} />}
         {slide.collection === "grid" && <Grid grid={slide.item} lang={lang} />}
         {slide.collection === "hero" && <Hero hero={slide.item} lang={lang} eager={idx === 0} />}
+        {slide.collection === "news" && <News news={slide.item} lang={lang} eager={idx === 0} />}
       </div>
     ))}
   </div>

@@ -5,4 +5,5 @@ export * from "./grid";
 export * from "./hero";
 export * from "./slider";
 export * from "./page";
+export * from "./news";
 export * from "./menu";

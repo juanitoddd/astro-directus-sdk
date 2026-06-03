@@ -1,0 +1,48 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import EditorJs from "@/components/directus/EditorJs.astro";
+import SectionRenderer from "@/components/directus/SectionRenderer.astro";
+import { fetchAllNewsSlugs, fetchNewsBySlug } from "@/lib/directus/news";
+import { getDirectusAssetAlt, getDirectusAssetUrl } from "@/lib/directus/assets";
+import { pickTranslation, type News } from "@/lib/directus/types";
+import { languagePrefixes } from "@/constants/languages";
+
+export async function getStaticPaths() {
+  const slugs = await fetchAllNewsSlugs();
+  const items = await Promise.all(
+    slugs.map(async (slug) => {
+      const news = await fetchNewsBySlug(slug);
+      return news ? { slug, news } : null;
+    }),
+  );
+  const valid = items.filter((i): i is { slug: string; news: News } => i !== null);
+
+  return languagePrefixes.flatMap((lang) =>
+    valid.map(({ slug, news }) => ({
+      params: { lang, slug },
+      props: { news },
+    })),
+  );
+}
+
+type Props = { news: News };
+const { news } = Astro.props as Props;
+const lang = Astro.params.lang as string;
+
+const translation = pickTranslation(news.translations, lang);
+const sections = news.sections ?? [];
+
+const imageSrc = getDirectusAssetUrl(news.image, { width: 1280, format: "webp", quality: 80 });
+const imageAlt = getDirectusAssetAlt(news.image);
+---
+
+<Layout>
+  <article class="container py-8">
+    {news.name && <h1 class="text-3xl font-bold mb-4">{news.name}</h1>}
+    {imageSrc && (
+      <img src={imageSrc} alt={imageAlt} class="w-full h-auto mb-6" loading="eager" />
+    )}
+    <EditorJs content={translation?.preview} />
+    {sections.map((section) => <SectionRenderer section={section} lang={lang} />)}
+  </article>
+</Layout>

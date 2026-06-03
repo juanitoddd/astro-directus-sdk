@@ -9,6 +9,8 @@ import type {
   Menu,
   MenuItem,
   MenuItemTranslation,
+  News,
+  NewsTranslation,
   Page,
   PageSection,
   Slider,
@@ -26,6 +28,8 @@ export type Schema = {
   hero_translations: HeroTranslation[];
   slider: Slider[];
   slider_slides: SliderSlide[];
+  news: News[];
+  news_translations: NewsTranslation[];
   menu: Menu[];
   menu_item: MenuItem[];
   menu_item_translations: MenuItemTranslation[];

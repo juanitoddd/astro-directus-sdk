@@ -1,0 +1,66 @@
+---
+import EditorJs from "@/components/directus/EditorJs.astro";
+import { getDirectusAssetAlt, getDirectusAssetSrcset, getDirectusAssetUrl } from "@/lib/directus/assets";
+import { pickTranslation, type News } from "@/lib/directus/types";
+import { getDirectusEditAttr, type DirectusVisualEditable } from "@/lib/directus/visual-editor";
+
+type Props = {
+  news: News;
+  lang: string;
+  eager?: boolean;
+};
+
+const { news, lang, eager = false } = Astro.props as Props;
+const translation = pickTranslation(news.translations, lang);
+
+const href = news.slug ? `/${lang}/news/${news.slug}` : undefined;
+
+const imageSrc = getDirectusAssetUrl(news.image, { width: 1280, format: "webp", quality: 80 });
+const imageSrcset = getDirectusAssetSrcset(news.image, [640, 960, 1280], { format: "webp", quality: 80 });
+const imageAlt = getDirectusAssetAlt(news.image) || news.name || "";
+
+const editable: DirectusVisualEditable = {
+  __directus: {
+    collection: "news",
+    item: news.id,
+    translationCollection: "news_translations",
+    translationItem: translation?.id ?? null,
+  },
+};
+---
+
+<article
+  class:list={[
+    "relative container py-4 grid grid-cols-1 md:grid-cols-2 gap-6 items-center",
+    { "group cursor-pointer": href },
+  ]}
+>
+  <div
+    class="news-image overflow-hidden"
+    data-directus={getDirectusEditAttr(editable, "image", { translated: false })}
+  >
+    {imageSrc && (
+      <img
+        src={imageSrc}
+        srcset={imageSrcset}
+        sizes="(min-width: 768px) 50vw, 100vw"
+        alt={imageAlt}
+        class="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
+        loading={eager ? "eager" : "lazy"}
+        fetchpriority={eager ? "high" : "auto"}
+      />
+    )}
+  </div>
+  <div class="news-content" data-directus={getDirectusEditAttr(editable, "preview")}>
+    {news.name && (
+      <h2 class="text-2xl font-bold mb-2 group-hover:underline">{news.name}</h2>
+    )}
+    <EditorJs content={translation?.preview} />
+  </div>
+
+  {href && (
+    <a href={href} class="absolute inset-0 z-10" aria-label={news.name ?? "Read more"}>
+      <span class="sr-only">{news.name ?? "Read more"}</span>
+    </a>
+  )}
+</article>
