@@ -1,4 +1,8 @@
 @layer fonts {
+    .font-gteesti-pro-text {
+        font-family: var(--font-GTEestiProText);
+    }
+    /*
     .font-montserrat {
         font-family: var(--font-montserrat);
     }
@@ -17,4 +21,5 @@
     .leading-tight {
         line-height: 1.25;
     }
+    */
 }

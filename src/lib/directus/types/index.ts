@@ -3,6 +3,7 @@ export * from "./translation";
 export * from "./block";
 export * from "./grid";
 export * from "./hero";
+export * from "./heading";
 export * from "./slider";
 export * from "./page";
 export * from "./news";

@@ -11,6 +11,45 @@ export default defineConfig({
   },
   fonts: [
     {
+      provider: fontProviders.local(),
+      name: "GTEestiProText",
+      cssVariable: "--font-GTEestiProText",
+      options: {
+        variants: [
+          {
+            src: ['./src/assets/fonts/GTEestiProText-Bold.ttf'],
+            weight: '700',
+            style: 'normal'
+          },
+          {
+            src: ['./src/assets/fonts/GTEestiProText-Medium.ttf'],
+            weight: '500',
+            style: 'normal'
+          },
+          {
+            src: ['./src/assets/fonts/GTEestiProText-Regular.ttf'],
+            weight: 'normal',
+            style: 'normal'
+          },
+          {
+            src: ['./src/assets/fonts/GTEestiProText-Thin.ttf'],
+            weight: '300',
+            style: 'normal'
+          },
+          {
+            src: ['./src/assets/fonts/GTEestiProText-Light.ttf'],
+            weight: '200',
+            style: 'normal'
+          },          
+          {
+            src: ['./src/assets/fonts/GTEestiProText-UltraLight.ttf'],
+            weight: '100',
+            style: 'normal'
+          }
+        ]
+      }
+    },
+    {
       provider: fontProviders.google(),
       name: "Playfair",
       cssVariable: "--font-playfair-display"

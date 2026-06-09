@@ -17,6 +17,7 @@ const gridTranslationsFields = [
 
 export const sectionsItemFields = {
   block: ['id', ...translationsFields],
+  heading: ['id', ...translationsFields],
   grid: ['id', ...gridTranslationsFields],
   hero: [
     'id',
@@ -27,6 +28,7 @@ export const sectionsItemFields = {
   slider: [
     'id',
     'fullwidth',
+    'autoplay',
     'slides.id',
     'slides.sort',
     'slides.collection',
@@ -77,6 +79,7 @@ const pageQueryFields = [
   'sections.sort',
   'sections.collection',
   ...sectionsItemFields.block.map((f) => `sections.item:block.${f}`),
+  ...sectionsItemFields.heading.map((f) => `sections.item:heading.${f}`),
   ...sectionsItemFields.grid.map((f) => `sections.item:grid.${f}`),
   ...sectionsItemFields.hero.map((f) => `sections.item:hero.${f}`),
   ...sectionsItemFields.slider.map((f) => `sections.item:slider.${f}`),

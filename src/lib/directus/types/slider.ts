@@ -19,5 +19,6 @@ export type SliderSlide = SlideItem & {
 export type Slider = {
   id: number;
   fullwidth?: boolean | null;
+  autoplay?: boolean | null;
   slides?: SliderSlide[] | null;
 };

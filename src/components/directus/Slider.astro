@@ -15,6 +15,7 @@ const { slider, lang } = Astro.props as Props;
 const slides = (slider.slides ?? []).slice().sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0));
 const sliderId = `slider-${slider.id}`;
 const constrained = !slider.fullwidth;
+const autoplay = !!slider.autoplay && slides.length > 1;
 
 const editable: DirectusVisualEditable = {
   __directus: {
@@ -29,7 +30,8 @@ const editable: DirectusVisualEditable = {
 <section
   class:list={["slider relative py-4", { container: constrained }]}
   data-slider-id={sliderId}
-  data-directus={getDirectusEditAttr(editable, ["slides", "fullwidth"], { translated: false })}
+  data-slider-autoplay={autoplay ? "" : undefined}
+  data-directus={getDirectusEditAttr(editable, ["slides", "fullwidth", "autoplay"], { translated: false })}
 >
   <div
     id={sliderId}
@@ -65,11 +67,18 @@ const editable: DirectusVisualEditable = {
 </section>
 
 <script>
+  const AUTOPLAY_INTERVAL = 4000;
+
   function step(id: string, direction: 1 | -1) {
     const el = document.getElementById(id);
     if (!el) return;
     const slide = el.querySelector<HTMLElement>(".slide");
     const delta = slide ? slide.offsetWidth + 16 : el.clientWidth;
+    // Loop back to the start once we can't advance any further.
+    if (direction === 1 && el.scrollLeft + el.clientWidth >= el.scrollWidth - 1) {
+      el.scrollTo({ left: 0, behavior: "smooth" });
+      return;
+    }
     el.scrollBy({ left: delta * direction, behavior: "smooth" });
   }
   document.querySelectorAll<HTMLButtonElement>("[data-slider-prev]").forEach((btn) => {
@@ -77,5 +86,32 @@ const editable: DirectusVisualEditable = {
   });
   document.querySelectorAll<HTMLButtonElement>("[data-slider-next]").forEach((btn) => {
     btn.addEventListener("click", () => step(btn.dataset.sliderNext!, 1));
+  });
+
+  document.querySelectorAll<HTMLElement>("[data-slider-autoplay]").forEach((section) => {
+    const id = section.dataset.sliderId;
+    if (!id) return;
+    let timer: ReturnType<typeof setInterval> | undefined;
+    const start = () => {
+      if (timer) return;
+      timer = setInterval(() => step(id, 1), AUTOPLAY_INTERVAL);
+    };
+    const stop = () => {
+      clearInterval(timer);
+      timer = undefined;
+    };
+    // Pause while the visitor is interacting, resume when they leave.
+    section.addEventListener("mouseenter", stop);
+    section.addEventListener("mouseleave", start);
+    section.addEventListener("focusin", stop);
+    section.addEventListener("focusout", start);
+    // Don't advance an off-screen slider.
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver((entries) => {
+        for (const entry of entries) entry.isIntersecting ? start() : stop();
+      }).observe(section);
+    } else {
+      start();
+    }
   });
 </script>

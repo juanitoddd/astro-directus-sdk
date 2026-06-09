@@ -2,6 +2,7 @@
 import Block from "@/components/directus/Block.astro";
 import Grid from "@/components/directus/Grid.astro";
 import Hero from "@/components/directus/Hero.astro";
+import Heading from "@/components/directus/Heading.astro";
 import Slider from "@/components/directus/Slider.astro";
 import type { PageSection } from "@/lib/directus/types";
 
@@ -16,4 +17,5 @@ const { section, lang } = Astro.props as Props;
 {section.collection === "block" && <Block block={section.item} lang={lang} />}
 {section.collection === "grid" && <Grid grid={section.item} lang={lang} />}
 {section.collection === "hero" && <Hero hero={section.item} lang={lang} />}
+{section.collection === "heading" && <Heading heading={section.item} lang={lang} />}
 {section.collection === "slider" && <Slider slider={section.item} lang={lang} />}

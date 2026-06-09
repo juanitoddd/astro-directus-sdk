@@ -36,7 +36,7 @@ function resolveMenuUrl(url: string | null | undefined, lang: string): string {
         const href = resolveMenuUrl(item.url, lang);
         return (
           <li>
-            <a href={href} class="hover:underline">{label}</a>
+            <a class="font-regular uppercase" href={href} class="hover:underline">{label}</a>
           </li>
         );
       })}

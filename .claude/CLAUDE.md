@@ -24,6 +24,8 @@ Section types:
 
 - **Slider**: A collection of `block`, `grid` or `hero` .No translations. Just container for other content types: `block`, `grid` and `hero` using the `sort` field as sorting.
 
+- **Heading**: A simple heading or title, comming from the WYSIWYG interface from directus (Based on TinyMCE)
+
 Each of these sections can be translated, and the page can have multiple blocks of each type. When creating or refactoring Astro components to consume this data, consider the following:
 
 ## URL structure
