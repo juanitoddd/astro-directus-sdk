@@ -26,18 +26,26 @@ function renderListItems(items: ListItem[] = [], style: string): string {
 
 <div class={className}>
   {blocks.map((block) => {
-    const data = block.data ?? {};
-    console.log("block ~~~>", block.type);
+    const data = block.data ?? {};    
+    const { alignment } = block.tunes ?? { alignment: { alignment: null }} as { alignment: { alignment: string | null } };
+    // Use full literal class names so Tailwind's source scan can detect and generate them.
+    const ALIGN_CLASS = {
+      left: "text-left",
+      center: "text-center",
+      right: "text-right",
+      justify: "text-justify",
+    } as any;
+    const alignClass = alignment.alignment ? ALIGN_CLASS[alignment.alignment] ?? "" : "";
     switch (block.type) {
       case "paragraph": {
         const text = (data.text as string) ?? "";
-        return <p class="py-2" set:html={text} />;
+        return <p class={`py-2 ${alignClass}`} set:html={text} />;
       }
       case "header": {
         const level = Math.min(Math.max(Number(data.level ?? 2), 1), 6);
         const text = (data.text as string) ?? "";
         const Tag = `h${level}` as "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
-        return <Tag class="font-bold py-1" set:html={text} />;
+        return <Tag class={`font-bold py-1 ${alignClass}`} set:html={text} />;
       }
       case "image": {
         const file = (data.file ?? {}) as { url?: string } & DirectusAsset;
@@ -47,7 +55,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
         const caption = (data.caption as string) ?? "";
         if (!url) return null;
         return (
-          <figure class="my-4">
+          <figure class={`my-4 ${alignClass}`}>
             <img src={url} alt={caption} class="max-w-full h-auto" />
             {caption && <figcaption class="text-sm opacity-70 mt-1" set:html={caption} />}
           </figure>
@@ -63,7 +71,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
         const text = (data.text as string) ?? "";
         const caption = (data.caption as string) ?? "";
         return (
-          <blockquote class="border-l-4 pl-4 my-4 italic">
+          <blockquote class={`border-l-4 pl-4 my-4 italic ${alignClass}`}>
             <p set:html={text} />
             {caption && <cite class="text-sm not-italic opacity-70" set:html={caption} />}
           </blockquote>
@@ -74,7 +82,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
       }
       case "code": {
         const code = (data.code as string) ?? "";
-        return <pre class="my-4 p-3 bg-gray-100 overflow-x-auto"><code>{code}</code></pre>;
+        return <pre class={`my-4 p-3 bg-gray-100 overflow-x-auto ${alignClass}`}><code>{code}</code></pre>;
       }
       case "htmlblock": {
         const html = (data.html as string) ?? "";
