@@ -30,6 +30,10 @@ h2 {
   font-size: 2.5rem;
 }
 
+h3 {
+  font-size: 2rem;
+}
+
 .home-header {
     height: var(--header-height);
 }
