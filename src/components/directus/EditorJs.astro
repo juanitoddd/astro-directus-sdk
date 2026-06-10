@@ -28,6 +28,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
   {blocks.map((block) => {
     const data = block.data ?? {};
     console.log("block ~~~>", block.type);
+    console.log("data ~~~>", block.data);
     switch (block.type) {
       case "paragraph": {
         const text = (data.text as string) ?? "";
