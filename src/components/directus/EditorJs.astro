@@ -27,6 +27,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
 <div class={className}>
   {blocks.map((block) => {
     const data = block.data ?? {};
+    console.log("block ~~~>", block.type);
     switch (block.type) {
       case "paragraph": {
         const text = (data.text as string) ?? "";
@@ -74,6 +75,11 @@ function renderListItems(items: ListItem[] = [], style: string): string {
       case "code": {
         const code = (data.code as string) ?? "";
         return <pre class="my-4 p-3 bg-gray-100 overflow-x-auto"><code>{code}</code></pre>;
+      }
+      case "htmlblock": {
+        const html = (data.html as string) ?? "";
+        if (!html) return null;
+        return <Fragment set:html={html} />;
       }
       default:
         return null;
