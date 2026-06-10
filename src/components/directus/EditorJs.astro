@@ -38,7 +38,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
         const level = Math.min(Math.max(Number(data.level ?? 2), 1), 6);
         const text = (data.text as string) ?? "";
         const Tag = `h${level}` as "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
-        return <Tag class="font-bold py-2" set:html={text} />;
+        return <Tag class="font-bold py-1" set:html={text} />;
       }
       case "image": {
         const file = (data.file ?? {}) as { url?: string } & DirectusAsset;
