@@ -1,5 +1,5 @@
 ---
-import { getDirectusAssetUrl, type DirectusAsset } from "@/lib/directus/assets";
+import BlockRenderer from "@/components/directus/BlockRenderer.astro";
 import type { EditorJsBlock, EditorJsContent } from "@/lib/directus/types";
 
 type Props = {
@@ -9,88 +9,8 @@ type Props = {
 
 const { content, class: className } = Astro.props as Props;
 const blocks: EditorJsBlock[] = content?.blocks ?? [];
-
-type ListItem = { content?: string; items?: ListItem[] };
-
-function renderListItems(items: ListItem[] = [], style: string): string {
-  const tag = style === "ordered" ? "ol" : "ul";
-  const li = items
-    .map((it) => {
-      const inner = it.items && it.items.length > 0 ? renderListItems(it.items, style) : "";
-      return `<li>${it.content ?? ""}${inner}</li>`;
-    })
-    .join("");
-  return `<${tag} class="${style === "ordered" ? "list-decimal" : "list-disc"} ml-6 my-2">${li}</${tag}>`;
-}
 ---
 
 <div class={className}>
-  {blocks.map((block) => {
-    const data = block.data ?? {};    
-    const { alignment } = block.tunes ?? { alignment: { alignment: null }} as { alignment: { alignment: string | null } };
-    // Use full literal class names so Tailwind's source scan can detect and generate them.
-    const ALIGN_CLASS = {
-      left: "text-left",
-      center: "text-center",
-      right: "text-right",
-      justify: "text-justify",
-    } as any;
-    const alignClass = alignment.alignment ? ALIGN_CLASS[alignment.alignment] ?? "" : "";
-    switch (block.type) {
-      case "paragraph": {
-        const text = (data.text as string) ?? "";
-        return <p class={`py-2 ${alignClass}`} set:html={text} />;
-      }
-      case "header": {
-        const level = Math.min(Math.max(Number(data.level ?? 2), 1), 6);
-        const text = (data.text as string) ?? "";
-        const Tag = `h${level}` as "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
-        return <Tag class={`font-bold py-1 ${alignClass}`} set:html={text} />;
-      }
-      case "image": {
-        const file = (data.file ?? {}) as { url?: string } & DirectusAsset;
-        // const url = file.url ?? getDirectusAssetUrl(file as DirectusAsset);
-        const url = getDirectusAssetUrl(file as DirectusAsset);
-        console.log("url", url)
-        const caption = (data.caption as string) ?? "";
-        if (!url) return null;
-        return (
-          <figure class={`my-4 ${alignClass}`}>
-            <img src={url} alt={caption} class="max-w-full h-auto" />
-            {caption && <figcaption class="text-sm opacity-70 mt-1" set:html={caption} />}
-          </figure>
-        );
-      }
-      case "list":
-      case "nestedlist": {
-        const style = (data.style as string) ?? "unordered";
-        const items = (data.items as ListItem[]) ?? [];
-        return <Fragment set:html={renderListItems(items, style)} />;
-      }
-      case "quote": {
-        const text = (data.text as string) ?? "";
-        const caption = (data.caption as string) ?? "";
-        return (
-          <blockquote class={`border-l-4 pl-4 my-4 italic ${alignClass}`}>
-            <p set:html={text} />
-            {caption && <cite class="text-sm not-italic opacity-70" set:html={caption} />}
-          </blockquote>
-        );
-      }
-      case "delimiter": {
-        return <hr class="my-6" />;
-      }
-      case "code": {
-        const code = (data.code as string) ?? "";
-        return <pre class={`my-4 p-3 bg-gray-100 overflow-x-auto ${alignClass}`}><code>{code}</code></pre>;
-      }
-      case "htmlblock": {
-        const html = (data.html as string) ?? "";
-        if (!html) return null;
-        return <Fragment set:html={html} />;
-      }
-      default:
-        return null;
-    }
-  })}
+  {blocks.map((block) => <BlockRenderer block={block} />)}
 </div>

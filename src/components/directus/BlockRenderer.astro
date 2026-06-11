@@ -1,0 +1,117 @@
+---
+import { getDirectusAssetUrl, type DirectusAsset } from "@/lib/directus/assets";
+import type { EditorJsBlock, FlexBlockItem } from "@/lib/directus/types";
+
+type Props = {
+  block: EditorJsBlock;
+};
+
+const { block } = Astro.props as Props;
+const data = block.data ?? {};
+
+// Alignment tune → literal Tailwind classes (full strings so Tailwind's source scan emits them).
+const ALIGN_CLASS: Record<string, string> = {
+  left: "text-left",
+  center: "text-center",
+  right: "text-right",
+  justify: "text-justify",
+};
+const alignment = block.tunes?.alignment?.alignment ?? null;
+const alignClass = alignment ? ALIGN_CLASS[alignment] ?? "" : "";
+
+// Flex tune → inline CSS. The tune values ("row", "space-around", "center"…) are already
+// valid CSS keywords, so they pass straight through — no class map / Tailwind scan needed.
+const flex = block.tunes?.flex;
+const flexStyle = [
+  "display:flex",
+  "flex-wrap:wrap",
+  "gap:1.5rem",
+  `flex-direction:${flex?.direction ?? "row"}`,
+  `justify-content:${flex?.justify ?? "flex-start"}`,
+  `align-items:${flex?.align ?? "stretch"}`,
+].join(";");
+const flexItems = (data.items as FlexBlockItem[]) ?? [];
+
+type ListItem = { content?: string; items?: ListItem[] };
+function renderListItems(items: ListItem[] = [], style: string): string {
+  const tag = style === "ordered" ? "ol" : "ul";
+  const li = items
+    .map((it) => {
+      const inner = it.items && it.items.length > 0 ? renderListItems(it.items, style) : "";
+      return `<li>${it.content ?? ""}${inner}</li>`;
+    })
+    .join("");
+  return `<${tag} class="${style === "ordered" ? "list-decimal" : "list-disc"} ml-6 my-2">${li}</${tag}>`;
+}
+---
+
+{(() => {
+  switch (block.type) {
+    case "paragraph": {
+      const text = (data.text as string) ?? "";
+      return <p class={`py-2 ${alignClass}`} set:html={text} />;
+    }
+    case "header": {
+      const level = Math.min(Math.max(Number(data.level ?? 2), 1), 6);
+      const text = (data.text as string) ?? "";
+      const Tag = `h${level}` as "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+      return <Tag class={`font-bold py-1 ${alignClass}`} set:html={text} />;
+    }
+    case "image": {
+      const file = (data.file ?? {}) as { url?: string } & DirectusAsset;
+      const url = getDirectusAssetUrl(file as DirectusAsset);
+      const caption = (data.caption as string) ?? "";
+      if (!url) return null;
+      return (
+        <figure class={`my-4 ${alignClass}`}>
+          <img src={url} alt={caption} class="max-w-full h-auto" />
+          {caption && <figcaption class="text-sm opacity-70 mt-1" set:html={caption} />}
+        </figure>
+      );
+    }
+    case "list":
+    case "nestedlist": {
+      const style = (data.style as string) ?? "unordered";
+      const items = (data.items as ListItem[]) ?? [];
+      return <Fragment set:html={renderListItems(items, style)} />;
+    }
+    case "quote": {
+      const text = (data.text as string) ?? "";
+      const caption = (data.caption as string) ?? "";
+      return (
+        <blockquote class={`border-l-4 pl-4 my-4 italic ${alignClass}`}>
+          <p set:html={text} />
+          {caption && <cite class="text-sm not-italic opacity-70" set:html={caption} />}
+        </blockquote>
+      );
+    }
+    case "delimiter": {
+      return <hr class="my-6" />;
+    }
+    case "code": {
+      const code = (data.code as string) ?? "";
+      return <pre class={`my-4 p-3 bg-gray-100 overflow-x-auto ${alignClass}`}><code>{code}</code></pre>;
+    }
+    case "htmlblock": {
+      const html = (data.html as string) ?? "";
+      if (!html) return null;
+      return <Fragment set:html={html} />;
+    }
+    case "flexblock": {
+      return (
+        <div class="my-4" style={flexStyle}>
+          {flexItems.map((item) => (
+            <div class="flex-1 flex flex-col items-center justify-center">
+              {/* Each item is its own nested EditorJS document — render its blocks recursively. */}
+              {(item.content?.blocks ?? []).map((nested) => (
+                <Astro.self block={nested} />
+              ))}
+            </div>
+          ))}
+        </div>
+      );
+    }
+    default:
+      return null;
+  }
+})()}
