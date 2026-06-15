@@ -9,12 +9,23 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    }
+  }
+
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-Roboto);
-    /* font-family: var(--font-GTEestiProText); */
-  }    
+    font-family: var(--font-roboto);
+  }
+
+  /* --- Font aliases for CMS-authored inline styles ---
+     The EditorJS font tool emits a bare family name (e.g. `font-family: GTEestiProText`),
+     but Astro's Fonts API only exposes each font through a CSS variable. These rules map
+     the bare names to their variables. Add ONE line per font that is BOTH declared in
+     astro.config.mjs AND rendered via <Font> in Layout.astro — otherwise the var is
+     undefined and the text falls back to the default font. */
+  [style*="GTEestiProText"] { font-family: var(--font-GTEestiProText) !important; }
+  [style*="Playfair"]   { font-family: var(--font-playfair-display) !important; }
+  [style*="Roboto"]     { font-family: var(--font-roboto) !important; }
+  [style*="Montserrat"] { font-family: var(--font-montserrat) !important; }
 }
 
 

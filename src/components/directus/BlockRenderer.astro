@@ -79,7 +79,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
       const level = Math.min(Math.max(Number(data.level ?? 2), 1), 6);
       const text = (data.text as string) ?? "";
       const Tag = `h${level}` as "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
-      return <Tag class={`font-bold py-1 ${alignClass} ${widthClass}`} set:html={text} />;
+      return <Tag class={`${alignClass} ${widthClass}`} set:html={text} />;
     }
     case "image": {
       const file = (data.file ?? {}) as { url?: string } & DirectusAsset;
@@ -87,7 +87,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
       const caption = (data.caption as string) ?? "";
       if (!url) return null;
       return (
-        <figure class={`my-4 ${alignClass} ${widthClass}`}>
+        <figure class={`${alignClass} ${widthClass}`}>
           <img src={url} alt={caption} class="max-w-full h-auto" />
           {caption && <figcaption class="text-sm opacity-70 mt-1" set:html={caption} />}
         </figure>
@@ -114,7 +114,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
     }
     case "code": {
       const code = (data.code as string) ?? "";
-      return <pre class={`my-4 p-3 bg-gray-100 overflow-x-auto ${alignClass} ${widthClass}`}><code>{code}</code></pre>;
+      return <pre class={`bg-gray-100 overflow-x-auto ${alignClass} ${widthClass}`}><code>{code}</code></pre>;
     }
     case "htmlblock": {
       const html = (data.html as string) ?? "";
@@ -123,7 +123,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
     }
     case "flexblock": {
       return (
-        <div class="my-4" style={flexStyle}>
+        <div class="" style={flexStyle}>
           {flexItems.map((item) => (
             <div
               class="flex"
@@ -140,7 +140,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
     }
     case "gridblock": {
       return (
-        <div class="my-4 grid" style={`grid-template-columns: repeat(${gridCols}, minmax(0, 1fr))`}>
+        <div class="grid" style={`grid-template-columns: repeat(${gridCols}, minmax(0, 1fr))`}>
           {gridItems.map((item) => (
             <div>
               {/* Each item is its own nested EditorJS document — render its blocks recursively. */}
