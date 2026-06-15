@@ -82,13 +82,38 @@ function renderListItems(items: ListItem[] = [], style: string): string {
       return <Tag class={`${alignClass} ${widthClass}`} set:html={text} />;
     }
     case "image": {
-      const file = (data.file ?? {}) as { url?: string } & DirectusAsset;
+      const file = (data.file ?? {}) as {
+        url?: string;
+        link?: string;
+        maxWidth?: number | string;
+        maxHeight?: number | string;
+      } & DirectusAsset;
       const url = getDirectusAssetUrl(file as DirectusAsset);
       const caption = (data.caption as string) ?? "";
       if (!url) return null;
+
+      // maxWidth / maxHeight → inline CSS. Numeric values are px; non-empty strings pass through.
+      const dimension = (value: number | string | null | undefined) =>
+        value === undefined || value === null || value === ""
+          ? null
+          : typeof value === "number" ? `${value}px` : value;
+      const imgStyle = [
+        ["max-width", dimension(file.maxWidth)],
+        ["max-height", dimension(file.maxHeight)],
+      ]
+        .filter(([, v]) => v)
+        .map(([prop, v]) => `${prop}:${v}`)
+        .join(";");
+
       return (
         <figure class={`${alignClass} ${widthClass}`}>
-          <img src={url} alt={caption} class="max-w-full h-auto" />
+          {file.link ? (
+            <a href={file.link} target="_blank" rel="noopener noreferrer">
+              <img src={url} alt={caption} class="max-w-full h-auto" style={imgStyle || undefined} />
+            </a>
+          ) : (
+            <img src={url} alt={caption} class="max-w-full h-auto" style={imgStyle || undefined} />
+          )}
           {caption && <figcaption class="text-sm opacity-70 mt-1" set:html={caption} />}
         </figure>
       );
