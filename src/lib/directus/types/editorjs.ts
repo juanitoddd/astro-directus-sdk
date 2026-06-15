@@ -9,7 +9,7 @@ export type EditorJsFlexTune = {
 };
 
 export type EditorJsGridTune = {  
-  align?: string;
+  alignItems?: string;
 };
 
 export type EditorJsSpacingSides = {
