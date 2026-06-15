@@ -73,7 +73,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
   switch (block.type) {
     case "paragraph": {
       const text = (data.text as string) ?? "";
-      return <p class={`py-2 ${alignClass} ${widthClass}`} set:html={text} />;
+      return <p class={`${alignClass} ${widthClass}`} set:html={text} />;
     }
     case "header": {
       const level = Math.min(Math.max(Number(data.level ?? 2), 1), 6);
