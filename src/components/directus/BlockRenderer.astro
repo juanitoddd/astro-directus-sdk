@@ -37,7 +37,6 @@ const flexItems = (data.items as FlexBlockItem[]) ?? [];
 const gridCols = data.columns ?? 2;
 const gridItems = (data.items as GridBlockItem[]) ?? [];
 const grid = block.tunes?.grid;
-console.log("grid ~~~>", grid)
 const gridStyle = [  
   `align-items:${grid?.alignItems ?? "stretch"}`,
   `grid-template-columns: repeat(${gridCols}, minmax(0, 1fr))`
