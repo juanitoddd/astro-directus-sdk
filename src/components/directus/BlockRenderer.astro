@@ -1,6 +1,6 @@
 ---
 import { getDirectusAssetUrl, type DirectusAsset } from "@/lib/directus/assets";
-import type { EditorJsBlock, FlexBlockItem } from "@/lib/directus/types";
+import type { EditorJsBlock, FlexBlockItem, GridBlockItem } from "@/lib/directus/types";
 
 type Props = {
   block: EditorJsBlock;
@@ -18,6 +18,7 @@ const ALIGN_CLASS: Record<string, string> = {
 };
 const alignment = block.tunes?.alignment?.alignment ?? null;
 const alignClass = alignment ? ALIGN_CLASS[alignment] ?? "" : "";
+const widthClass = alignClass !== 'text-left' ? 'w-full' : '';
 
 // Flex tune → inline CSS. The tune values ("row", "space-around", "center"…) are already
 // valid CSS keywords, so they pass straight through — no class map / Tailwind scan needed.
@@ -31,6 +32,10 @@ const flexStyle = [
   `align-items:${flex?.align ?? "stretch"}`,
 ].join(";");
 const flexItems = (data.items as FlexBlockItem[]) ?? [];
+
+// Grid block
+const gridCols = data.columns ?? 2;
+const gridItems = (data.items as GridBlockItem[]) ?? [];
 
 type ListItem = { content?: string; items?: ListItem[] };
 function renderListItems(items: ListItem[] = [], style: string): string {
@@ -49,13 +54,13 @@ function renderListItems(items: ListItem[] = [], style: string): string {
   switch (block.type) {
     case "paragraph": {
       const text = (data.text as string) ?? "";
-      return <p class={`py-2 ${alignClass}`} set:html={text} />;
+      return <p class={`py-2 ${alignClass} ${widthClass}`} set:html={text} />;
     }
     case "header": {
       const level = Math.min(Math.max(Number(data.level ?? 2), 1), 6);
       const text = (data.text as string) ?? "";
       const Tag = `h${level}` as "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
-      return <Tag class={`font-bold py-1 ${alignClass}`} set:html={text} />;
+      return <Tag class={`font-bold py-1 ${alignClass} ${widthClass}`} set:html={text} />;
     }
     case "image": {
       const file = (data.file ?? {}) as { url?: string } & DirectusAsset;
@@ -63,7 +68,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
       const caption = (data.caption as string) ?? "";
       if (!url) return null;
       return (
-        <figure class={`my-4 ${alignClass}`}>
+        <figure class={`my-4 ${alignClass} ${widthClass}`}>
           <img src={url} alt={caption} class="max-w-full h-auto" />
           {caption && <figcaption class="text-sm opacity-70 mt-1" set:html={caption} />}
         </figure>
@@ -79,7 +84,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
       const text = (data.text as string) ?? "";
       const caption = (data.caption as string) ?? "";
       return (
-        <blockquote class={`border-l-4 pl-4 my-4 italic ${alignClass}`}>
+        <blockquote class={`border-l-4 pl-4 my-4 italic ${alignClass} ${widthClass}`}>
           <p set:html={text} />
           {caption && <cite class="text-sm not-italic opacity-70" set:html={caption} />}
         </blockquote>
@@ -90,7 +95,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
     }
     case "code": {
       const code = (data.code as string) ?? "";
-      return <pre class={`my-4 p-3 bg-gray-100 overflow-x-auto ${alignClass}`}><code>{code}</code></pre>;
+      return <pre class={`my-4 p-3 bg-gray-100 overflow-x-auto ${alignClass} ${widthClass}`}><code>{code}</code></pre>;
     }
     case "htmlblock": {
       const html = (data.html as string) ?? "";
@@ -101,7 +106,24 @@ function renderListItems(items: ListItem[] = [], style: string): string {
       return (
         <div class="my-4" style={flexStyle}>
           {flexItems.map((item) => (
-            <div class="flex-1 flex flex-col items-center justify-center">
+            <div
+              class="flex"
+              style={`flex-grow:${item.grow ? 1 : 0}`}
+            >
+              {/* Each item is its own nested EditorJS document — render its blocks recursively. */}
+              {(item.content?.blocks ?? []).map((nested) => (
+                <Astro.self block={nested} />
+              ))}
+            </div>
+          ))}
+        </div>
+      );
+    }
+    case "gridblock": {
+      return (
+        <div class="my-4 grid" style={`grid-template-columns: repeat(${gridCols}, minmax(0, 1fr))`}>
+          {gridItems.map((item) => (
+            <div>
               {/* Each item is its own nested EditorJS document — render its blocks recursively. */}
               {(item.content?.blocks ?? []).map((nested) => (
                 <Astro.self block={nested} />

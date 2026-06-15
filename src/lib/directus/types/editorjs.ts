@@ -30,5 +30,11 @@ export type EditorJsContent = {
 // A single cell of a `flexblock` — holds its own nested EditorJS document.
 export type FlexBlockItem = {
   id?: string;
+  grow?: boolean | null;
+  content?: EditorJsContent | null;
+};
+
+export type GridBlockItem = {
+  id?: string;  
   content?: EditorJsContent | null;
 };
