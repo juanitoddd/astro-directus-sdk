@@ -1,6 +1,6 @@
 ---
 import { getDirectusAssetUrl, type DirectusAsset } from "@/lib/directus/assets";
-import type { EditorJsBlock, FlexBlockItem, GridBlockItem } from "@/lib/directus/types";
+import type { EditorJsBlock, EditorJsSpacingSides, FlexBlockItem, GridBlockItem } from "@/lib/directus/types";
 
 type Props = {
   block: EditorJsBlock;
@@ -37,6 +37,24 @@ const flexItems = (data.items as FlexBlockItem[]) ?? [];
 const gridCols = data.columns ?? 2;
 const gridItems = (data.items as GridBlockItem[]) ?? [];
 
+// Spacing tune → inline CSS on a wrapper container. Numeric values are treated as px;
+// string values (e.g. "1rem") pass through unchanged. Only defined sides are emitted.
+function spacingRules(prop: "padding" | "margin", sides?: EditorJsSpacingSides): string[] {
+  if (!sides) return [];
+  return (["top", "right", "bottom", "left"] as const)
+    .map((side) => {
+      const value = sides[side];
+      if (value === undefined || value === null || value === "") return null;
+      return `${prop}-${side}:${typeof value === "number" ? `${value}px` : value}`;
+    })
+    .filter(Boolean) as string[];
+}
+const spacing = block.tunes?.spacing;
+const spacingStyle = [
+  ...spacingRules("padding", spacing?.padding),
+  ...spacingRules("margin", spacing?.margin),
+].join(";");
+
 type ListItem = { content?: string; items?: ListItem[] };
 function renderListItems(items: ListItem[] = [], style: string): string {
   const tag = style === "ordered" ? "ol" : "ul";
@@ -51,6 +69,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
 ---
 
 {(() => {
+  const rendered = (() => {
   switch (block.type) {
     case "paragraph": {
       const text = (data.text as string) ?? "";
@@ -136,4 +155,6 @@ function renderListItems(items: ListItem[] = [], style: string): string {
     default:
       return null;
   }
+  })();
+  return spacingStyle ? <div style={spacingStyle}>{rendered}</div> : rendered;
 })()}

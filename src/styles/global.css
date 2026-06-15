@@ -12,7 +12,8 @@
     }
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-GTEestiProText);
+    font-family: var(--font-Roboto);
+    /* font-family: var(--font-GTEestiProText); */
   }    
 }
 

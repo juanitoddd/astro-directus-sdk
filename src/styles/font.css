@@ -2,12 +2,12 @@
     .font-gteesti-pro-text {
         font-family: var(--font-GTEestiProText);
     }
+    .font-roboto {
+        font-family: var(--font-roboto);
+    }
     /*
     .font-montserrat {
         font-family: var(--font-montserrat);
-    }
-    .font-roboto {
-        font-family: var(--font-roboto);
     }
     .font-playfair {
         font-family: var(--font-playfair-display);

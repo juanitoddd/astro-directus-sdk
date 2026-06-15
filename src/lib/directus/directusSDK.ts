@@ -2,8 +2,6 @@ import { createDirectus, rest, staticToken } from '@directus/sdk';
 import type {
   Block,
   BlockTranslation,
-  Grid,
-  GridTranslation,
   Hero,
   HeroTranslation,
   Menu,
@@ -21,9 +19,7 @@ export type Schema = {
   pages: Page[];
   page_sections: PageSection[];
   block: Block[];
-  block_translations: BlockTranslation[];
-  grid: Grid[];
-  grid_translations: GridTranslation[];
+  block_translations: BlockTranslation[];  
   hero: Hero[];
   hero_translations: HeroTranslation[];
   slider: Slider[];

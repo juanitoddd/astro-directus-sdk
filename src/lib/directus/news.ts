@@ -18,8 +18,7 @@ const newsQueryFields = [
   'sections.id',
   'sections.sort',
   'sections.collection',
-  ...sectionsItemFields.block.map((f) => `sections.item:block.${f}`),
-  ...sectionsItemFields.grid.map((f) => `sections.item:grid.${f}`),
+  ...sectionsItemFields.block.map((f) => `sections.item:block.${f}`),  
   ...sectionsItemFields.hero.map((f) => `sections.item:hero.${f}`),
   ...sectionsItemFields.slider.map((f) => `sections.item:slider.${f}`),
 ];

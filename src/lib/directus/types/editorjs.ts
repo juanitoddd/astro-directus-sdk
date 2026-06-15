@@ -8,9 +8,22 @@ export type EditorJsFlexTune = {
   align?: string;
 };
 
+export type EditorJsSpacingSides = {
+  top?: number | string | null;
+  right?: number | string | null;
+  bottom?: number | string | null;
+  left?: number | string | null;
+};
+
+export type EditorJsSpacingTune = {
+  padding?: EditorJsSpacingSides;
+  margin?: EditorJsSpacingSides;
+};
+
 export type EditorJsBlockTunes = {
   alignment?: EditorJsAlignmentTune;
   flex?: EditorJsFlexTune;
+  spacing?: EditorJsSpacingTune;
   [key: string]: unknown;
 };
 
