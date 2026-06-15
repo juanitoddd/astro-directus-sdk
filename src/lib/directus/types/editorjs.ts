@@ -8,6 +8,10 @@ export type EditorJsFlexTune = {
   align?: string;
 };
 
+export type EditorJsGridTune = {  
+  align?: string;
+};
+
 export type EditorJsSpacingSides = {
   top?: number | string | null;
   right?: number | string | null;
@@ -23,6 +27,7 @@ export type EditorJsSpacingTune = {
 export type EditorJsBlockTunes = {
   alignment?: EditorJsAlignmentTune;
   flex?: EditorJsFlexTune;
+  grid?: EditorJsGridTune;
   spacing?: EditorJsSpacingTune;
   [key: string]: unknown;
 };

@@ -36,6 +36,11 @@ const flexItems = (data.items as FlexBlockItem[]) ?? [];
 // Grid block
 const gridCols = data.columns ?? 2;
 const gridItems = (data.items as GridBlockItem[]) ?? [];
+const grid = block.tunes?.grid;
+const gridStyle = [  
+  `align-items:${grid?.align ?? "stretch"}`,
+  `grid-template-columns: repeat(${gridCols}, minmax(0, 1fr))`
+].join(";");
 
 // Spacing tune → inline CSS on a wrapper container. Numeric values are treated as px;
 // string values (e.g. "1rem") pass through unchanged. Only defined sides are emitted.
@@ -69,6 +74,9 @@ function renderListItems(items: ListItem[] = [], style: string): string {
 ---
 
 {(() => {
+  if(block.type === 'gridblock') {
+    console.log();
+  }
   const rendered = (() => {
   switch (block.type) {
     case "paragraph": {
@@ -165,7 +173,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
     }
     case "gridblock": {
       return (
-        <div class="grid" style={`grid-template-columns: repeat(${gridCols}, minmax(0, 1fr))`}>
+        <div class="grid" style={gridStyle}>
           {gridItems.map((item) => (
             <div>
               {/* Each item is its own nested EditorJS document — render its blocks recursively. */}
