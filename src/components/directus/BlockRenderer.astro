@@ -96,7 +96,15 @@ function renderListItems(items: ListItem[] = [], style: string): string {
         maxWidth?: number | string;
         maxHeight?: number | string;
       } & DirectusAsset;
-      const url = getDirectusAssetUrl(file as DirectusAsset);
+      // maxWidth / maxHeight → Directus transform params (width / height), only when numeric.
+      const toPixels = (value: number | string | null | undefined) => {
+        const n = typeof value === "number" ? value : parseInt(String(value ?? ""), 10);
+        return Number.isFinite(n) && n > 0 ? n : undefined;
+      };
+      const url = getDirectusAssetUrl(file as DirectusAsset, {
+        width: toPixels(file.maxWidth),
+        height: toPixels(file.maxHeight),
+      });
       const caption = (data.caption as string) ?? "";
       if (!url) return null;
 
