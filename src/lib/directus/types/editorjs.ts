@@ -6,10 +6,12 @@ export type EditorJsFlexTune = {
   direction?: string;
   justify?: string;
   align?: string;
+  gap?: string;
 };
 
 export type EditorJsGridTune = {  
   alignItems?: string;
+  gap?: string;
 };
 
 export type EditorJsSpacingSides = {

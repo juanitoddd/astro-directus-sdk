@@ -26,7 +26,7 @@ const flex = block.tunes?.flex;
 const flexStyle = [
   "display:flex",
   "flex-wrap:wrap",
-  "gap:1.5rem",
+  `gap:${flex?.gap ?? "0.75rem"}`,
   `flex-direction:${flex?.direction ?? "row"}`,
   `justify-content:${flex?.justify ?? "flex-start"}`,
   `align-items:${flex?.align ?? "stretch"}`,
@@ -37,7 +37,8 @@ const flexItems = (data.items as FlexBlockItem[]) ?? [];
 const gridCols = data.columns ?? 2;
 const gridItems = (data.items as GridBlockItem[]) ?? [];
 const grid = block.tunes?.grid;
-const gridStyle = [  
+const gridStyle = [
+  `gap:${grid?.gap ?? "0.75rem"}`,
   `align-items:${grid?.alignItems ?? "stretch"}`,
   `grid-template-columns: repeat(${gridCols}, minmax(0, 1fr))`
 ].join(";");
