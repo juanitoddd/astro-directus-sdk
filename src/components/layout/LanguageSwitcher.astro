@@ -12,7 +12,7 @@ const langs = languagePrefixes as readonly Lang[];
 ---
 
 <div class={className} role="group" aria-label="Language">
-  <ul class="flex gap-2 items-center text-sm">
+  <ul class="flex gap-2 justify-end items-center text-sm">
     {langs.map((lang) => {
       const isActive = lang === current;
       const href = switchLang(Astro.url, lang);

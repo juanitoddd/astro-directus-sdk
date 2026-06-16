@@ -78,7 +78,7 @@ const currentLang = getLangFromUrl(Astro.url);
 	</script>
 	</head>
 	<body class="overflow-x-hidden">
-		<header class="flex items-center justify-between px-6 py-4">
+		<header class="grid grid-cols-3 items-center px-6 py-4">
 			<Menu slug={menuSlug} lang={currentLang} />
 			<a href="/" class="text-lg font-bold text-center uppercase font-light">Gustav Mahler <br/> JUGENDORCHESTER</a>
 			<LanguageSwitcher />
