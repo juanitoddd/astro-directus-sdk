@@ -49,6 +49,34 @@ h4 {
   font-size: 1.5rem;
 }
 
+.editorjs-button {
+  cursor: pointer;
+  transition: background-color 0.15s ease;   /* optional, for a smooth hover */
+  background-color: #f0f4f9;
+}
+
+.editorjs-button:hover {
+  background-color: var(--btn-hover-bg);
+}
+
+.editorjs-button.small {
+  padding: 0.25rem 0.6rem;
+  font-size: 0.85rem;
+  border-radius: 0.25rem;
+}
+
+.editorjs-button.medium {
+  padding: 0.5rem 1.1rem;
+  font-size: 1rem;
+  border-radius: 0.375rem;
+}
+
+.editorjs-button.large {
+  padding: 0.75rem 1.6rem;
+  font-size: 1.2rem;
+  border-radius: 0.5rem;
+}
+
 .home-header {
     height: var(--header-height);
 }

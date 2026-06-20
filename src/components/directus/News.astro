@@ -55,7 +55,7 @@ const editable: DirectusVisualEditable = {
     {/*news.name && (
       <h2 class="text-2xl font-bold mb-2 group-hover:underline">{news.name}</h2>
     )*/}
-    <EditorJs content={translation?.preview} />
+    <EditorJs content={translation?.preview} lang={lang} />
   </div>
 
   {href && (

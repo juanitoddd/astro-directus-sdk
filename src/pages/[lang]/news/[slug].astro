@@ -42,7 +42,7 @@ const imageAlt = getDirectusAssetAlt(news.image);
     {imageSrc && (
       <img src={imageSrc} alt={imageAlt} class="w-full h-auto mb-6" loading="eager" />
     )}
-    <EditorJs content={translation?.preview} />
+    <EditorJs content={translation?.preview} lang={lang} />
     {sections.map((section) => <SectionRenderer section={section} lang={lang} />)}
   </article>
 </Layout>

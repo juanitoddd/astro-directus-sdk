@@ -1,12 +1,15 @@
 ---
 import { getDirectusAssetUrl, type DirectusAsset } from "@/lib/directus/assets";
-import type { EditorJsBlock, EditorJsSpacingSides, FlexBlockItem, GridBlockItem } from "@/lib/directus/types";
+import Reference from "@/components/directus/Reference.astro";
+import type { EditorJsBlock, EditorJsSpacingSides, FlexBlockItem, GridBlockItem, ReferenceData } from "@/lib/directus/types";
 
 type Props = {
   block: EditorJsBlock;
+  lang?: string;
+  depth?: number;
 };
 
-const { block } = Astro.props as Props;
+const { block, lang, depth = 0 } = Astro.props as Props;
 const data = block.data ?? {};
 
 // Alignment tune → literal Tailwind classes (full strings so Tailwind's source scan emits them).
@@ -164,6 +167,28 @@ function renderListItems(items: ListItem[] = [], style: string): string {
       if (!html) return null;
       return <Fragment set:html={html} />;
     }
+    case "button": {      
+      const text = (data.text as string) ?? "";
+      const target = (data.target as string) ?? "";
+      const href = (data.href as string) ?? ""
+      const size = (data.size as string) ?? "medium"
+      // Styles
+      const color = (data.color as string) ?? "#000"
+      const background = (data.background as string) ?? "#f0f4f9"
+      // const hoverBackground = (data.hoverBackground as string) ?? "#fff"
+      const borderColor = data.borderColor
+      const btnStyles = [
+        `color:${color}`,
+        `background:${background}`,                
+      ]
+      if(borderColor) {
+        btnStyles.push(`border: 1px solid ${borderColor}`)
+      }
+      const btnStyle = btnStyles.join(";");
+      return (
+        <a class={`editorjs-button ${size} ${alignClass}`} href={href} target={target} style={btnStyle} set:html={text}></a>
+      )
+    }
     case "flexblock": {
       return (
         <div class="" style={flexStyle}>
@@ -174,7 +199,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
             >
               {/* Each item is its own nested EditorJS document — render its blocks recursively. */}
               {(item.content?.blocks ?? []).map((nested) => (
-                <Astro.self block={nested} />
+                <Astro.self block={nested} lang={lang} depth={depth} />
               ))}
             </div>
           ))}
@@ -188,14 +213,27 @@ function renderListItems(items: ListItem[] = [], style: string): string {
             <div>
               {/* Each item is its own nested EditorJS document — render its blocks recursively. */}
               {(item.content?.blocks ?? []).map((nested) => (
-                <Astro.self block={nested} />
+                <Astro.self block={nested} lang={lang} depth={depth} />
               ))}
             </div>
           ))}
         </div>
       );
     }
+    case "reference": {
+      const ref = data as ReferenceData;
+      return (
+        <Reference
+          collection={ref.collection}
+          template={ref.template}
+          itemId={ref.itemId}
+          lang={lang}
+          depth={depth}
+        />
+      );
+    }
     default:
+      console.log("block", block);
       return null;
   }
   })();

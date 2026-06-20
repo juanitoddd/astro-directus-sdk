@@ -1,0 +1,56 @@
+---
+import EditorJs from "@/components/directus/EditorJs.astro";
+import directus from "@/lib/directus/directusSDK";
+import { readItems } from "@directus/sdk";
+import { interpolateTemplate } from "@/lib/directus/template-interpolation";
+import type { DisplayTemplate, EditorJsContent } from "@/lib/directus/types";
+
+type Props = {
+  collection?: string;
+  template?: string;
+  itemId?: number | string;
+  lang?: string;
+  depth?: number;
+};
+
+// Guard against a template that references itself (directly or via a chain).
+const MAX_DEPTH = 3;
+const { collection, template, itemId, lang = "en", depth = 0 } = Astro.props as Props;
+
+let resolved: EditorJsContent | null = null;
+
+if (directus && collection && template && itemId != null && depth < MAX_DEPTH) {
+  try {
+    // 1. Find the display template by collection + name; its `template` field is the EditorJS body.
+    const templates = await directus.request(
+      // @ts-expect-error — `display_templates` isn't in the typed SDK schema
+      readItems("display_templates", {
+        filter: { collection: { _eq: collection }, name: { _eq: template } },
+        fields: ["template"],
+        limit: 1,
+      }),
+    );
+    const body = (templates as DisplayTemplate[])[0]?.template;
+
+    if (body) {
+      // 2. Fetch the referenced item (scalar fields + translations).
+      const items = await directus.request(
+        // @ts-expect-error — dynamic collection isn't in the typed SDK schema
+        readItems(collection, {
+          filter: { id: { _eq: itemId } },
+          fields: ["*", "translations.*"],
+          limit: 1,
+        }),
+      );
+      const item = (items as unknown[])[0];
+
+      // 3. Interpolate the template body with the item's data.
+      if (item) resolved = interpolateTemplate(body, item, lang);
+    }
+  } catch (error) {
+    console.error("[reference] failed to resolve", { collection, template, itemId }, error);
+  }
+}
+---
+
+{resolved && <EditorJs content={resolved} lang={lang} depth={depth + 1} />}

@@ -55,6 +55,23 @@ export type FlexBlockItem = {
 };
 
 export type GridBlockItem = {
-  id?: string;  
+  id?: string;
   content?: EditorJsContent | null;
+};
+
+// `reference` block — points at an item of `collection`, rendered through a
+// `display_templates` row whose `name` matches `template`.
+export type ReferenceData = {
+  collection?: string;
+  template?: string;
+  itemId?: number | string;
+};
+
+// A row of the `display_templates` collection. `template` holds the EditorJS body
+// (with `{{path}}` placeholders); matched by `collection` + `name`.
+export type DisplayTemplate = {
+  id?: number | string;
+  collection?: string;
+  name?: string;
+  template?: EditorJsContent | null;
 };
