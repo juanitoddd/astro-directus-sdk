@@ -221,6 +221,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
       );
     }
     case "reference": {
+      console.log("reference ~~>", block);
       const ref = data as ReferenceData;
       return (
         <Reference

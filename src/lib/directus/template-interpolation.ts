@@ -1,3 +1,4 @@
+import { getDirectusAssetUrl } from "./assets";
 import { pickTranslation } from "./types";
 import type { EditorJsContent } from "./types";
 
@@ -21,14 +22,119 @@ function resolvePath(item: unknown, path: string, lang: string): unknown {
   return current;
 }
 
+// ---------------------------------------------------------------------------
+// Image tokens: {{image:<sourceField>, alt=<value>, link=<value>, maxWidth=…, maxHeight=…}}
+// `image:` prefix marks an image. The first arg is the source file field (resolved from the
+// item). Attributes are comma-separated key=value pairs where a quoted value is a literal and
+// an unquoted value is a field reference resolved from the item.
+// ---------------------------------------------------------------------------
+
+/** Split on top-level commas, ignoring commas inside quotes. */
+function splitArgs(input: string): string[] {
+  const args: string[] = [];
+  let current = "";
+  let quote: string | null = null;
+  for (const ch of input) {
+    if (quote) {
+      current += ch;
+      if (ch === quote) quote = null;
+    } else if (ch === "'" || ch === '"') {
+      quote = ch;
+      current += ch;
+    } else if (ch === ",") {
+      args.push(current);
+      current = "";
+    } else {
+      current += ch;
+    }
+  }
+  if (current.trim() !== "") args.push(current);
+  return args.map((a) => a.trim());
+}
+
+function isQuoted(value: string): boolean {
+  return (
+    value.length >= 2 &&
+    ((value[0] === "'" && value.endsWith("'")) || (value[0] === '"' && value.endsWith('"')))
+  );
+}
+
+/** Quoted → literal string; unquoted → field reference resolved from the item. */
+function resolveValue(raw: string, item: unknown, lang: string): unknown {
+  if (isQuoted(raw)) return raw.slice(1, -1);
+  return resolvePath(item, raw, lang);
+}
+
+function escapeAttr(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function toPixels(value: unknown): number | undefined {
+  const n = typeof value === "number" ? value : parseInt(String(value ?? ""), 10);
+  return Number.isFinite(n) && n > 0 ? n : undefined;
+}
+
+function dimensionCss(value: unknown): string | null {
+  if (value === undefined || value === null || value === "") return null;
+  return typeof value === "number" ? `${value}px` : String(value);
+}
+
+/** Build the `<img>` (optionally linked) HTML for an `image:` token's body. */
+function renderImageToken(spec: string, item: unknown, lang: string): string {
+  const args = splitArgs(spec);
+  if (args.length === 0) return "";
+
+  // First arg = source file field (a reference unless explicitly quoted as a literal id/url).
+  const source = resolveValue(args[0], item, lang);
+  if (source === undefined || source === null || source === "") return "";
+
+  const attrs: Record<string, unknown> = {};
+  for (let i = 1; i < args.length; i++) {
+    const eq = args[i].indexOf("=");
+    if (eq === -1) continue;
+    const key = args[i].slice(0, eq).trim();
+    attrs[key] = resolveValue(args[i].slice(eq + 1).trim(), item, lang);
+  }
+
+  // maxWidth / maxHeight drive both the Directus transform (smaller source) and the CSS cap.
+  const url = getDirectusAssetUrl(source as any, {
+    width: toPixels(attrs.maxWidth),
+    height: toPixels(attrs.maxHeight),
+  });
+  if (!url) return "";
+
+  const alt = attrs.alt != null ? String(attrs.alt) : "";
+  const link = attrs.link != null && attrs.link !== "" ? String(attrs.link) : "";
+
+  const styleParts: string[] = [];
+  const mw = dimensionCss(attrs.maxWidth);
+  const mh = dimensionCss(attrs.maxHeight);
+  if (mw) styleParts.push(`max-width:${mw}`);
+  if (mh) styleParts.push(`max-height:${mh}`);
+  const styleAttr = styleParts.length ? ` style="${escapeAttr(styleParts.join(";"))}"` : "";
+
+  const img = `<img src="${escapeAttr(url)}" alt="${escapeAttr(alt)}" class="max-w-full h-auto"${styleAttr} />`;
+  return link
+    ? `<a href="${escapeAttr(link)}" target="_blank" rel="noopener noreferrer">${img}</a>`
+    : img;
+}
+
 const TOKEN = /\{\{\s*([^}]+?)\s*\}\}/g;
 
-/** Replace every `{{path}}` token in a string with the resolved scalar value (missing → ""). */
+/** Replace every `{{…}}` token in a string. Scalars inline as text; `image:` tokens become `<img>`. */
 function interpolateString(value: string, item: unknown, lang: string): string {
-  return value.replace(TOKEN, (_match, path) => {
-    const resolved = resolvePath(item, String(path), lang);
+  return value.replace(TOKEN, (_match, raw) => {
+    const token = String(raw).trim();
+    if (token.startsWith("image:")) {
+      return renderImageToken(token.slice("image:".length).trim(), item, lang);
+    }
+    const resolved = resolvePath(item, token, lang);
     if (resolved === undefined || resolved === null) return "";
-    // v1: only scalar values are inlined. Relations/objects (e.g. images) are handled later.
+    // Non-image objects (other relations) aren't inlined.
     if (typeof resolved === "object") return "";
     return String(resolved);
   });
