@@ -1,7 +1,9 @@
 ---
 import { getDirectusAssetUrl, type DirectusAsset } from "@/lib/directus/assets";
+import { buildContainerStyle } from "@/lib/directus/container-style";
 import Reference from "@/components/directus/Reference.astro";
-import type { EditorJsBlock, EditorJsSpacingSides, FlexBlockItem, GridBlockItem, ReferenceData } from "@/lib/directus/types";
+import Collection from "@/components/directus/Collection.astro";
+import type { CollectionData, EditorJsBlock, EditorJsSpacingSides, FlexBlockItem, GridBlockItem, ReferenceData } from "@/lib/directus/types";
 
 type Props = {
   block: EditorJsBlock;
@@ -26,26 +28,25 @@ const widthClass = alignClass !== 'text-left' ? 'w-full' : '';
 // Flex tune → inline CSS. The tune values ("row", "space-around", "center"…) are already
 // valid CSS keywords, so they pass straight through — no class map / Tailwind scan needed.
 const flex = block.tunes?.flex;
-const flexStyle = [
-  "display:flex",
-  "flex-wrap:wrap",
-  `gap:${flex?.gap ?? "0.75rem"}`,
-  `flex-direction:${flex?.direction ?? "row"}`,
-  `justify-content:${flex?.justify ?? "flex-start"}`,
-  `align-items:${flex?.align ?? "stretch"}`,
-].join(";");
+const flexStyle = buildContainerStyle({
+  type: "flex",
+  direction: flex?.direction,
+  justify: flex?.justify,
+  align: flex?.align,
+  gap: flex?.gap,
+});
 const flexItems = (data.items as FlexBlockItem[]) ?? [];
 
 // Grid block
-const gridCols = data.columns ?? 2;
-const gridTemplate = data.columnTemplate ? data.columnTemplate : `repeat(${gridCols}, minmax(0, 1fr))`;
 const gridItems = (data.items as GridBlockItem[]) ?? [];
 const grid = block.tunes?.grid;
-const gridStyle = [
-  `gap:${grid?.gap ?? "0.75rem"}`,
-  `align-items:${grid?.alignItems ?? "stretch"}`,
-  `grid-template-columns: ${gridTemplate}`
-].join(";");
+const gridStyle = buildContainerStyle({
+  type: "grid",
+  alignItems: grid?.alignItems,
+  gap: grid?.gap,
+  columns: data.columns as number | string | undefined,
+  columnTemplate: data.columnTemplate as string | undefined,
+});
 
 // Spacing tune → inline CSS on a wrapper container. Numeric values are treated as px;
 // string values (e.g. "1rem") pass through unchanged. Only defined sides are emitted.
@@ -64,6 +65,18 @@ const spacingStyle = [
   ...spacingRules("padding", spacing?.padding),
   ...spacingRules("margin", spacing?.margin),
 ].join(";");
+
+// Style tune → inline CSS on the block container. All fields optional; only set ones are emitted.
+const style = block.tunes?.style;
+const styleRules: string[] = [];
+if (style?.background) styleRules.push(`background-color:${style.background}`);
+if (style?.border) styleRules.push(`border:${style.border}`);
+if (style?.borderRadius != null && style.borderRadius !== "") {
+  styleRules.push(`border-radius:${typeof style.borderRadius === "number" ? `${style.borderRadius}px` : style.borderRadius}`);
+}
+
+// Combined container style — spacing + style tune. Wrapper is rendered only when non-empty.
+const wrapperStyle = [spacingStyle, styleRules.join(";")].filter(Boolean).join(";");
 
 type ListItem = { content?: string; items?: ListItem[] };
 function renderListItems(items: ListItem[] = [], style: string): string {
@@ -206,7 +219,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
         </div>
       );
     }
-    case "gridblock": {
+    case "gridblock": {      
       return (
         <div class="grid" style={gridStyle}>
           {gridItems.map((item) => (
@@ -221,7 +234,6 @@ function renderListItems(items: ListItem[] = [], style: string): string {
       );
     }
     case "reference": {
-      console.log("reference ~~>", block);
       const ref = data as ReferenceData;
       return (
         <Reference
@@ -233,10 +245,13 @@ function renderListItems(items: ListItem[] = [], style: string): string {
         />
       );
     }
+    case "collectionblock": {
+      return <Collection data={data as CollectionData} lang={lang} depth={depth} />;
+    }
     default:
       console.log("block", block);
       return null;
   }
   })();
-  return spacingStyle ? <div style={spacingStyle}>{rendered}</div> : rendered;
+  return wrapperStyle ? <div style={wrapperStyle}>{rendered}</div> : rendered;
 })()}

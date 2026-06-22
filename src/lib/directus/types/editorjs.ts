@@ -26,11 +26,18 @@ export type EditorJsSpacingTune = {
   margin?: EditorJsSpacingSides;
 };
 
+export type EditorJsStyleTune = {
+  background?: string | null;
+  border?: string | null;
+  borderRadius?: number | string | null;
+};
+
 export type EditorJsBlockTunes = {
   alignment?: EditorJsAlignmentTune;
   flex?: EditorJsFlexTune;
   grid?: EditorJsGridTune;
   spacing?: EditorJsSpacingTune;
+  style?: EditorJsStyleTune;
   [key: string]: unknown;
 };
 
@@ -74,4 +81,37 @@ export type DisplayTemplate = {
   collection?: string;
   name?: string;
   template?: EditorJsContent | null;
+};
+
+// `collection` block — like `reference` but renders many items through a display template,
+// laid out by a container (block / flex / grid).
+export type CollectionFilter = {
+  field: string;
+  operator: string; // e.g. "eq", "gt", "contains" (mapped to Directus "_eq", "_gt", …)
+  value: unknown;
+};
+
+export type CollectionSort = {
+  field: string;
+  desc?: boolean;
+};
+
+export type ContainerConfig = {
+  type?: "block" | "flex" | "grid";
+  direction?: string;
+  justify?: string;
+  align?: string; // flex align-items
+  alignItems?: string; // grid align-items
+  columns?: number | string;
+  columnTemplate?: string;
+  gap?: string;
+};
+
+export type CollectionData = {
+  collection?: string;
+  template?: string;
+  limit?: number;
+  sort?: CollectionSort | null;
+  filters?: CollectionFilter[];
+  container?: ContainerConfig;
 };

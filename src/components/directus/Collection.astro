@@ -1,0 +1,78 @@
+---
+import EditorJs from "@/components/directus/EditorJs.astro";
+import directus from "@/lib/directus/directusSDK";
+import { readItems } from "@directus/sdk";
+import { fetchDisplayTemplateBody } from "@/lib/directus/display-templates";
+import { buildContainerStyle } from "@/lib/directus/container-style";
+import { interpolateTemplate } from "@/lib/directus/template-interpolation";
+import type { CollectionData, CollectionFilter, EditorJsContent } from "@/lib/directus/types";
+
+type Props = {
+  data?: CollectionData;
+  lang?: string;
+  depth?: number;
+};
+
+// Guard against a template that references collections/items in a cycle.
+const MAX_DEPTH = 3;
+const { data = {}, lang = "en", depth = 0 } = Astro.props as Props;
+const { collection, template, limit, sort, filters, container } = data;
+
+// Map our filter entries → a Directus `_and` filter. Operators get a leading "_" ("gt" → "_gt").
+function toDirectusFilter(entries: CollectionFilter[] | undefined) {
+  const conditions = (entries ?? [])
+    .filter((f) => f && f.field && f.operator)
+    .map((f) => {
+      const op = f.operator.startsWith("_") ? f.operator : `_${f.operator}`;
+      return { [f.field]: { [op]: f.value } };
+    });
+  return conditions.length ? { _and: conditions } : undefined;
+}
+
+let body: EditorJsContent | null = null;
+let items: unknown[] = [];
+
+if (directus && collection && template && depth < MAX_DEPTH) {
+  try {
+    body = await fetchDisplayTemplateBody(collection, template);
+    if (body) {
+      const query: Record<string, unknown> = { fields: ["*", "translations.*"] };
+      const filter = toDirectusFilter(filters);
+      if (filter) query.filter = filter;
+      if (typeof limit === "number") query.limit = limit;
+      if (sort?.field) query.sort = [sort.desc ? `-${sort.field}` : sort.field];
+
+      const rows = await directus.request(
+        // @ts-expect-error — dynamic collection isn't in the typed SDK schema
+        readItems(collection, query),
+      );
+      items = (rows as unknown[]) ?? [];
+    }
+  } catch (error) {
+    console.error("[collection] failed to resolve", { collection, template }, error);
+  }
+}
+
+const containerStyle = buildContainerStyle({
+  type: container?.type,
+  direction: container?.direction,
+  justify: container?.justify,
+  align: container?.align,
+  alignItems: container?.alignItems,
+  columns: container?.columns,
+  gap: container?.gap,
+});
+
+// One interpolated EditorJS document per item.
+const resolved = body ? items.map((item) => interpolateTemplate(body as EditorJsContent, item, lang)) : [];
+---
+
+{resolved.length > 0 && (
+  <div style={containerStyle || undefined}>
+    {resolved.map((content) => (
+      <div>
+        <EditorJs content={content} lang={lang} depth={depth + 1} />
+      </div>
+    ))}
+  </div>
+)}

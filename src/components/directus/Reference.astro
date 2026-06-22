@@ -2,8 +2,9 @@
 import EditorJs from "@/components/directus/EditorJs.astro";
 import directus from "@/lib/directus/directusSDK";
 import { readItems } from "@directus/sdk";
+import { fetchDisplayTemplateBody } from "@/lib/directus/display-templates";
 import { interpolateTemplate } from "@/lib/directus/template-interpolation";
-import type { DisplayTemplate, EditorJsContent } from "@/lib/directus/types";
+import type { EditorJsContent } from "@/lib/directus/types";
 
 type Props = {
   collection?: string;
@@ -22,15 +23,7 @@ let resolved: EditorJsContent | null = null;
 if (directus && collection && template && itemId != null && depth < MAX_DEPTH) {
   try {
     // 1. Find the display template by collection + name; its `template` field is the EditorJS body.
-    const templates = await directus.request(
-      // @ts-expect-error — `display_templates` isn't in the typed SDK schema
-      readItems("display_templates", {
-        filter: { collection: { _eq: collection }, name: { _eq: template } },
-        fields: ["template"],
-        limit: 1,
-      }),
-    );
-    const body = (templates as DisplayTemplate[])[0]?.template;
+    const body = await fetchDisplayTemplateBody(collection, template);
 
     if (body) {
       // 2. Fetch the referenced item (scalar fields + translations).
