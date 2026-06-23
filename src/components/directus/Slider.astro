@@ -27,7 +27,7 @@ const editable: DirectusVisualEditable = {
 ---
 
 <section
-  class:list={["slider relative py-4", { container: constrained }]}
+  class:list={["slider relative py-4 overflow-x-clip", { container: constrained }]}
   data-slider-id={sliderId}
   data-slider-autoplay={autoplay ? "" : undefined}
   data-directus={getDirectusEditAttr(editable, ["slides", "fullwidth", "autoplay"], { translated: false })}
