@@ -251,7 +251,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
 
     case "delimiterblock": {      
       const data = block.data;
-      const style = { borderWidth: data.width ?? '1px', color: data.color ?? '#999'}      
+      const style = { borderWidth: data.width ?? '1px', borderColor: data.color ?? '#999'}      
       return <hr style={style} />
     }
 
