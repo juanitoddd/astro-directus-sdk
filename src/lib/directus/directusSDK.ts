@@ -6,6 +6,7 @@ import type {
   HeroTranslation,
   Menu,
   MenuItem,
+  MenuItemsJunction,
   MenuItemTranslation,
   News,
   NewsTranslation,
@@ -26,9 +27,10 @@ export type Schema = {
   slider_slides: SliderSlide[];
   news: News[];
   news_translations: NewsTranslation[];
-  menu: Menu[];
-  menu_item: MenuItem[];
-  menu_item_translations: MenuItemTranslation[];
+  menus: Menu[];
+  menus_items: MenuItem[];
+  menus_menus_items: MenuItemsJunction[];
+  menus_items_translations: MenuItemTranslation[];
 };
 
 const raw_url = import.meta.env.DIRECTUS_URL || process.env.DIRECTUS_URL || 'http://cms.uponthe.top/';

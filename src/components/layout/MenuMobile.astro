@@ -1,16 +1,16 @@
 ---
-import { fetchMenuBySlug, resolveMenuUrl } from "@/lib/directus/menu";
+import { fetchMenuByName, resolveMenuUrl } from "@/lib/directus/menu";
 import { pickTranslation } from "@/lib/directus/types";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher.astro";
 
 type Props = {
-  slug: string;
+  name: string;
   lang: string;
   class?: string;
 };
 
-const { slug, lang, class: className } = Astro.props as Props;
-const menu = await fetchMenuBySlug(slug);
+const { name, lang, class: className } = Astro.props as Props;
+const menu = await fetchMenuByName(name);
 const items = menu?.items ?? [];
 ---
 
@@ -52,15 +52,30 @@ const items = menu?.items ?? [];
       </button>
     </div>
 
-    <nav class="flex flex-1 flex-col items-center justify-center gap-6" aria-label={slug}>
+    <nav class="flex flex-1 flex-col items-center justify-center gap-6" aria-label={name}>
       <ul class="flex flex-col items-center gap-6">
         {items.map((item) => {
           const translation = pickTranslation(item.translations, lang);
           const label = translation?.label ?? item.url;
           const href = resolveMenuUrl(item.url, lang);
+          const children = item.children ?? [];
           return (
-            <li>
+            <li class="text-center">
               <a class="text-2xl font-regular uppercase hover:underline" href={href} data-menu-link>{label}</a>
+              {children.length > 0 && (
+                <ul class="mt-3 flex flex-col items-center gap-2">
+                  {children.map((child) => {
+                    const childTranslation = pickTranslation(child.translations, lang);
+                    const childLabel = childTranslation?.label ?? child.url;
+                    const childHref = resolveMenuUrl(child.url, lang);
+                    return (
+                      <li>
+                        <a class="text-lg uppercase opacity-80 hover:underline" href={childHref} data-menu-link>{childLabel}</a>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
             </li>
           );
         })}

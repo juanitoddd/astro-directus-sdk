@@ -1,215 +1,53 @@
 ---
-import { fetchMenuBySlug } from "@/lib/directus/menu";
+import { fetchMenuByName, resolveMenuUrl } from "@/lib/directus/menu";
 import { pickTranslation } from "@/lib/directus/types";
 
 type Props = {
-  slug: string;
+  name: string;
   lang: string;
   class?: string;
 };
 
-const { slug, lang, class: className } = Astro.props as Props;
-// const menu = await fetchMenuBySlug(slug);
-// const items = menu?.items ?? [];
+const { name, lang, class: className } = Astro.props as Props;
+const menu = await fetchMenuByName(name);
+const items = menu?.items ?? [];
 ---
-<div class='container'>
-  <div class='py-4 border-b border-color-black'>© 2026</div>
-  <div class='block md:grid grid-cols-6 py-4'>
-    <div class=''>
-      
-      <section class='text-uppercase'>
-        <div class='menu-gmjo-container'>
-          <ul id='menu-gmjo' class='menu'>
-            <li class=''>
-              <a href={`/${lang}/about`} aria-current='page'>GMJO</a>
-              <ul class='sub-menu'>
+
+<footer class={className}>
+  <div class="container">
+    <div class="py-4 border-b border-color-black">© 2026</div>
+    <div class="block md:grid grid-cols-6 py-4">
+      {items.map((item) => {
+        const translation = pickTranslation(item.translations, lang);
+        const label = translation?.label ?? item.url;
+        const href = resolveMenuUrl(item.url, lang);
+        const children = item.children ?? [];
+        return (
+          <div>
+            <section class="text-uppercase">
+              <ul class="menu">
                 <li>
-                  <a href={`/${lang}/about`}>ZIELSETZUNG</a>
-                </li>
-                <li>
-                  <a href={`/${lang}/about/#biographie`} aria-current='page'>BIOGRAPHIE</a>
-                </li>
-                <li>
-                  <a href={`/${lang}/about/#claudio_abbado`} aria-current='page'>CLAUDIO ABBADO</a>
-                </li>
-                <li>
-                  <a href={`/${lang}/about/#dirigenten`} aria-current='page'>ASSISTENZDIRIGENT</a>
-                </li>
-                <li>
-                  <a href={`/${lang}/about/#dirigenten`} aria-current='page'>DIRIGENTEN</a>
-                </li>
-                <li>
-                  <a href={`/${lang}/about/#solisten`} aria-current='page'>SOLISTEN</a>
-                </li>
-                <li>
-                  <a href={`/${lang}/artists/#dozenten`} aria-current='page'>DOZENTEN</a>
-                </li>
-                <li>
-                  <a href={`/${lang}/artists`} aria-current='page'>ORCHESTERMITGLIEDER</a>
-                </li>
-                <li>
-                  <a href={`/${lang}/gmjo/#ehrenprae_kuratorium`} aria-current='page'>EHRENPRÄSIDIUM, KURATORIUM</a>
-                </li>
-                <li>
-                  <a href={`/${lang}/gmjo/#vorstand`} aria-current='page'>VORSTAND</a>
-                </li>
-                <li>
-                  <a href={`/${lang}/gmjo/#management`} aria-current='page'>MANAGEMENT</a>
+                  <a href={href}>{label}</a>
+                  {children.length > 0 && (
+                    <ul class="sub-menu">
+                      {children.map((child) => {
+                        const childTranslation = pickTranslation(child.translations, lang);
+                        const childLabel = childTranslation?.label ?? child.url;
+                        const childHref = resolveMenuUrl(child.url, lang);
+                        return (
+                          <li>
+                            <a href={childHref}>{childLabel}</a>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
                 </li>
               </ul>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-    </div>
-    <div class=''>
-    
-      <section class='text-uppercase'>
-        <div class='menu-projekte-container'>
-          <ul id='menu-projekte' class='menu'>
-            <li>
-              <a href={`/${lang}/projects/`}>PROJEKTE</a>
-              <ul class='sub-menu'>
-                <li>
-                  <a href={`/${lang}/projects/#konzerte`}>KONZERTE</a>
-                </li>
-                <li>
-                  <a href={`/${lang}/projects/#aktuelle_projekte`}>AKTUELLE PROJEKTE</a>
-                </li>
-                <li>
-                  <a href={`/${lang}/projects/#tournee_archiv`}>TOURNEE-ARCHIV</a>
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-    </div>
-    <div class=''>
-    
-      <section class='text-uppercase'>
-        <div class='menu-partner-container'>
-          <ul id='menu-partner' class='menu'>
-            <li>
-              <a href={`/${lang}/partner/`}>PARTNER</a>
-              <ul class='sub-menu'>
-                <li>
-                  <a href={`/${lang}/partners/#subventionsgeber`}>SUBVENTIONSGEBER</a>
-                </li>
-                <li>
-                  <a href={`/${lang}/partners/#hauptsponsoren`}>HAUPTSPONSOREN</a>
-                </li>
-                <li>
-                  <a href={`/${lang}/partners/#foerderstiftung`}>FÖRDERSTIFTUNG</a>
-                </li>
-                <li>
-                  <a href={`/${lang}/partners/#residenzpartner`}>RESIDENZPARTNER</a>
-                </li>
-                <li>
-                  <a href={`/${lang}/partner/#UNICEF`}>UNICEF</a>
-                </li>
-              </ul>
-            </li>
-            <li>
-              <a href={`/${lang}/donate`}>DONATE</a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-    </div>
-    <div class=''>
-
-      <section class='text-uppercase'>
-        <div class='menu-newsblog-container'>
-          <ul id='menu-newsblog' class='menu'>
-            <li>
-              <a href='#'>NEWSBLOG</a>
-              <ul class='sub-menu'>
-                <li>
-                  <a href={`/${lang}/news/`}>NEWSBLOG</a>
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-    </div>
-    <div class=''>
-      <section class='text-uppercase'>
-        <div class='menu-media-container'>
-          <ul id='menu-media' class='menu'>
-            <li>
-              <a href={`/${lang}/media/`}>MEDIA</a>
-              <ul class='sub-menu'>
-                <li>
-                  <a href={`/${lang}/media/`}>CD-AUFNAHMEN</a>
-                </li>
-                <li>
-                  <a href={`/${lang}/media/#dvd_aufnahmen`}>DVD-AUFNAHMEN</a>
-                </li>
-                <li>
-                  <a href={`/${lang}/media/#videos`}>VIDEOS</a>
-                </li>
-                <li>
-                  <a href='https://www.facebook.com/gustavmahlerjugendorchester'>FACEBOOK</a>
-                </li>
-                <li>
-                  <a href='https://www.instagram.com/_gmjo_/'>INSTAGRAM</a>
-                </li>
-                <li>
-                  <a href='https://www.youtube.com/@gmjugendorchester'>YOUTUBE</a>
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-    </div>
-    
-    <div class=''>
-
-      <section class='text-uppercase'>
-        <div class='menu-probespiele-container'>
-          <ul id='menu-probespiele' class='menu'>
-            <li>
-              <a href={`/${lang}/probespiele/`}>PROBESPIELE</a>
-              <ul class='sub-menu'>
-                <li>
-                  <a href={`/${lang}/probespiele/`}>INFORMATIONEN</a>
-                </li>
-                <li>
-                  <a href={`/${lang}/probespiele/#geschichte`}>GESCHICHTE</a>
-                </li>
-                <li>
-                  <a href={`/${lang}/probespiele/#teilnahmebedingungen`}>TEILNAHMEBEDINGUNGEN</a>
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </div>
-      </section>
-      
-      <section class='text-uppercase'>
-        <div class='menu-kontakt-container'>
-          <ul id='menu-kontakt' class='menu'>
-            <li>
-              <a href={`/${lang}/kontakt/`}>Kontakt</a>
-            </li>
-            <li>
-              <a href={`/${lang}/datenschutz/`}>Datenschutz</a>
-            </li>
-            <li>
-              <a href={`/${lang}/nutzungsbedingungen/`}>Impressum</a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
+            </section>
+          </div>
+        );
+      })}
     </div>
   </div>
-</div>
+</footer>

@@ -20,7 +20,10 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-roboto);
+    font-family: var(--font-GTEestiProText);
+    font-size: 16px;
+    font-weight: 300;
+    /* font-family: var(--font-roboto); */
   }
 
   /* --- Font aliases for CMS-authored inline styles ---

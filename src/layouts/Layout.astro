@@ -7,8 +7,8 @@ import MenuMobile from "@/components/layout/MenuMobile.astro";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher.astro";
 import Footer from "@/components/layout/Footer.astro";
 
-type Props = { title?: string; menuSlug?: string; footerSlug?: string };
-const { title = "Gustav Mahler JUGENDORCHESTER", menuSlug = "main", footerSlug = "footer" } = Astro.props as Props;
+type Props = { title?: string; menuName?: string; footerName?: string };
+const { title = "Gustav Mahler JUGENDORCHESTER", menuName = "main", footerName = "footer" } = Astro.props as Props;
 const currentLang = getLangFromUrl(Astro.url);
 ---
 
@@ -82,12 +82,12 @@ const currentLang = getLangFromUrl(Astro.url);
 	<body class="overflow-x-hidden">
 		<header class="sticky top-0 z-10">
 			<div class="hidden md:grid bg-white grid-cols-3 items-center px-6 py-4">
-				<Menu slug={menuSlug} lang={currentLang} />
+				<Menu name={menuName} lang={currentLang} />
 				<a href="/" class="text-lg font-bold text-center uppercase font-light">Gustav Mahler <br/> JUGENDORCHESTER</a>
 				<LanguageSwitcher />
 			</div>
-			<div class="grid md:hidden grid-cols-3 items-center px-6 py-4 bg-gmjo-blue color-white">
-				<MenuMobile slug={menuSlug} lang={currentLang} />
+			<div class="grid md:hidden grid-cols-3 bg-white items-center px-6 py-4 bg-gmjo-blue color-white">
+				<MenuMobile name={menuName} lang={currentLang} />
 				<a href="/" class="text-lg font-bold text-center uppercase font-light">GMJO</a>
 				<div></div>
 			</div>
@@ -95,7 +95,7 @@ const currentLang = getLangFromUrl(Astro.url);
 		<main>
 			<slot />
 		</main>
-		<Footer slug={footerSlug} lang={currentLang} />
+		<Footer name={footerName} lang={currentLang} />
 	</body>	
 </html>
 
