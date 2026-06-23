@@ -248,6 +248,12 @@ function renderListItems(items: ListItem[] = [], style: string): string {
     case "collectionblock": {
       return <Collection data={data as CollectionData} lang={lang} depth={depth} />;
     }
+
+    case "delimiterblock ": {      
+      const style = block.data;
+      return <hr style={style} />      
+    }
+
     default:
       console.log("block", block);
       return null;
