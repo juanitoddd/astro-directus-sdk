@@ -1,5 +1,5 @@
 ---
-import { fetchMenuBySlug } from "@/lib/directus/menu";
+import { fetchMenuBySlug, resolveMenuUrl } from "@/lib/directus/menu";
 import { pickTranslation } from "@/lib/directus/types";
 
 type Props = {
@@ -11,20 +11,6 @@ type Props = {
 const { slug, lang, class: className } = Astro.props as Props;
 const menu = await fetchMenuBySlug(slug);
 const items = menu?.items ?? [];
-
-function resolveMenuUrl(url: string | null | undefined, lang: string): string {
-  if (!url) return "#";
-  // External, protocol-prefixed, or hash-only URLs: leave untouched
-  if (/^([a-z][a-z0-9+.-]*:|\/\/|#)/i.test(url)) return url;
-  // Absolute path
-  if (url.startsWith("/")) {
-    if (url === "/") return `/${lang}`;
-    if (url === `/${lang}` || url.startsWith(`/${lang}/`)) return url;
-    return `/${lang}${url}`;
-  }
-  // Relative path ("about", "projects/details", etc.) — prepend lang root
-  return `/${lang}/${url.replace(/^\.?\//, "")}`;
-}
 ---
 
 {items.length > 0 && (

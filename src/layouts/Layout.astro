@@ -3,6 +3,7 @@ import "@/styles/global.css";
 import { getLangFromUrl } from '@/lib/i18n';
 import { Font } from "astro:assets";
 import Menu from "@/components/layout/Menu.astro";
+import MenuMobile from "@/components/layout/MenuMobile.astro";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher.astro";
 import Footer from "@/components/layout/Footer.astro";
 
@@ -86,9 +87,9 @@ const currentLang = getLangFromUrl(Astro.url);
 				<LanguageSwitcher />
 			</div>
 			<div class="grid md:hidden grid-cols-3 items-center px-6 py-4 bg-gmjo-blue color-white">
-				<div><!-- Hamburger Button --></div>
+				<MenuMobile slug={menuSlug} lang={currentLang} />
 				<a href="/" class="text-lg font-bold text-center uppercase font-light">GMJO</a>
-				<div><!-- Language Button --></div>
+				<div></div>
 			</div>
 		</header>		
 		<main>

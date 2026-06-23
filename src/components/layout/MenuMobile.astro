@@ -1,0 +1,109 @@
+---
+import { fetchMenuBySlug, resolveMenuUrl } from "@/lib/directus/menu";
+import { pickTranslation } from "@/lib/directus/types";
+import LanguageSwitcher from "@/components/layout/LanguageSwitcher.astro";
+
+type Props = {
+  slug: string;
+  lang: string;
+  class?: string;
+};
+
+const { slug, lang, class: className } = Astro.props as Props;
+const menu = await fetchMenuBySlug(slug);
+const items = menu?.items ?? [];
+---
+
+<div class={className} data-menu-mobile>
+  {/* Trigger */}
+  <button
+    type="button"
+    class="flex items-center justify-center w-10 h-10 -ml-2 text-current"
+    aria-label="Open menu"
+    aria-controls="menu-mobile-overlay"
+    aria-expanded="false"
+    data-menu-open
+  >
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+      <line x1="3" y1="6" x2="21" y2="6" />
+      <line x1="3" y1="12" x2="21" y2="12" />
+      <line x1="3" y1="18" x2="21" y2="18" />
+    </svg>
+  </button>
+
+  {/* Overlay */}
+  <div
+    id="menu-mobile-overlay"
+    class="fixed inset-0 z-50 hidden h-screen w-screen flex-col bg-white text-black"
+    data-menu-overlay
+    hidden
+  >
+    <div class="flex items-center justify-end px-6 py-4">
+      <button
+        type="button"
+        class="flex items-center justify-center w-10 h-10 text-current"
+        aria-label="Close menu"
+        data-menu-close
+      >
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <line x1="6" y1="6" x2="18" y2="18" />
+          <line x1="18" y1="6" x2="6" y2="18" />
+        </svg>
+      </button>
+    </div>
+
+    <nav class="flex flex-1 flex-col items-center justify-center gap-6" aria-label={slug}>
+      <ul class="flex flex-col items-center gap-6">
+        {items.map((item) => {
+          const translation = pickTranslation(item.translations, lang);
+          const label = translation?.label ?? item.url;
+          const href = resolveMenuUrl(item.url, lang);
+          return (
+            <li>
+              <a class="text-2xl font-regular uppercase hover:underline" href={href} data-menu-link>{label}</a>
+            </li>
+          );
+        })}
+      </ul>
+      <LanguageSwitcher class="mt-4" />
+    </nav>
+  </div>
+</div>
+
+<script>
+  function initMenuMobile(root: HTMLElement) {
+    const overlay = root.querySelector<HTMLElement>("[data-menu-overlay]");
+    const openBtn = root.querySelector<HTMLButtonElement>("[data-menu-open]");
+    const closeBtn = root.querySelector<HTMLButtonElement>("[data-menu-close]");
+    if (!overlay || !openBtn) return;
+
+    const open = () => {
+      overlay.hidden = false;
+      overlay.classList.remove("hidden");
+      overlay.classList.add("flex");
+      openBtn.setAttribute("aria-expanded", "true");
+      document.body.style.overflow = "hidden";
+    };
+    const close = () => {
+      overlay.hidden = true;
+      overlay.classList.add("hidden");
+      overlay.classList.remove("flex");
+      openBtn.setAttribute("aria-expanded", "false");
+      document.body.style.overflow = "";
+    };
+
+    openBtn.addEventListener("click", open);
+    closeBtn?.addEventListener("click", close);
+    // Close after tapping a link so navigation doesn't leave the overlay stuck open.
+    overlay.querySelectorAll<HTMLAnchorElement>("[data-menu-link], a").forEach((a) =>
+      a.addEventListener("click", close),
+    );
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !overlay.hidden) close();
+    });
+  }
+
+  document
+    .querySelectorAll<HTMLElement>("[data-menu-mobile]")
+    .forEach((root) => initMenuMobile(root));
+</script>
