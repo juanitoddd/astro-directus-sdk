@@ -11,6 +11,13 @@
     @apply border-border outline-ring/50;
   }
 
+  /* Page-level safety net: never let any element cause horizontal page scroll / mobile
+     zoom-out. `clip` (not `hidden`) avoids turning the root into a scroll container, so
+     position: sticky keeps working. */
+  html {
+    overflow-x: clip;
+  }
+
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-roboto);
