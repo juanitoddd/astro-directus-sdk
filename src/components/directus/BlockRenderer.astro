@@ -249,9 +249,10 @@ function renderListItems(items: ListItem[] = [], style: string): string {
       return <Collection data={data as CollectionData} lang={lang} depth={depth} />;
     }
 
-    case "delimiterblock ": {      
-      const style = block.data;
-      return <hr style={style} />      
+    case "delimiterblock": {      
+      const data = block.data;
+      const style = { borderStyle: data.widht ?? '1px', color: data.color ?? '#999'}      
+      return <hr style={style} />
     }
 
     default:
