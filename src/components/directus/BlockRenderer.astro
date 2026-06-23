@@ -204,7 +204,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
     }
     case "flexblock": {
       return (
-        <div class="" style={flexStyle}>
+        <div class={flexStyle.className} style={flexStyle.style}>
           {flexItems.map((item) => (
             <div
               class="flex"
@@ -221,7 +221,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
     }
     case "gridblock": {      
       return (
-        <div class="grid" style={gridStyle}>
+        <div class={gridStyle.className} style={gridStyle.style}>
           {gridItems.map((item) => (
             <div>
               {/* Each item is its own nested EditorJS document — render its blocks recursively. */}

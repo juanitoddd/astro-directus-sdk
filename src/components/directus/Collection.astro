@@ -68,7 +68,7 @@ const resolved = body ? items.map((item) => interpolateTemplate(body as EditorJs
 ---
 
 {resolved.length > 0 && (
-  <div style={containerStyle || undefined}>
+  <div class={containerStyle.className} style={containerStyle.style || undefined}>
     {resolved.map((content) => (
       <div>
         <EditorJs content={content} lang={lang} depth={depth + 1} />
