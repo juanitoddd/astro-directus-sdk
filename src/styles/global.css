@@ -93,6 +93,12 @@ h4 {
 }
 
 .container {
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: 100%;  
+}
+
+@media (width >= 48rem) {    
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
 }

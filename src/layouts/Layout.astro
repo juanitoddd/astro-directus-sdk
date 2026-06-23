@@ -15,7 +15,7 @@ const currentLang = getLangFromUrl(Astro.url);
 <html lang={currentLang}>
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
 		<link
@@ -79,11 +79,18 @@ const currentLang = getLangFromUrl(Astro.url);
 	</script>
 	</head>
 	<body class="overflow-x-hidden">
-		<header class="grid grid-cols-3 items-center px-6 py-4">
-			<Menu slug={menuSlug} lang={currentLang} />
-			<a href="/" class="text-lg font-bold text-center uppercase font-light">Gustav Mahler <br/> JUGENDORCHESTER</a>
-			<LanguageSwitcher />
-		</header>
+		<header class="sticky top-0 z-10">
+			<div class="hidden md:grid bg-white grid-cols-3 items-center px-6 py-4">
+				<Menu slug={menuSlug} lang={currentLang} />
+				<a href="/" class="text-lg font-bold text-center uppercase font-light">Gustav Mahler <br/> JUGENDORCHESTER</a>
+				<LanguageSwitcher />
+			</div>
+			<div class="grid md:hidden grid-cols-3 items-center px-6 py-4 bg-gmjo-blue color-white">
+				<div><!-- Hamburger Button --></div>
+				<a href="/" class="text-lg font-bold text-center uppercase font-light">GMJO</a>
+				<div><!-- Language Button --></div>
+			</div>
+		</header>		
 		<main>
 			<slot />
 		</main>
