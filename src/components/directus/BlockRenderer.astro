@@ -107,8 +107,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
       const Tag = `h${level}` as "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
       return <Tag class={`${alignClass} ${widthClass}`} set:html={text} />;
     }
-    case "image": {
-      console.log("file", data.file);
+    case "image": {      
       const file = (data.file ?? {}) as {
         url?: string;
         link?: string;
@@ -200,9 +199,12 @@ function renderListItems(items: ListItem[] = [], style: string): string {
       if(borderColor) {
         btnStyles.push(`border: 1px solid ${borderColor}`)
       }
+      console.log("alignClass~~~>", alignClass);
       const btnStyle = btnStyles.join(";");
       return (
-        <a class={`editorjs-button ${size} ${alignClass}`} href={href} target={target} style={btnStyle} set:html={text}></a>
+        <div class={`${alignClass}`}>
+          <a class={`editorjs-button ${size}`} href={href} target={target} style={btnStyle} set:html={text}></a>
+        </div>
       )
     }
     case "flexblock": {
@@ -259,7 +261,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
     }
 
     default:
-      console.log("block", block);
+      // console.log("block", block);
       return null;
   }
   })();
