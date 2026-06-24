@@ -100,10 +100,10 @@ function renderImageToken(spec: string, item: unknown, lang: string): string {
     attrs[key] = resolveValue(args[i].slice(eq + 1).trim(), item, lang);
   }
 
-  // maxWidth / maxHeight drive both the Directus transform (smaller source) and the CSS cap.
+  // Fixed width/height take precedence for the Directus transform; otherwise fall back to max*.
   const url = getDirectusAssetUrl(source as any, {
-    width: toPixels(attrs.maxWidth),
-    height: toPixels(attrs.maxHeight),
+    width: toPixels(attrs.width ?? attrs.maxWidth),
+    height: toPixels(attrs.height ?? attrs.maxHeight),
   });
   if (!url) return "";
 
@@ -111,10 +111,16 @@ function renderImageToken(spec: string, item: unknown, lang: string): string {
   const link = attrs.link != null && attrs.link !== "" ? String(attrs.link) : "";
 
   const styleParts: string[] = [];
+  const w = dimensionCss(attrs.width);
+  const h = dimensionCss(attrs.height);
   const mw = dimensionCss(attrs.maxWidth);
   const mh = dimensionCss(attrs.maxHeight);
+  // Fixed width/height (inline) override the `max-w-full h-auto` class, giving object-fit a box to crop.
+  if (w) styleParts.push(`width:${w}`);
+  if (h) styleParts.push(`height:${h}`);
   if (mw) styleParts.push(`max-width:${mw}`);
   if (mh) styleParts.push(`max-height:${mh}`);
+  if (attrs.objectFit) styleParts.push(`object-fit:${attrs.objectFit}`);
   const styleAttr = styleParts.length ? ` style="${escapeAttr(styleParts.join(";"))}"` : "";
 
   const img = `<img src="${escapeAttr(url)}" alt="${escapeAttr(alt)}" class="max-w-full h-auto"${styleAttr} />`;
