@@ -25,9 +25,9 @@ const items = menu?.items ?? [];
         return (
           <div>
             <section class="text-uppercase">
-              <ul class="menu">
+              <ul class="menu color-gmjo-blue">
                 <li>
-                  <a href={href}>{label}</a>
+                  <a class="font-bold" href={href}>{label}</a>
                   {children.length > 0 && (
                     <ul class="sub-menu">
                       {children.map((child) => {
