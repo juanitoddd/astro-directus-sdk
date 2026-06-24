@@ -108,11 +108,13 @@ function renderListItems(items: ListItem[] = [], style: string): string {
       return <Tag class={`${alignClass} ${widthClass}`} set:html={text} />;
     }
     case "image": {
+      console.log("file", data.file);
       const file = (data.file ?? {}) as {
         url?: string;
         link?: string;
         maxWidth?: number | string;
         maxHeight?: number | string;
+        objectFit?: string;
       } & DirectusAsset;
       // maxWidth / maxHeight → Directus transform params (width / height), only when numeric.
       const toPixels = (value: number | string | null | undefined) => {
@@ -134,6 +136,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
       const imgStyle = [
         ["max-width", dimension(file.maxWidth)],
         ["max-height", dimension(file.maxHeight)],
+        ["object-fit", file.objectFit ?? ''],
       ]
         .filter(([, v]) => v)
         .map(([prop, v]) => `${prop}:${v}`)
