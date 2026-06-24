@@ -140,7 +140,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
         .filter(([, v]) => v)
         .map(([prop, v]) => `${prop}:${v}`)
         .join(";");
-
+      console.log("imgStyle", imgStyle)
       return (
         <figure class={`${alignClass} ${widthClass}`}>
           {file.link ? (

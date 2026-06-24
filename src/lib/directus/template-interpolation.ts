@@ -83,11 +83,15 @@ function dimensionCss(value: unknown): string | null {
   return typeof value === "number" ? `${value}px` : String(value);
 }
 
+/** Remove any HTML tags the editor may have injected into the token (e.g. `<span>`). */
+function stripTags(input: string): string {
+  return input.replace(/<[^>]*>/g, "");
+}
+
 /** Build the `<img>` (optionally linked) HTML for an `image:` token's body. */
 function renderImageToken(spec: string, item: unknown, lang: string): string {
-  const args = splitArgs(spec);
+  const args = splitArgs(stripTags(spec));
   if (args.length === 0) return "";
-
   // First arg = source file field (a reference unless explicitly quoted as a literal id/url).
   const source = resolveValue(args[0], item, lang);
   if (source === undefined || source === null || source === "") return "";
@@ -98,7 +102,7 @@ function renderImageToken(spec: string, item: unknown, lang: string): string {
     if (eq === -1) continue;
     const key = args[i].slice(0, eq).trim();
     attrs[key] = resolveValue(args[i].slice(eq + 1).trim(), item, lang);
-  }
+  }  
 
   // Fixed width/height take precedence for the Directus transform; otherwise fall back to max*.
   const url = getDirectusAssetUrl(source as any, {
@@ -114,13 +118,13 @@ function renderImageToken(spec: string, item: unknown, lang: string): string {
   const w = dimensionCss(attrs.width);
   const h = dimensionCss(attrs.height);
   const mw = dimensionCss(attrs.maxWidth);
-  const mh = dimensionCss(attrs.maxHeight);
+  const mh = dimensionCss(attrs.maxHeight);  
   // Fixed width/height (inline) override the `max-w-full h-auto` class, giving object-fit a box to crop.
   if (w) styleParts.push(`width:${w}`);
   if (h) styleParts.push(`height:${h}`);
   if (mw) styleParts.push(`max-width:${mw}`);
   if (mh) styleParts.push(`max-height:${mh}`);
-  if (attrs.objectFit) styleParts.push(`object-fit:${attrs.objectFit}`);
+  if (attrs.objectFit) styleParts.push(`object-fit:${attrs.objectFit}`);  
   const styleAttr = styleParts.length ? ` style="${escapeAttr(styleParts.join(";"))}"` : "";
 
   const img = `<img src="${escapeAttr(url)}" alt="${escapeAttr(alt)}" class="max-w-full h-auto"${styleAttr} />`;
