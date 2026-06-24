@@ -198,8 +198,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
       ]
       if(borderColor) {
         btnStyles.push(`border: 1px solid ${borderColor}`)
-      }
-      console.log("alignClass~~~>", alignClass);
+      }      
       const btnStyle = btnStyles.join(";");
       return (
         <div class={`${alignClass}`}>
