@@ -102,6 +102,14 @@ h4 {
   color: var(--color-ring);
 }
 
+.grid-cols-3-2 {
+  grid-template-columns: 3fr 2fr;
+}
+
+.grid-cols-2-3 {
+  grid-template-columns: 2fr 3fr;
+}
+
 .container {
   max-width: 100%;  
 }

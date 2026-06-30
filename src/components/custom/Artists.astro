@@ -1,0 +1,23 @@
+---
+// Example custom block. Copy this file and rename it; the block's `name` must match the
+// filename exactly (e.g. `name: "Hello"` → Hello.astro).
+//
+// Every custom component receives:
+//   - data:  the block's data object (read your own args from here, incl. `name`)
+//   - lang:  the current language code
+//   - depth: nesting depth (for recursion guards, if you render EditorJS content)
+type Props = {
+  data?: Record<string, unknown>;
+  lang?: string;
+  depth?: number;
+};
+
+const { data = {}, lang } = Astro.props as Props;
+const title = typeof data.title === "string" ? data.title : "Hello from a custom block";
+---
+
+<div class="custom-hello p-4 border rounded">
+  <h1>{data.params.role}</h1>
+  <p class="font-bold">{title}</p>
+  <p class="text-sm opacity-70">lang: {lang}</p>
+</div>

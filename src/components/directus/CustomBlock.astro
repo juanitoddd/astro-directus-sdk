@@ -1,0 +1,33 @@
+---
+import type { CustomData } from "@/lib/directus/types";
+
+type Props = {
+  data?: CustomData;
+  lang?: string;
+  depth?: number;
+};
+
+const { data = {}, lang, depth = 0 } = Astro.props as Props;
+const name = typeof data.name === "string" ? data.name : "";
+
+// Eagerly import every component in src/components/custom and key it by exact filename
+// (without extension). Only these locally-globbed files are reachable, so a CMS-supplied
+// `name` can never load arbitrary code — an unknown name simply resolves to nothing.
+const modules = import.meta.glob<{ default: any }>("../custom/*.astro", { eager: true });
+const registry: Record<string, any> = {};
+for (const [path, mod] of Object.entries(modules)) {
+  const file = path.split("/").pop() ?? "";
+  registry[file.replace(/\.astro$/, "")] = mod.default;
+}
+
+const Component = name ? registry[name] : undefined;
+
+if (import.meta.env.DEV && name && !Component) {
+  console.warn(
+    `[custom block] no component named "${name}" in src/components/custom. ` +
+      `Available: ${Object.keys(registry).join(", ") || "(none)"}`,
+  );
+}
+---
+
+{Component && <Component data={data} lang={lang} depth={depth} />}

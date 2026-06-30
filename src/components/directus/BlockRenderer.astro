@@ -3,7 +3,8 @@ import { getDirectusAssetUrl, type DirectusAsset } from "@/lib/directus/assets";
 import { buildContainerStyle } from "@/lib/directus/container-style";
 import Reference from "@/components/directus/Reference.astro";
 import Collection from "@/components/directus/Collection.astro";
-import type { CollectionData, EditorJsBlock, EditorJsSpacingSides, FlexBlockItem, GridBlockItem, ReferenceData } from "@/lib/directus/types";
+import CustomBlock from "@/components/directus/CustomBlock.astro";
+import type { CollectionData, CustomData, EditorJsBlock, EditorJsSpacingSides, FlexBlockItem, GridBlockItem, ReferenceData } from "@/lib/directus/types";
 
 type Props = {
   block: EditorJsBlock;
@@ -95,6 +96,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
   if(block.type === 'gridblock') {
     console.log();
   }
+  // console.log("~ block.type ~~>", block.type)
   const rendered = (() => {
   switch (block.type) {
     case "paragraph": {
@@ -140,7 +142,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
         .filter(([, v]) => v)
         .map(([prop, v]) => `${prop}:${v}`)
         .join(";");
-      console.log("imgStyle", imgStyle)
+      
       return (
         <figure class={`${alignClass} ${widthClass}`}>
           {file.link ? (
@@ -251,6 +253,9 @@ function renderListItems(items: ListItem[] = [], style: string): string {
     }
     case "collectionblock": {
       return <Collection data={data as CollectionData} lang={lang} depth={depth} />;
+    }
+    case "componentblock": {      
+      return <CustomBlock data={data as CustomData} lang={lang} depth={depth} />;
     }
 
     case "delimiterblock": {      

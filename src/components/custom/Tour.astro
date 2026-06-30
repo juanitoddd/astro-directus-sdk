@@ -1,0 +1,38 @@
+---
+import { fetchEventsByTour, aggregateInterpreters } from '@/lib/directus/events';
+import { fetchTourById } from '@/lib/directus/tours';
+
+// Example custom block. Copy this file and rename it; the block's `name` must match the
+// filename exactly (e.g. `name: "Hello"` → Hello.astro).
+//
+// Every custom component receives:
+//   - data:  the block's data object (read your own args from here, incl. `name`)
+//   - lang:  the current language code
+//   - depth: nesting depth (for recursion guards, if you render EditorJS content)
+type Props = {
+  data?: Record<string, unknown>;
+  lang?: string;
+  depth?: number;
+};
+
+const { data = {}, lang } = Astro.props as Props;
+const title = typeof data.title === "string" ? data.title : "Hello from a custom block";
+const tourId = data.params?.tour_id;
+const events = await fetchEventsByTour(tourId, lang);
+const tour = await fetchTourById(tourId, lang);
+---
+
+<div class="my-4 p-4 border-t border-black">
+  <div class="grid grid-cols-2-3">
+    <div>
+      <div class="font-bold text-xl text-gmjo-blue">{tour.translations[0].title}</div>
+    </div>
+    <div>
+      <div>{lang === 'en' ? 'Concert' : 'Konzerte'}</div>
+      {(events ?? []).map((event: any) => 
+        <div>{event.title}</div>
+      )}
+    </div>
+  </div>  
+  <p class="text-sm opacity-70">lang: {lang}</p>
+</div>

@@ -1,0 +1,35 @@
+---
+import { fetchEventsByTour, aggregateInterpreters } from '@/lib/directus/events';
+import { pickTranslation } from '@/lib/directus/types';
+
+// Example custom block. Copy this file and rename it; the block's `name` must match the
+// filename exactly (e.g. `name: "Hello"` → Hello.astro).
+//
+// Every custom component receives:
+//   - data:  the block's data object (read your own args from here, incl. `name`)
+//   - lang:  the current language code
+//   - depth: nesting depth (for recursion guards, if you render EditorJS content)
+type Props = {
+  data?: Record<string, unknown>;
+  lang?: string;
+  depth?: number;
+};
+
+const { data = {}, lang } = Astro.props as Props;
+const events = await fetchEventsByTour(103, lang);
+const interprets = aggregateInterpreters(events)
+console.log("interprets~~>", interprets)
+console.log("length~~>", interprets.length)
+const title = typeof data.title === "string" ? data.title : "Hello from a custom block";
+---
+
+<div class="custom-hello p-4 border rounded">  
+  {(interprets as any[] ?? []).map((interpret: any) => {
+    const role = pickTranslation(interpret.role_id?.translations, lang ?? "");
+    return (
+      <p>
+        {interpret.person_id?.first_name} {interpret.person_id?.last_name} — {role?.name}
+      </p>
+    );
+  })}    
+</div>

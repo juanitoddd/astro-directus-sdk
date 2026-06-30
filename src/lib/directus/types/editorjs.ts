@@ -115,3 +115,10 @@ export type CollectionData = {
   filters?: CollectionFilter[];
   container?: ContainerConfig;
 };
+
+// `custom` block — renders a local component from src/components/custom by `name`.
+// Any additional keys are passed through to the chosen component via `data`.
+export type CustomData = {
+  name?: string;
+  [key: string]: unknown;
+};
