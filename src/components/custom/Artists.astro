@@ -13,7 +13,7 @@ type Props = {
 };
 
 const { data = {}, lang } = Astro.props as Props;
-const title = typeof data.title === "string" ? data.title : "Hello from a custom block";
+const title = typeof data.title === "string" ? data.title : "---";
 ---
 
 <div class="custom-hello p-4 border rounded">
