@@ -19,13 +19,14 @@ const { data = {}, lang } = Astro.props as Props;
 const title = typeof data.title === "string" ? data.title : "Hello from a custom block";
 const tourId = data.params?.tour_id;
 const events = await fetchEventsByTour(tourId, lang);
+console.log("events~~~", events)
 const tour = await fetchTourById(tourId, lang);
 ---
 
 <div class="my-4 p-4 border-t border-black">
   <div class="grid grid-cols-2-3">
     <div>
-      <div class="font-bold text-xl text-gmjo-blue">{tour.translations[0].title}</div>
+      <div class="font-bold text-xl text-gmjo-blue">{tour.translations[0]?.title ?? ''}</div>
     </div>
     <div>
       <div>{lang === 'en' ? 'Concert' : 'Konzerte'}</div>
