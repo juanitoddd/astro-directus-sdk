@@ -89,7 +89,7 @@ const currentLang = getLangFromUrl(Astro.url);
 			<div class="grid md:hidden grid-cols-3 bg-white items-center px-6 py-4 bg-gmjo-blue text-white">
 				<MenuMobile name={menuName} lang={currentLang} />
 				<a href="/" class="text-lg font-bold text-center text-black uppercase font-light">GMJO</a>
-				<div></div>
+				<LanguageSwitcher />
 			</div>
 		</header>		
 		<main>
