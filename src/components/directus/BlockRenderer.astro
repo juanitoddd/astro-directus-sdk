@@ -238,6 +238,40 @@ function renderListItems(items: ListItem[] = [], style: string): string {
           ))}
         </div>
       );
+    }    
+    case "accordionblock": {
+      // Both `title` and `content` are nested EditorJS documents (any combination of blocks),
+      // like flex/grid items — rendered recursively via Astro.self.
+      const toBlocks = (value: unknown): EditorJsBlock[] => {
+        const v = value as { blocks?: EditorJsBlock[] } | EditorJsBlock[] | undefined;
+        return Array.isArray(v) ? v : (v?.blocks ?? []);
+      };
+      const titleBlocks = toBlocks(data.title);
+      const contentBlocks = toBlocks(data.content);
+      return (
+        <details class="accordion border-b group" open={data.open ? true : undefined}>
+          <summary class="flex items-center gap-2 cursor-pointer select-none py-3 font-bold list-none [&::-webkit-details-marker]:hidden">
+            {/* Custom marker (native one is hidden) — rotates to point down when open. */}
+            <svg
+              class="w-3 h-3 shrink-0 transition-transform group-open:rotate-90"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+            >
+              <polyline points="9 6 15 12 9 18" />
+            </svg>
+            <span class="flex-1">
+              {titleBlocks.map((nested) => (
+                <Astro.self block={nested} lang={lang} depth={depth} />
+              ))}
+            </span>
+          </summary>
+          <div class="pb-4">
+            {contentBlocks.map((nested) => (
+              <Astro.self block={nested} lang={lang} depth={depth} />
+            ))}
+          </div>
+        </details>
+      );
     }
     case "reference": {
       const ref = data as ReferenceData;

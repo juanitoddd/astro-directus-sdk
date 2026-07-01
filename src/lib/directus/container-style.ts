@@ -7,6 +7,18 @@ export type ContainerStyle = {
   style: string;
 };
 
+const responsiveClass = (columns: number) : string => {
+  switch (columns) {
+    case 1:
+    case 2:
+    case 3:
+      return `block md:grid grid-cols-${columns}`;
+    case 4:
+      return `grid md:grid-cols-${columns} grid-cols-2`;      
+    default:
+      return `block md:grid grid-cols-${columns}`;
+  }
+};
 /**
  * Build the class + inline CSS for a layout container shared by the flex/grid blocks and the
  * collection block.
@@ -41,7 +53,8 @@ export function buildContainerStyle(config: ContainerConfig = {}): ContainerStyl
       ? config.columnTemplate
       : `repeat(${config.columns ?? 2}, minmax(0, 1fr))`;
     return {
-      className: "md:grid",
+      // className: responsiveClass(Number.parseInt(`${config.columns ?? 2}`)),
+      className: 'md:grid',
       style: [
         `gap:${gap ?? DEFAULT_GAP}`,
         `align-items:${config.alignItems ?? "stretch"}`,
