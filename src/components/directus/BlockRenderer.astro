@@ -147,10 +147,10 @@ function renderListItems(items: ListItem[] = [], style: string): string {
         <figure class={`${alignClass} ${widthClass}`}>
           {file.link ? (
             <a href={file.link} target="_blank" rel="noopener noreferrer">
-              <img src={url} alt={caption} class="max-w-full h-auto" style={imgStyle || undefined} />
+              <img src={url} alt={caption} class="max-w-full h-auto inline-block" style={imgStyle || undefined} />
             </a>
           ) : (
-            <img src={url} alt={caption} class="max-w-full h-auto" style={imgStyle || undefined} />
+            <img src={url} alt={caption} class="max-w-full h-auto inline-block" style={imgStyle || undefined} />
           )}
           {caption && <figcaption class="text-sm opacity-70 mt-1" set:html={caption} />}
         </figure>

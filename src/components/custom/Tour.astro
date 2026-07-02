@@ -19,7 +19,10 @@ const { data = {}, lang } = Astro.props as Props;
 const title = typeof data.title === "string" ? data.title : "Hello from a custom block";
 const tourId = data.params?.tour_id;
 const events = await fetchEventsByTour(tourId, lang);
-console.log("events~~~", events)
+const interprets = aggregateInterpreters(events)
+console.log("interprets~~>", interprets)
+for (const event of events ?? []) {
+}
 const tour = await fetchTourById(tourId, lang);
 ---
 
@@ -29,10 +32,91 @@ const tour = await fetchTourById(tourId, lang);
       <div class="font-bold text-xl text-gmjo-blue">{tour.translations[0]?.title ?? ''}</div>
     </div>
     <div>
-      <div>{lang === 'en' ? 'Concert' : 'Konzerte'}</div>
-      {(events ?? []).map((event: any) => 
-        <div>{event.title}</div>
-      )}
+
+      <details class="accordion border-b group">
+        <summary class="flex items-center gap-2 cursor-pointer select-none py-3 font-bold list-none [&::-webkit-details-marker]:hidden">
+          {/* Custom marker (native one is hidden) — rotates to point down when open. */}
+          <svg
+            class="w-3 h-3 shrink-0 transition-transform group-open:rotate-90"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+          >
+            <polyline points="9 6 15 12 9 18" />
+          </svg>
+          <span class="flex-1">
+            <h2 class="text-gmjo-blue text-lg font-thin">{lang === 'en' ? 'Concerts' : 'Konzerte'}</h2>
+          </span>
+        </summary>
+        <div class="pb-4">
+          {(events ?? []).map((event: any) => 
+          <div>{event.title}</div>
+        )}
+        </div>
+      </details>
+
+      <details class="accordion border-b group">
+        <summary class="flex items-center gap-2 cursor-pointer select-none py-3 font-bold list-none [&::-webkit-details-marker]:hidden">
+          {/* Custom marker (native one is hidden) — rotates to point down when open. */}
+          <svg
+            class="w-3 h-3 shrink-0 transition-transform group-open:rotate-90"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+          >
+            <polyline points="9 6 15 12 9 18" />
+          </svg>
+          <span class="flex-1">
+            <h2 class="text-gmjo-blue text-lg font-thin">{lang === 'en' ? 'Artists' : 'Künstler'}</h2>
+          </span>
+        </summary>
+        <div class="pb-4">
+          {(events ?? []).map((event: any) => 
+          {/* <div>{event.title}</div> */}
+        )}
+        </div>
+      </details>
+
+      <details class="accordion border-b group">
+        <summary class="flex items-center gap-2 cursor-pointer select-none py-3 font-bold list-none [&::-webkit-details-marker]:hidden">
+          {/* Custom marker (native one is hidden) — rotates to point down when open. */}
+          <svg
+            class="w-3 h-3 shrink-0 transition-transform group-open:rotate-90"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+          >
+            <polyline points="9 6 15 12 9 18" />
+          </svg>
+          <span class="flex-1">
+            <h2 class="text-gmjo-blue text-lg font-thin">{lang === 'en' ? 'Orchestra members' : 'Orchestermitglieder'}</h2>
+          </span>
+        </summary>
+        <div class="pb-4">
+          {(events ?? []).map((event: any) => 
+          {/* <div>{event.title}</div> */}
+        )}
+        </div>
+      </details>
+
+      <details class="accordion border-b group">
+        <summary class="flex items-center gap-2 cursor-pointer select-none py-3 font-bold list-none [&::-webkit-details-marker]:hidden">
+          {/* Custom marker (native one is hidden) — rotates to point down when open. */}
+          <svg
+            class="w-3 h-3 shrink-0 transition-transform group-open:rotate-90"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+          >
+            <polyline points="9 6 15 12 9 18" />
+          </svg>
+          <span class="flex-1">
+            <h2 class="text-gmjo-blue text-lg font-thin">{lang === 'en' ? 'Orchestra members' : 'Orchestermitglieder'}</h2>
+          </span>
+        </summary>
+        <div class="pb-4">
+          {(events ?? []).map((event: any) => 
+          {/* <div>{event.title}</div> */}
+        )}
+        </div>
+      </details>
+                      
     </div>
   </div>    
 </div>
