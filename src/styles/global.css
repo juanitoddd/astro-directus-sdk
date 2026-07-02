@@ -114,6 +114,10 @@ h4 {
   max-width: 100%;  
 }
 
+.news-image {
+  max-height: 400px;  
+}
+
 @media (width >= 48rem) {    
   .container {
     max-width: 1200px;

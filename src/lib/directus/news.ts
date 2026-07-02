@@ -23,6 +23,37 @@ const newsQueryFields = [
   ...sectionsItemFields.slider.map((f) => `sections.item:slider.${f}`),
 ];
 
+// Lightweight fields for the news index — title (`name`), image, and translated `preview`.
+const newsListFields = [
+  'id',
+  'slug',
+  'name',
+  'status',
+  'sort',
+  'image.id', 'image.filename_disk', 'image.title', 'image.description', 'image.width', 'image.height',
+  'translations.id',
+  'translations.languages_code',
+  'translations.preview',
+];
+
+/** Fetch all news for the listing page (no sections). Pass `lang` to filter translations. */
+export async function fetchAllNews(lang?: string): Promise<News[]> {
+  if (!directus) return [];
+  const deep = lang
+    ? { translations: { _filter: { languages_code: { _starts_with: lang } } } }
+    : undefined;
+  const items = await directus.request(
+    readItems('news', {
+      // @ts-expect-error — nested translation fields aren't representable in the SDK's generic field type
+      fields: newsListFields,
+      sort: ['sort'],
+      ...(deep ? { deep } : {}),
+      limit: -1,
+    }),
+  );
+  return (items as News[]) ?? [];
+}
+
 export async function fetchAllNewsSlugs(): Promise<string[]> {
   if (!directus) return [];
   const items = await directus.request(

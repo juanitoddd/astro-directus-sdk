@@ -15,6 +15,7 @@ export async function getStaticPaths() {
       return news ? { slug, news } : null;
     }),
   );
+  console.log("items", items);
   const valid = items.filter((i): i is { slug: string; news: News } => i !== null);
 
   return languagePrefixes.flatMap((lang) =>
@@ -25,24 +26,19 @@ export async function getStaticPaths() {
   );
 }
 
-type Props = { news: News };
-const { news } = Astro.props as Props;
-const lang = Astro.params.lang as string;
-
-const translation = pickTranslation(news.translations, lang);
-const sections = news.sections ?? [];
-
-const imageSrc = getDirectusAssetUrl(news.image, { width: 1280, format: "webp", quality: 80 });
-const imageAlt = getDirectusAssetAlt(news.image);
+const { lang, slug } = Astro.params;
+const news = await fetchNewsBySlug(slug);
+const sections = news?.sections ?? [];
+const imageSrc = getDirectusAssetUrl(news?.image, { width: 1280, format: "webp", quality: 80 });
+const imageAlt = getDirectusAssetAlt(news?.image);
 ---
 
 <Layout>
   <article class="container py-8">
-    {news.name && <h1 class="text-3xl font-bold mb-4">{news.name}</h1>}
+    {news?.name && <div class="mb-8"><h1 class="text-3xl font-bold mb-4">{news?.name}</h1></div>}
     {imageSrc && (
-      <img src={imageSrc} alt={imageAlt} class="w-full h-auto mb-6" loading="eager" />
-    )}
-    <EditorJs content={translation?.preview} lang={lang} />
-    {sections.map((section) => <SectionRenderer section={section} lang={lang} />)}
+      <img src={imageSrc} alt={imageAlt} class="news-image object-cover w-full h-auto mb-6" loading="eager" />
+    )}    
+    {sections.map((section) => <SectionRenderer section={section} lang={lang as string} />)}
   </article>
 </Layout>

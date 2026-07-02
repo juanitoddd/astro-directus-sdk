@@ -1,0 +1,62 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import EditorJs from "@/components/directus/EditorJs.astro";
+import { fetchAllNews } from "@/lib/directus/news";
+import { getDirectusAssetAlt, getDirectusAssetSrcset, getDirectusAssetUrl } from "@/lib/directus/assets";
+import { pickTranslation } from "@/lib/directus/types";
+import { languagePrefixes } from "@/constants/languages";
+
+export function getStaticPaths() {
+  return languagePrefixes.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as string;
+const news = await fetchAllNews(lang);
+---
+
+<Layout>
+  <section class="container py-8">
+    <div class="py-4">
+      <h1 class="text-2xl font-semibold text-right mb-6 text-gmjo-blue">NEWS</h1>
+    </div>
+
+    {news.length === 0 ? (
+      <p class="opacity-70">No news yet.</p>
+    ) : (
+      <ul class="grid gap-6 grid-cols-2 md:grid-cols-3">
+        {news.map((item) => {
+          const translation = pickTranslation(item.translations, lang);
+          if(translation?.preview?.blocks[0]) translation.preview.blocks = [translation?.preview?.blocks[0]]
+          const href = `/${lang}/news/${item.slug}`;
+          const imageSrc = getDirectusAssetUrl(item.image, { width: 640, format: "webp", quality: 80 });
+          const imageSrcset = getDirectusAssetSrcset(item.image, [320, 640, 960], { format: "webp", quality: 80 });
+          const imageAlt = getDirectusAssetAlt(item.image) || item.name || "";
+          return (
+            <li class="overflow-hidden">
+              <a href={href} class="block hover:opacity-90">
+                {imageSrc && (
+                  <img
+                    src={imageSrc}
+                    srcset={imageSrcset}
+                    sizes="(max-width: 380px) 100vw, 380px"
+                    alt={imageAlt}
+                    class="w-full h-50 object-cover"
+                    loading="lazy"
+                  />
+                )}
+                <div class="p-4">
+                  {/* item.name && <h2 class="text-xl font-bold mb-2">{item.name}</h2> */}
+                  {translation?.preview && (
+                    <div class="text-gmjo-blue">
+                      <EditorJs content={translation.preview} lang={lang} />
+                    </div>
+                  )}
+                </div>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    )}
+  </section>
+</Layout>
