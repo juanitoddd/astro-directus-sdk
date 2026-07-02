@@ -1,6 +1,7 @@
 ---
 import { fetchEventsByTour, aggregateInterpreters } from '@/lib/directus/events';
 import { fetchTourById } from '@/lib/directus/tours';
+import { pickTranslation } from '@/lib/directus/types';
 
 // Example custom block. Copy this file and rename it; the block's `name` must match the
 // filename exactly (e.g. `name: "Hello"` → Hello.astro).
@@ -20,8 +21,9 @@ const title = typeof data.title === "string" ? data.title : "Hello from a custom
 const tourId = data.params?.tour_id;
 const events = await fetchEventsByTour(tourId, lang);
 const interprets = aggregateInterpreters(events)
-console.log("interprets~~>", interprets)
+// console.log("interprets~~>", interprets)
 for (const event of events ?? []) {
+  console.log("event~~>", event)
 }
 const tour = await fetchTourById(tourId, lang);
 ---
@@ -48,8 +50,22 @@ const tour = await fetchTourById(tourId, lang);
           </span>
         </summary>
         <div class="pb-4">
-          {(events ?? []).map((event: any) => 
-          <div>{event.title}</div>
+          {(events ?? []).map((event: any) => {
+            const location = pickTranslation(event.location_id?.translations, lang ?? "");            
+            return (
+              <div class="grid grid-cols-3 gap-2 py-2" style="grid-template-columns: 100px auto 200px;">
+              <div>
+                <div class="font-bold">{event.date.split('T')[0]}</div>
+                <div>{event.date.split('T')[1]}</div>
+              </div>
+              <div>
+                <div class="font-bold">{event.title}</div>
+                <div>{location?.name ?? ''}</div>
+              </div>
+              <div></div>
+            </div>
+            )
+          }
         )}
         </div>
       </details>
@@ -107,7 +123,7 @@ const tour = await fetchTourById(tourId, lang);
             <polyline points="9 6 15 12 9 18" />
           </svg>
           <span class="flex-1">
-            <h2 class="text-gmjo-blue text-lg font-thin">{lang === 'en' ? 'Orchestra members' : 'Orchestermitglieder'}</h2>
+            <h2 class="text-gmjo-blue text-lg font-thin">{lang === 'en' ? 'Tutors' : 'Dozenten'}</h2>
           </span>
         </summary>
         <div class="pb-4">

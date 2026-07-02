@@ -70,6 +70,8 @@ export async function fetchEventsByTour(
       // inline, with their translations so the component can render by language.
       fields: [
         "*",
+        "location_id.*",
+        "location_id.translations.*",
         "interpreters.*",
         "interpreters.person_id.id",
         "interpreters.person_id.first_name",
