@@ -14,17 +14,13 @@ type Props = {
   data?: Record<string, unknown>;
   lang?: string;
   depth?: number;
+  tourId?: number | string;
 };
 
-const { data = {}, lang } = Astro.props as Props;
-const title = typeof data.title === "string" ? data.title : "Hello from a custom block";
-const tourId = data.params?.tour_id;
+const { lang, tourId } = Astro.props as Props;
+// const tourId = data.params?.tourId;
 const events = await fetchEventsByTour(tourId, lang);
-const interprets = aggregateInterpreters(events)
-// console.log("interprets~~>", interprets)
-for (const event of events ?? []) {
-  console.log("event~~>", event)
-}
+// const interprets = aggregateInterpreters(events)
 const tour = await fetchTourById(tourId, lang);
 ---
 

@@ -1,0 +1,80 @@
+---
+import Tour from "@/components/custom/Tour.astro";
+import { fetchToursByYear, fetchTourYears } from "@/lib/directus/tours";
+
+type Props = {
+  data?: Record<string, unknown>;
+  lang?: string;
+  depth?: number;
+};
+
+const { lang } = Astro.props as Props;
+
+// Pre-render every year server-side so the client can switch without a runtime fetch
+// (production is static — there's no server to fetch a new year on click).
+const years = await fetchTourYears();
+const defaultYear = years.length ? years[years.length - 1] : null;
+
+const toursByYear = await Promise.all(
+  years.map(async (year) => ({ year, tours: (await fetchToursByYear(year)) ?? [] })),
+);
+---
+
+<div data-tours data-current={defaultYear ?? ""}>
+  <div class="flex justify-end">
+    <div class="flex justify-center items-center gap-4 mt-3">
+      <button type="button" data-year-prev class="text-3xl cursor-pointer" aria-label="Previous year" hidden={defaultYear === years[0]}>‹</button>
+      <div><h2 class="font-thin" data-year-label>{defaultYear}</h2></div>
+      <button type="button" data-year-next class="text-3xl cursor-pointer" aria-label="Next year" hidden={defaultYear === years[years.length - 1]}>›</button>
+    </div>
+  </div>
+
+  {toursByYear.map(({ year, tours }) => (
+    <div data-year={year} hidden={year !== defaultYear}>
+      {tours.length === 0 ? (
+        <p class="opacity-70">No tours in {year}.</p>
+      ) : (
+        tours.map((tourId: number | string) => <Tour tourId={tourId} lang={lang} />)
+      )}
+    </div>
+  ))}
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-tours]").forEach((root) => {
+    const panels = Array.from(root.querySelectorAll<HTMLElement>("[data-year]"));
+    if (panels.length === 0) return;
+
+    const years = panels
+      .map((p) => Number(p.dataset.year))
+      .filter((y) => Number.isFinite(y))
+      .sort((a, b) => a - b);
+    const label = root.querySelector<HTMLElement>("[data-year-label]");
+    const prevBtn = root.querySelector<HTMLElement>("[data-year-prev]");
+    const nextBtn = root.querySelector<HTMLElement>("[data-year-next]");
+
+    let index = years.indexOf(Number(root.dataset.current));
+    if (index < 0) index = years.length - 1;
+
+    const render = () => {
+      const year = years[index];
+      panels.forEach((p) => { p.hidden = Number(p.dataset.year) !== year; });
+      if (label) label.textContent = String(year);
+      // Hide prev at the earliest year, next at the latest.
+      if (prevBtn) prevBtn.hidden = index <= 0;
+      if (nextBtn) nextBtn.hidden = index >= years.length - 1;
+    };
+
+    // ‹ = previous (older) year, › = next (newer) year — clamped to available years.
+    root.querySelector("[data-year-prev]")?.addEventListener("click", () => {
+      index = Math.max(0, index - 1);
+      render();
+    });
+    root.querySelector("[data-year-next]")?.addEventListener("click", () => {
+      index = Math.min(years.length - 1, index + 1);
+      render();
+    });
+
+    render();
+  });
+</script>

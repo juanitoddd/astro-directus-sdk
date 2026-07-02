@@ -45,7 +45,7 @@ export function aggregateInterpreters(
  * the FK field (`tour`) by the tour id.
  */
 export async function fetchEventsByTour(
-  tourId: number | string,
+  tourId: number | string | null | undefined,
   lang?: string,
 ): Promise<DirectusEvent[]> {
   if (!directus || tourId == null || tourId === "") return [];
