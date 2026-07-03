@@ -71,5 +71,5 @@ export async function fetchTourYears(): Promise<number[]> {
     const y = Number(r.year);
     if (Number.isFinite(y)) years.add(y);
   }
-  return [...years].sort((a, b) => a - b);
+  return [...years].sort((a, b) => a - b).filter((y) => y < 2026);
 }

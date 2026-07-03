@@ -34,7 +34,7 @@ function pickTranslation(translations: Translation[] | null | undefined, lang: s
 async function fetchToursForYear(base: string, year: number): Promise<Tour[]> {
   const toursUrl =
     `${base}/items/tours?filter[year][_eq]=${year}` +
-    `&fields=id,date_begin,translations.title,translations.languages_code&sort=date_begin&limit=-1`;
+    `&fields=id,date_begin,people.person_id.*,people.role_id.translations.name,translations.title,translations.languages_code&sort=date_begin&limit=-1`;
   const res = await fetch(toursUrl);
   if (!res.ok) return [];
   const tours: Tour[] = (await res.json()).data ?? [];
@@ -106,7 +106,21 @@ function TourCard({ tour, lang }: { tour: Tour; lang: string }) {
               );
             })}
           </Accordion>
-          <Accordion label={isEn ? "Artists" : "Künstler"} />
+          <Accordion label={isEn ? "Artists" : "Künstler"} >
+            {(tour.people ?? []).map((person) => {
+              const artist = person.person_id;
+              // const role = person.role_id;
+              const role = pickTranslation(person.role_id.translations, lang);              
+              return (
+                <div key={artist.id}>                  
+                  <div>
+                    <div className="font-bold">{artist.first_name} {artist.last_name}</div>                    
+                  </div>
+                  <div></div>
+                </div>
+              );
+            })}
+          </Accordion>
           <Accordion label={isEn ? "Orchestra members" : "Orchestermitglieder"} />
           <Accordion label={isEn ? "Tutors" : "Dozenten"} />
         </div>
@@ -143,8 +157,29 @@ export default function ToursWidget({ lang = "en", years = [], initialYear, dire
 
   return (
     <div>
-      <div className="flex justify-end">
-        <div className="flex justify-center items-center gap-2 mt-3">
+      <div className="flex justify-end items-center gap-8 mt-3">
+        <div>
+          <button type="button" aria-label="Search">
+            <svg
+              className="w-6 h-6"
+              viewBox="0 0 512 512"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="#000000"
+            >
+              <title>Search</title>
+              <path
+                d="M221.09,64A157.09,157.09,0,1,0,378.18,221.09,157.1,157.1,0,0,0,221.09,64Z"
+                style={{ fill: "none", stroke: "#000000", strokeMiterlimit: 10, strokeWidth: "32px" }}
+              />
+              <line
+                x1="338.29" y1="338.29" x2="448" y2="448"
+                style={{ fill: "none", stroke: "#000000", strokeLinecap: "round", strokeMiterlimit: 10, strokeWidth: "32px" }}
+              />
+            </svg>
+          </button>
+        </div>
+
+        <div className="flex justify-center items-center gap-2">
           {hasPrev && (
             <button type="button" className="text-3xl cursor-pointer" aria-label="Previous year"
               onClick={() => setYear(sortedYears[idx - 1])}>‹</button>
