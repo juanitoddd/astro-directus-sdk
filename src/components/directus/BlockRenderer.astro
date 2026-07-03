@@ -155,6 +155,10 @@ function renderListItems(items: ListItem[] = [], style: string): string {
 
       console.log("file~~>", file)
       
+      // Default width (--dw): fill the container when no desktop height is set, else auto
+      // (so a set height drives the size and width keeps the aspect ratio).
+      imgAttrs.push(["--dw", file.heightDesktop ? "auto" : "100%"]);
+
       if(file.widthDesktop) imgAttrs.push(["--iw", dimension(file.widthDesktop)]);
       if(file.heightDesktop) imgAttrs.push(["--ih", dimension(file.heightDesktop)]);
       if(file.maxWidth) imgAttrs.push(["--imw", dimension(file.maxWidth)]);
