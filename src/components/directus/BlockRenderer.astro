@@ -147,7 +147,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
         value === undefined || value === null || value === ""
           ? null
           : typeof value === "number" ? `${value}px` : value;
-      console.log("file~~>", file)
+      
       // style="--iw:200px; --imw:600px; --iw-m:100px; …"
       const imgAttrs = []
       
@@ -165,6 +165,8 @@ function renderListItems(items: ListItem[] = [], style: string): string {
         .filter(([, v]) => v)
         .map(([prop, v]) => `${prop}:${v}`)
         .join(";");      
+
+      console.log("imgStyle~~>", imgStyle)
       
       return (
         <figure class={`${alignClass} ${widthClass}`}>
