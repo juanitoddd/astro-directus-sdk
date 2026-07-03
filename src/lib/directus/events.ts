@@ -1,4 +1,4 @@
-import { readItems } from "@directus/sdk";
+import { readItem, readItems } from "@directus/sdk";
 import directus from "./directusSDK";
 
 // Loose type — adjust once the `events` fields are known.
@@ -6,6 +6,16 @@ export type DirectusEvent = {
   id: number | string;
   [key: string]: unknown;
 };
+
+/** All `events` ids — used to prebuild the per-event detail routes. */
+export async function fetchAllEventIds(): Promise<Array<number | string>> {
+  if (!directus) return [];
+  const rows = await directus.request(
+    // @ts-expect-error — `events` isn't in the typed SDK schema
+    readItems("events", { fields: ["id"], limit: -1 }),
+  );
+  return (rows as Array<{ id: number | string }>).map((r) => r.id).filter((id) => id != null);
+}
 
 export type Interpreter = {
   interpret_id?: number | string;
@@ -85,4 +95,54 @@ export async function fetchEventsByTour(
     }),
   );
   return (events as DirectusEvent[]) ?? [];
+}
+
+/**
+ * Fetch a single `event` by id, fully expanded — its own translations plus the `tour`,
+ * `location`, and `interpreters` (with their `person`/`role` + translations) relations.
+ * Returns null if missing/unreachable. Pass `lang` to filter translations to that language.
+ */
+export async function fetchEventById(
+  id: number | string | null | undefined,
+  lang?: string,
+): Promise<DirectusEvent | null> {
+  if (!directus || id == null || id === "") return null;
+
+  const translationFilter = { _filter: { languages_code: { _starts_with: lang } } };
+  const deep = lang
+    ? {
+        translations: translationFilter,
+        location_id: { translations: translationFilter },
+        interpreters: {
+          person_id: { translations: translationFilter },
+          role_id: { translations: translationFilter },
+        },
+      }
+    : undefined;
+
+  try {
+    const event = await directus.request(
+      // @ts-expect-error — `events` (and nested relation fields) aren't in the typed SDK schema
+      readItem("events", id, {
+        fields: [
+          "*",
+          "translations.*",
+          "tour_id.*",
+          "tour_id.translations.*",
+          "location_id.*",
+          "location_id.translations.*",
+          "interpreters.*",
+          "interpreters.person_id.*",
+          "interpreters.person_id.translations.*",
+          "interpreters.role_id.*",
+          "interpreters.role_id.translations.*",
+        ],
+        ...(deep ? { deep } : {}),
+      }),
+    );
+    return (event as DirectusEvent) ?? null;
+  } catch {
+    // readItem throws on 403/404 — treat a missing event as null rather than a hard error.
+    return null;
+  }
 }

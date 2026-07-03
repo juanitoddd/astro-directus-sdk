@@ -1,4 +1,4 @@
-import { readItems } from "@directus/sdk";
+import { readItem, readItems } from "@directus/sdk";
 import directus from "./directusSDK";
 
 // Loose type — adjust once the `people` fields are known.
@@ -9,6 +9,45 @@ export type DirectusPerson = {
   translations?: unknown[] | null;
   [key: string]: unknown;
 };
+
+/** All `people` ids — used to prebuild the per-artist detail routes. */
+export async function fetchAllPeopleIds(): Promise<Array<number | string>> {
+  if (!directus) return [];
+  const rows = await directus.request(
+    // @ts-expect-error — `people` isn't in the typed SDK schema
+    readItems("people", { fields: ["id"], limit: -1 }),
+  );
+  return (rows as Array<{ id: number | string }>).map((r) => r.id).filter((id) => id != null);
+}
+
+/**
+ * Fetch a single `person` by id, fully expanded — own fields, translations, and one level of
+ * relations. Returns null if missing/unreachable. Pass `lang` to filter translations.
+ */
+export async function getPersonById(
+  id: number | string | null | undefined,
+  lang?: string,
+): Promise<DirectusPerson | null> {
+  if (!directus || id == null || id === "") return null;
+
+  const translationFilter = { _filter: { languages_code: { _starts_with: lang } } };
+  const deep = lang ? { translations: translationFilter } : undefined;
+
+  try {
+    const person = await directus.request(
+      // @ts-expect-error — `people` (and nested relation fields) aren't in the typed SDK schema
+      readItem("people", id, {
+        // `*.*` expands own fields + one level of every relation; translations pulled explicitly.
+        fields: ["*", "*.*", "translations.*"],
+        ...(deep ? { deep } : {}),
+      }),
+    );
+    return (person as DirectusPerson) ?? null;
+  } catch {
+    // readItem throws on 403/404 — treat a missing person as null rather than a hard error.
+    return null;
+  }
+}
 
 /**
  * Fetch every person that holds a given role. Walks the `interpreters` collection filtered by

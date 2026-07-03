@@ -1,0 +1,31 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { fetchAllEventIds, fetchEventById } from "@/lib/directus/events";
+import { languagePrefixes } from "@/constants/languages";
+
+export async function getStaticPaths() {
+  const ids = await fetchAllEventIds();
+  return languagePrefixes.flatMap((lang) =>
+    ids.map((id) => ({ params: { lang, id: String(id) } })),
+  );
+}
+
+const lang = Astro.params.lang as string;
+const id = Astro.params.id as string;
+const event = await fetchEventById(id, lang);
+---
+
+<Layout>
+  <section class="container py-8">
+    {event ? (
+      <>
+        <h1 class="text-3xl font-bold text-gmjo-blue">{(event.date as string).split('T')[0]}</h1>
+        <h1 class="text-3xl font-thin">{(event.date as string).split('T')[1]}</h1>
+        <h1 class="text-2xl font-bold text-gmjo-blue">Event {event.title}</h1>
+        <p>{event.description}</p>
+      </>
+    ) : (
+      <p>Event not found.</p>
+    )}
+  </section>
+</Layout>
