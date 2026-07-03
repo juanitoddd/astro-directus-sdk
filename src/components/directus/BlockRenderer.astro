@@ -1,5 +1,5 @@
 ---
-import { getDirectusAssetUrl, type DirectusAsset } from "@/lib/directus/assets";
+import { getDirectusAssetUrl, toPixelParam, type DirectusAsset, type DirectusAssetTransform } from "@/lib/directus/assets";
 import { buildContainerStyle } from "@/lib/directus/container-style";
 import Reference from "@/components/directus/Reference.astro";
 import Collection from "@/components/directus/Collection.astro";
@@ -113,19 +113,32 @@ function renderListItems(items: ListItem[] = [], style: string): string {
       const file = (data.file ?? {}) as {
         url?: string;
         link?: string;
+        widthMobile?: number | string;
+        heightMobile?: number | string;
         maxWidth?: number | string;
         maxHeight?: number | string;
+        maxWidthMobile?: number | string;
+        maxHeightMobile?: number | string;
         objectFit?: string;
       } & DirectusAsset;
-      // maxWidth / maxHeight → Directus transform params (width / height), only when numeric.
-      const toPixels = (value: number | string | null | undefined) => {
-        const n = typeof value === "number" ? value : parseInt(String(value ?? ""), 10);
-        return Number.isFinite(n) && n > 0 ? n : undefined;
-      };
-      const url = getDirectusAssetUrl(file as DirectusAsset, {
-        width: toPixels(file.maxWidth),
-        height: toPixels(file.maxHeight),
-      });
+      // width / height → Directus transform params. Absolute px pass through; desktop %/vw/auto
+      // can't be resolved server-side (no viewport) → skipped. Mobile %/vw ARE resolved against
+      // the breakpoint width, so a "100%" mobile image isn't requested larger than the breakpoint.
+      const MOBILE_BREAKPOINT = 640;
+      const transforms: DirectusAssetTransform = {};
+      const widthPx = [
+        toPixelParam(file.width),
+        toPixelParam(file.maxWidth),
+        toPixelParam(file.widthMobile, MOBILE_BREAKPOINT),
+        toPixelParam(file.maxWidthMobile, MOBILE_BREAKPOINT),
+      ].filter((v): v is number => v != null);
+      const heightPx = [toPixelParam(file.height), toPixelParam(file.maxHeight)]
+        .filter((v): v is number => v != null);
+      if (widthPx.length) transforms.width = Math.max(...widthPx);
+      if (heightPx.length) transforms.height = Math.max(...heightPx);
+
+      const url = getDirectusAssetUrl(file as DirectusAsset, transforms);
+
       const caption = (data.caption as string) ?? "";
       if (!url) return null;
 
@@ -134,23 +147,33 @@ function renderListItems(items: ListItem[] = [], style: string): string {
         value === undefined || value === null || value === ""
           ? null
           : typeof value === "number" ? `${value}px` : value;
-      const imgStyle = [
-        ["max-width", dimension(file.maxWidth)],
-        ["max-height", dimension(file.maxHeight)],
-        ["object-fit", file.objectFit ?? ''],
-      ]
+      console.log("file~~>", file)
+      // style="--iw:200px; --imw:600px; --iw-m:100px; …"
+      const imgAttrs = []
+      
+      if(file.width) imgAttrs.push(["--iw", dimension(file.width)]);
+      if(file.height) imgAttrs.push(["--ih", dimension(file.height)]);
+      if(file.maxWidth) imgAttrs.push(["--imw", dimension(file.maxWidth)]);
+      if(file.maxHeight) imgAttrs.push(["--imh", dimension(file.maxHeight)]);
+
+      if(file.widthMobile) imgAttrs.push(["--iw-m", dimension(file.widthMobile)]);
+      if(file.heightMobile) imgAttrs.push(["--ih-m", dimension(file.heightMobile)]);
+      if(file.maxWidthMobile) imgAttrs.push(["--imw-m", dimension(file.maxWidthMobile)]);
+      if(file.maxHeightMobile) imgAttrs.push(["--imh-m", dimension(file.maxHeightMobile)]);      
+
+      const imgStyle = imgAttrs
         .filter(([, v]) => v)
         .map(([prop, v]) => `${prop}:${v}`)
-        .join(";");
+        .join(";");      
       
       return (
         <figure class={`${alignClass} ${widthClass}`}>
           {file.link ? (
             <a href={file.link} target="_blank" rel="noopener noreferrer">
-              <img src={url} alt={caption} class="max-w-full h-auto inline-block" style={imgStyle || undefined} />
+              <img src={url} alt={caption} class="editorjs-image max-w-full h-auto inline-block" style={imgStyle || undefined} />
             </a>
           ) : (
-            <img src={url} alt={caption} class="max-w-full h-auto inline-block" style={imgStyle || undefined} />
+            <img src={url} alt={caption} class="editorjs-image max-w-full h-auto inline-block" style={imgStyle || undefined} />
           )}
           {caption && <figcaption class="text-sm opacity-70 mt-1" set:html={caption} />}
         </figure>

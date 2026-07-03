@@ -63,6 +63,23 @@ h4 {
   text-decoration: underline;
 }
 
+.editorjs-image {
+  width: var(--iw, auto);
+  height: var(--ih, auto);
+  max-width: var(--imw, none);
+  max-height: var(--imh, none);
+  object-fit: var(--of, fill);
+}
+@media (max-width: 640px) {
+  .editorjs-image {
+    width: var(--iw-m, var(--iw, auto));
+    height: var(--ih-m, var(--ih, auto));
+    max-width: var(--imw-m, var(--imw, none));
+    max-height: var(--imh-m, var(--imh, none));
+  }
+}
+
+
 .editorjs-button {
   cursor: pointer;
   transition: background-color 0.15s ease;   /* optional, for a smooth hover */

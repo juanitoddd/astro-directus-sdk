@@ -25,6 +25,42 @@ export type DirectusAssetTransform = {
   withoutEnlargement?: boolean;
 };
 
+/**
+ * Resolve a dimension to an absolute pixel number for a Directus transform param.
+ * - Absolute pixels (`200`, `"200"`, `"200px"`) → that number.
+ * - When `base` is given, `%`/`vw` resolve against it (e.g. `"50%"` with base 640 → 320) — used
+ *   for mobile dimensions, where the breakpoint width IS the reference, so a `100%` image isn't
+ *   requested larger than the breakpoint.
+ * - Everything else (`"auto"`, `"20rem"`, `"vh"`, or `%`/`vw` with no `base`) → `undefined`, so
+ *   the caller appends no param (the server can't resolve those to pixels).
+ */
+export function toPixelParam(
+  value: number | string | null | undefined,
+  base?: number,
+): number | undefined {
+  if (typeof value === "number") return Number.isFinite(value) && value > 0 ? value : undefined;
+  if (typeof value !== "string") return undefined;
+  const v = value.trim();
+
+  // Absolute pixels: "200" or "200px".
+  const px = v.match(/^(\d+(?:\.\d+)?)(?:px)?$/i);
+  if (px) {
+    const n = Number(px[1]);
+    return Number.isFinite(n) && n > 0 ? Math.round(n) : undefined;
+  }
+
+  // Relative to a known base (the breakpoint): "50%" / "50vw" → base * fraction.
+  if (typeof base === "number" && Number.isFinite(base)) {
+    const rel = v.match(/^(\d+(?:\.\d+)?)(?:%|vw)$/i);
+    if (rel) {
+      const n = (Number(rel[1]) / 100) * base;
+      return Number.isFinite(n) && n > 0 ? Math.round(n) : undefined;
+    }
+  }
+
+  return undefined; // "auto", "rem", "vh", or %/vw without a base
+}
+
 function buildAssetUrl(id: string) {
   return `${directus_url.replace(/\/$/, "")}/assets/${id}`;
 }
