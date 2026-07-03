@@ -13,16 +13,44 @@ export async function getStaticPaths() {
 const lang = Astro.params.lang as string;
 const id = Astro.params.id as string;
 const event = await fetchEventById(id, lang);
+console.log("event~~>", event)
 ---
 
 <Layout>
   <section class="container py-8">
     {event ? (
       <>
-        <h1 class="text-3xl font-bold text-gmjo-blue">{(event.date as string).split('T')[0]}</h1>
-        <h1 class="text-3xl font-thin">{(event.date as string).split('T')[1]}</h1>
-        <h1 class="text-2xl font-bold text-gmjo-blue">Event {event.title}</h1>
-        <p>{event.description}</p>
+      <div class="md:grid grid-cols-2 gap-4 my-4" style="grid-template-columns: 1fr 70px;">
+        <div>
+          <h1 class="text-5xl font-bold text-gmjo-blue">{(event.date as string).split('T')[0]}</h1>
+          <h1 class="text-5xl font-thin">{(event.date as string).split('T')[1]}</h1>
+          {/* <h1 class="text-2xl font-bold text-gmjo-blue">{event.title}</h1> */}
+          <div class="uppercase">{event.location_id.name}</div>
+          <div>{event.location_id.address}</div>
+          <div>{event.location_id.city}</div>
+        </div>        
+        <div class="flex items-end uppercase text-2xl font-thin">
+          <a class="underline-link" href={event.link_to_ticketsite} target="_blank" rel="noopener noreferrer">
+            Tickets
+          </a>
+        </div>
+
+      </div>
+      <hr class="my-4"/>
+      <div class="md:grid grid-cols-2 py-4">
+        <div class="uppercase text-gmjo-blue font-bold text-lg">{lang === 'de' ? 'Interpreten' : 'Interpreters'}</div>
+        <div></div>
+      </div>
+      <hr/>
+      <div class="md:grid grid-cols-2 py-4">
+        <div class="uppercase text-gmjo-blue font-bold text-lg">{lang === 'de' ? 'Programme' : 'Programme'}</div>
+        <div></div>
+      </div>
+      <hr/>
+      <div class="md:grid grid-cols-2 py-4">
+        <div class="uppercase text-gmjo-blue font-bold text-lg">{lang === 'de' ? 'Ort' : 'Place'}</div>
+        <div></div>
+      </div>
       </>
     ) : (
       <p>Event not found.</p>

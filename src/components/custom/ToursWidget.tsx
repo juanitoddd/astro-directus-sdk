@@ -98,7 +98,7 @@ function TourCard({ tour, lang }: { tour: Tour; lang: string }) {
                     <div>{time}</div>
                   </div>
                   <div>
-                    <div className="font-bold">{event.title}</div>
+                    <div><a className="font-bold text-gmjo-blue underline-link" href={`/${lang}/events/${event.id}`}>{event.title}</a></div>
                     <div>{(location?.name as string) ?? ""}</div>
                   </div>
                   <div></div>
