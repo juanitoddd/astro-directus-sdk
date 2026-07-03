@@ -88,7 +88,7 @@ const tour = await fetchTourById(tourId, lang);
             const url = getDirectusAssetUrl(person.image as DirectusAsset);
             return(
               <div class="">
-                <a class="underline-link text-gmjo-blue font-bold" href={`${lang}/biography/${person.people_id?.id}`}>
+                <a class="underline-link text-gmjo-blue font-bold" href={`/${lang}/biography/${person.id}`}>
                   <img src={url} class="object-cover" style="width: 200px; height: 230px;" />
                   <div class="">{person.first_name} {person.last_name}</div>
                 </a>
@@ -118,7 +118,7 @@ const tour = await fetchTourById(tourId, lang);
             const url = getDirectusAssetUrl(person.image as DirectusAsset);
             return(
               <div class="">
-                <a class="underline-link text-gmjo-blue font-bold" href={`${lang}/biography/${person.people_id?.id}`}>
+                <a class="underline-link text-gmjo-blue font-bold" href={`/${lang}/biography/${person.id}`}>
                   <img src={url} class="object-cover" style="width: 200px; height: 230px;" />
                   <div class="">{person.first_name} {person.last_name}</div>
                 </a>
@@ -148,7 +148,7 @@ const tour = await fetchTourById(tourId, lang);
             const url = getDirectusAssetUrl(person.image as DirectusAsset);
             return(
               <div class="">
-                <a class="underline-link text-gmjo-blue font-bold" href={`${lang}/biography/${person.people_id?.id}`}>
+                <a class="underline-link text-gmjo-blue font-bold" href={`/${lang}/biography/${person.id}`}>
                   <img src={url} class="object-cover" style="width: 200px; height: 230px;" />
                   <div class="">{person.first_name} {person.last_name}</div>
                 </a>
