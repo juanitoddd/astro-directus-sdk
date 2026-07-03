@@ -2,6 +2,7 @@
 import Layout from "@/layouts/Layout.astro";
 import { fetchAllEventIds, fetchEventById } from "@/lib/directus/events";
 import { languagePrefixes } from "@/constants/languages";
+import { pickTranslation } from '@/lib/directus/types/translation';
 
 export async function getStaticPaths() {
   const ids = await fetchAllEventIds();
@@ -13,7 +14,11 @@ export async function getStaticPaths() {
 const lang = Astro.params.lang as string;
 const id = Astro.params.id as string;
 const event = await fetchEventById(id, lang);
-console.log("event~~>", event)
+const hour = (event.date as string).split('T')[1].slice(0, -3);
+// console.log("event~~>", event.repertoires)
+event.repertoires.map((repertoire: any) => {
+  console.log("repertoire~~>", repertoire.repertoires_id)
+})
 ---
 
 <Layout>
@@ -22,10 +27,10 @@ console.log("event~~>", event)
       <>
       <div class="md:grid grid-cols-2 gap-4 my-4" style="grid-template-columns: 1fr 70px;">
         <div>
-          <h1 class="text-5xl font-bold text-gmjo-blue">{(event.date as string).split('T')[0]}</h1>
-          <h1 class="text-5xl font-thin">{(event.date as string).split('T')[1]}</h1>
-          {/* <h1 class="text-2xl font-bold text-gmjo-blue">{event.title}</h1> */}
-          <div class="uppercase">{event.location_id.name}</div>
+          <h1 class="text-5xl font-bold text-gmjo-blue" style="font-size: 4rem;">{(event.date as string).split('T')[0]}</h1>
+          <h1 class="text-5xl font-thin" style="font-size: 4rem;">{hour}</h1>
+          {/* <h1 class="text-2xl font-bold text-gmjo-blue">{event.title}</h1> */}          
+          <div><a href={event.location_id.url} target="_blank" rel="noopener noreferrer" class="uppercase underline-link">{event.location_id.name}</a></div>
           <div>{event.location_id.address}</div>
           <div>{event.location_id.city}</div>
         </div>        
@@ -44,12 +49,25 @@ console.log("event~~>", event)
       <hr/>
       <div class="md:grid grid-cols-2 py-4">
         <div class="uppercase text-gmjo-blue font-bold text-lg">{lang === 'de' ? 'Programme' : 'Programme'}</div>
-        <div></div>
+        <div>
+          {(event.repertoires ?? []).map((repertoire: any) => {
+            const title = pickTranslation(repertoire.translations, lang)?.title || repertoire.repertoires_id.title;
+            return (              
+              <div class="text-gmjo-blue font-bold">              
+                <span></span><span>{title}</span>
+              </div>          
+            ) 
+          })}
+        </div>
       </div>
       <hr/>
       <div class="md:grid grid-cols-2 py-4">
         <div class="uppercase text-gmjo-blue font-bold text-lg">{lang === 'de' ? 'Ort' : 'Place'}</div>
-        <div></div>
+        <div>
+          <div class="text-gmjo-blue font-bold underline-link"><a href={event.location_id.url} target="_blank" rel="noopener noreferrer">{event.location_id.name}</a></div>
+          <div>{event.location_id.city} / {event.location_id.country}</div>
+          <div>{event.location_id.postal_code} {event.location_id.address}</div>
+        </div>
       </div>
       </>
     ) : (

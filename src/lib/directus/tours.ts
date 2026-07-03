@@ -24,7 +24,13 @@ export async function fetchTourById(
     const tour = await directus.request(
       // @ts-expect-error — `tours` isn't in the typed SDK schema
       readItem("tours", id, {
-        fields: ["*", "translations.*"],
+        fields: [
+          "*",
+          "translations.*",
+          "orchestra.people_id.*",
+          "artists.people_id.*",
+          "tutors.people_id.*"
+        ],
         ...(deep ? { deep } : {}),
       }),
     );

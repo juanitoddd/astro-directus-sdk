@@ -1,4 +1,5 @@
 ---
+import { getDirectusAssetUrl, type DirectusAsset } from '@/lib/directus/assets';
 import { fetchEventsByTour, aggregateInterpreters } from '@/lib/directus/events';
 import { fetchTourById } from '@/lib/directus/tours';
 import { pickTranslation } from '@/lib/directus/types';
@@ -18,12 +19,11 @@ type Props = {
 };
 
 const { lang, tourId } = Astro.props as Props;
-console.log("lang~~>", lang)
 // const tourId = data.params?.tourId;
 const events = await fetchEventsByTour(tourId, lang);
 // const interprets = aggregateInterpreters(events)
 const tour = await fetchTourById(tourId, lang);
-console.log("lang~~>", lang)
+// console.log("tour~~>", tour)
 ---
 
 <div class="my-4 p-4 border-t border-black">
@@ -82,8 +82,19 @@ console.log("lang~~>", lang)
             <h2 class="text-gmjo-blue text-lg font-thin">{lang === 'en' ? 'Artists' : 'Künstler'}</h2>
           </span>
         </summary>
-        <div class="pb-4">
-
+        <div class="pb-4 flex gap-4">
+          {(tour?.artists ?? []).map((artist: any) => {            
+            const person = artist.people_id;            
+            const url = getDirectusAssetUrl(person.image as DirectusAsset);
+            return(
+              <div class="">
+                <a class="underline-link text-gmjo-blue font-bold" href={`${lang}/biography/${person.people_id?.id}`}>
+                  <img src={url} class="object-cover" style="width: 200px; height: 230px;" />
+                  <div class="">{person.first_name} {person.last_name}</div>
+                </a>
+              </div>
+            )
+          })}
         </div>
       </details>
 
@@ -102,7 +113,18 @@ console.log("lang~~>", lang)
           </span>
         </summary>
         <div class="pb-4">
-          
+          {(tour?.orchestra ?? []).map((artist: any) => {            
+            const person = artist.people_id;            
+            const url = getDirectusAssetUrl(person.image as DirectusAsset);
+            return(
+              <div class="">
+                <a class="underline-link text-gmjo-blue font-bold" href={`${lang}/biography/${person.people_id?.id}`}>
+                  <img src={url} class="object-cover" style="width: 200px; height: 230px;" />
+                  <div class="">{person.first_name} {person.last_name}</div>
+                </a>
+              </div>
+            )
+          })}
         </div>
       </details>
 
@@ -121,7 +143,18 @@ console.log("lang~~>", lang)
           </span>
         </summary>
         <div class="pb-4">
-          
+          {(tour?.tutors ?? []).map((artist: any) => {            
+            const person = artist.people_id;            
+            const url = getDirectusAssetUrl(person.image as DirectusAsset);
+            return(
+              <div class="">
+                <a class="underline-link text-gmjo-blue font-bold" href={`${lang}/biography/${person.people_id?.id}`}>
+                  <img src={url} class="object-cover" style="width: 200px; height: 230px;" />
+                  <div class="">{person.first_name} {person.last_name}</div>
+                </a>
+              </div>
+            )
+          })}
         </div>
       </details>
                       
