@@ -150,6 +150,8 @@ function renderListItems(items: ListItem[] = [], style: string): string {
       
       // style="--iw:200px; --imw:600px; --iw-m:100px; …"
       const imgAttrs = []
+
+      console.log("file~~>", file)
       
       if(file.width) imgAttrs.push(["--iw", dimension(file.width)]);
       if(file.height) imgAttrs.push(["--ih", dimension(file.height)]);
