@@ -44,17 +44,30 @@ event.repertoires.map((repertoire: any) => {
       <hr class="my-4"/>
       <div class="md:grid grid-cols-2 py-4">
         <div class="uppercase text-gmjo-blue font-bold text-lg">{lang === 'de' ? 'Interpreten' : 'Interpreters'}</div>
-        <div></div>
+        <div>
+          {(event.interpreters ?? []).map((interpreter: any) => {
+            const person = interpreter.person_id;            
+            const role = pickTranslation(interpreter.role_id.translations, lang);            
+            return(
+              <div class="">                
+                <a class="underline-link" href={`/${lang}/biography/${person.id}`}>
+                  <div class=""><span class="text-gmjo-blue font-bold">{person.first_name} {person.last_name}</span> - <span class="font-thin">{role?.name ?? ''}</span></div>
+                </a>
+              </div>
+            )
+          })}
+        </div>
       </div>
       <hr/>
       <div class="md:grid grid-cols-2 py-4">
         <div class="uppercase text-gmjo-blue font-bold text-lg">{lang === 'de' ? 'Programme' : 'Programme'}</div>
         <div>
-          {(event.repertoires ?? []).map((repertoire: any) => {
+          {(event.repertoires ?? []).map((repertoire: any) => {            
             const title = pickTranslation(repertoire.translations, lang)?.title || repertoire.repertoires_id.title;
+            const author = repertoire.repertoires_id.person_id;            
             return (              
-              <div class="text-gmjo-blue font-bold">              
-                <span></span><span>{title}</span>
+              <div class="">              
+                <span><a href={`/${lang}/biography/${author?.id}`} class="underline-link font-bold text-gmjo-blue">{author?.first_name} {author?.last_name}</a></span> <span>{title}</span>
               </div>          
             ) 
           })}
