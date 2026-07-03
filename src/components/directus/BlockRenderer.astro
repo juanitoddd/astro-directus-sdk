@@ -157,7 +157,8 @@ function renderListItems(items: ListItem[] = [], style: string): string {
       
       // Default width (--dw): fill the container when no desktop height is set, else auto
       // (so a set height drives the size and width keeps the aspect ratio).
-      imgAttrs.push(["--dw", file.heightDesktop ? "auto" : "100%"]);
+      const height = file.heightDesktop ||  file.maxHeight || file.heightMobile || file.maxHeightMobile;
+      imgAttrs.push(["--dw", height ? "auto" : "100%"]);
 
       if(file.widthDesktop) imgAttrs.push(["--iw", dimension(file.widthDesktop)]);
       if(file.heightDesktop) imgAttrs.push(["--ih", dimension(file.heightDesktop)]);
