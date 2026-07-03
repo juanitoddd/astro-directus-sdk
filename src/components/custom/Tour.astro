@@ -82,7 +82,7 @@ const tour = await fetchTourById(tourId, lang);
             <h2 class="text-gmjo-blue text-lg font-thin">{lang === 'en' ? 'Artists' : 'Künstler'}</h2>
           </span>
         </summary>
-        <div class="pb-4 flex gap-4">
+        <div class="pb-4 md:grid grid-cols-3 gap-4">
           {(tour?.artists ?? []).map((artist: any) => {            
             const person = artist.people_id;            
             const url = getDirectusAssetUrl(person.image as DirectusAsset);
@@ -112,7 +112,7 @@ const tour = await fetchTourById(tourId, lang);
             <h2 class="text-gmjo-blue text-lg font-thin">{lang === 'en' ? 'Orchestra members' : 'Orchestermitglieder'}</h2>
           </span>
         </summary>
-        <div class="pb-4 flex gap-4">
+        <div class="pb-4 md:grid grid-cols-3 gap-4">
           {(tour?.orchestra ?? []).map((artist: any) => {            
             const person = artist.people_id;            
             const url = getDirectusAssetUrl(person.image as DirectusAsset);
@@ -142,7 +142,7 @@ const tour = await fetchTourById(tourId, lang);
             <h2 class="text-gmjo-blue text-lg font-thin">{lang === 'en' ? 'Tutors' : 'Dozenten'}</h2>
           </span>
         </summary>
-        <div class="pb-4 flex gap-4">
+        <div class="pb-4 md:grid grid-cols-3 gap-4">
           {(tour?.tutors ?? []).map((artist: any) => {            
             const person = artist.people_id;            
             const url = getDirectusAssetUrl(person.image as DirectusAsset);
