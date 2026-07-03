@@ -134,7 +134,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
         toPixelParam(file.widthMobile, MOBILE_BREAKPOINT),
         toPixelParam(file.maxWidthMobile, MOBILE_BREAKPOINT),
       ].filter((v): v is number => v != null);
-      const heightPx = [toPixelParam(file.heightDesktop), toPixelParam(file.maxHeight)]
+      const heightPx = [toPixelParam(file.heightDesktop) /*, toPixelParam(file.maxHeight) */]
         .filter((v): v is number => v != null);
       if (widthPx.length) transforms.width = Math.max(...widthPx);
       if (heightPx.length) transforms.height = Math.max(...heightPx);
