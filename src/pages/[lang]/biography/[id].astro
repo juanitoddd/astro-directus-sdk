@@ -2,6 +2,8 @@
 import Layout from "@/layouts/Layout.astro";
 import { fetchAllPeopleIds, getPersonById } from "@/lib/directus/person";
 import { languagePrefixes } from "@/constants/languages";
+import { pickTranslation } from '@/lib/directus/types/translation';
+import { getDirectusAssetUrl, type DirectusAsset } from '@/lib/directus/assets';
 
 export async function getStaticPaths() {
   const ids = await fetchAllPeopleIds();
@@ -13,14 +15,25 @@ export async function getStaticPaths() {
 const lang = Astro.params.lang as string;
 const id = Astro.params.id as string;
 const person = await getPersonById(id, lang);
+const translation = pickTranslation(person?.translations, lang ?? "");
+console.log("translation~~>", translation)
+console.log("person.image~~>", person.image)
+const url = getDirectusAssetUrl(person.image as DirectusAsset);
 ---
 
 <Layout>
   <section class="container py-8">
     {person ? (
       <>
-        <h1 class="text-2xl font-bold text-gmjo-blue">Artist {person.first_name} {person.last_name}</h1>
-        <p>{person.description}</p>
+        <h1 class="text-right uppercase text-2xl font-bold text-gmjo-blue">{person.first_name} {person.last_name}</h1>
+        <div class="md:grid grid-cols-2 gap-4 my-4">
+          <div>
+          {person.image ? (
+            <img src={url} alt={person.first_name} class="w-full h-auto" />
+          ) : null }
+          </div>
+          <div set:html={translation.biography}></div>
+        </div>
       </>
     ) : (
       <p>Artist not found.</p>
