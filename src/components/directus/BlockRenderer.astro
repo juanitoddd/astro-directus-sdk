@@ -113,6 +113,8 @@ function renderListItems(items: ListItem[] = [], style: string): string {
       const file = (data.file ?? {}) as {
         url?: string;
         link?: string;
+        widthDesktop?: number | string;
+        heightDesktop?: number | string;
         widthMobile?: number | string;
         heightMobile?: number | string;
         maxWidth?: number | string;
@@ -127,12 +129,12 @@ function renderListItems(items: ListItem[] = [], style: string): string {
       const MOBILE_BREAKPOINT = 640;
       const transforms: DirectusAssetTransform = {};
       const widthPx = [
-        toPixelParam(file.width),
+        toPixelParam(file.widthDesktop),
         toPixelParam(file.maxWidth),
         toPixelParam(file.widthMobile, MOBILE_BREAKPOINT),
         toPixelParam(file.maxWidthMobile, MOBILE_BREAKPOINT),
       ].filter((v): v is number => v != null);
-      const heightPx = [toPixelParam(file.height), toPixelParam(file.maxHeight)]
+      const heightPx = [toPixelParam(file.heightDesktop), toPixelParam(file.maxHeight)]
         .filter((v): v is number => v != null);
       if (widthPx.length) transforms.width = Math.max(...widthPx);
       if (heightPx.length) transforms.height = Math.max(...heightPx);
@@ -153,8 +155,8 @@ function renderListItems(items: ListItem[] = [], style: string): string {
 
       console.log("file~~>", file)
       
-      if(file.width) imgAttrs.push(["--iw", dimension(file.width)]);
-      if(file.height) imgAttrs.push(["--ih", dimension(file.height)]);
+      if(file.widthDesktop) imgAttrs.push(["--iw", dimension(file.widthDesktop)]);
+      if(file.heightDesktop) imgAttrs.push(["--ih", dimension(file.heightDesktop)]);
       if(file.maxWidth) imgAttrs.push(["--imw", dimension(file.maxWidth)]);
       if(file.maxHeight) imgAttrs.push(["--imh", dimension(file.maxHeight)]);
 
