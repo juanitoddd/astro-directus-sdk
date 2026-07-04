@@ -67,7 +67,7 @@ const location = pickTranslation(event.location_id?.translations, lang ?? "");
         <div class="uppercase text-gmjo-blue font-bold text-lg">{lang === 'de' ? 'Programme' : 'Programme'}</div>
         <div>
           {(event.repertoires ?? []).map((repertoire: any) => {            
-            const title = pickTranslation(repertoire.translations, lang)?.title || repertoire.repertoires_id.title;
+            const title = pickTranslation(repertoire.repertoires_id.translations, lang)?.title || repertoire.repertoires_id.title;            
             const author = repertoire.repertoires_id.person_id;            
             return (              
               <div class="">              

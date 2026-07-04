@@ -131,6 +131,7 @@ export async function fetchEventById(
           "tour_id.*",
           "tour_id.translations.*",
           "repertoires.repertoires_id.*",
+          "repertoires.repertoires_id.translations.*",
           "repertoires.repertoires_id.person_id.*",
           "repertoires.repertoires_id.translations.*",
           "location_id.*",
