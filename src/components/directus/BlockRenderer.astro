@@ -128,7 +128,12 @@ function renderListItems(items: ListItem[] = [], style: string): string {
         maxWidthMobile?: number | string;
         maxHeightMobile?: number | string;
         objectFit?: string;
+        // Focal point (pixel coords relative to intrinsic width/height), stored by the editor.
+        focal_point_x?: number | null;
+        focal_point_y?: number | null;
       } & DirectusAsset;
+
+      // console.log("block~~>", block);
       // width / height → Directus transform params. Absolute px pass through; desktop %/vw/auto
       // can't be resolved server-side (no viewport) → skipped. Mobile %/vw ARE resolved against
       // the breakpoint width, so a "100%" mobile image isn't requested larger than the breakpoint.
@@ -175,6 +180,16 @@ function renderListItems(items: ListItem[] = [], style: string): string {
       if(file.maxHeightMobile) imgAttrs.push(["--imh-m", dimension(file.maxHeightMobile)]);      
 
       if(file.objectFit) imgAttrs.push(["--of", file.objectFit]);
+
+      // Focal point → object-position (%). Converts pixel coords to a percentage of the
+      // intrinsic width/height. Only emitted when both the coord and the dimension are known;
+      // CSS falls back to 50% (center) otherwise.
+      const pct = (coord: number | null | undefined, size: number | null | undefined) =>
+        coord != null && size ? `${Math.round((coord / size) * 10000) / 100}%` : null;
+      const opX = pct(file.focal_point_x, file.width);
+      const opY = pct(file.focal_point_y, file.height);
+      if (opX) imgAttrs.push(["--op-x", opX]);
+      if (opY) imgAttrs.push(["--op-y", opY]);
 
       const imgStyle = imgAttrs
         .filter(([, v]) => v)

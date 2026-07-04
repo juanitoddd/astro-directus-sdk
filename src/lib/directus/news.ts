@@ -9,7 +9,8 @@ const newsQueryFields = [
   'name',
   'status',
   'sort',
-  'image.id', 'image.filename_disk', 'image.title', 'image.description', 'image.width', 'image.height',
+  'image.*',
+  //'image.id', 'image.filename_disk', 'image.title', 'image.description', 'image.width', 'image.height',
   // news-level translations carry the `preview` block-editor content
   'translations.id',
   'translations.languages_code',

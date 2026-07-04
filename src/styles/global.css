@@ -69,6 +69,7 @@ h4 {
   max-width: var(--imw, none);
   max-height: var(--imh, none);
   object-fit: var(--of, fill);
+  object-position: var(--op-x, 50%) var(--op-y, 50%);
 }
 @media (max-width: 640px) {
   .editorjs-image {

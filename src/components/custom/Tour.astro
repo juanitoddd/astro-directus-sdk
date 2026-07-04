@@ -68,6 +68,7 @@ const formatTime = (iso: string | null | undefined) =>
             })
             const conductorID = 19; // Assuming 19 is the ID for the conductor role
             const conductor = interpreters.find((i: any) => i.role_id.id === conductorID);            
+            const _event =  pickTranslation(event.translations, lang ?? "")            
             const role = conductor ? pickTranslation(conductor.role_id.translations, lang ?? "") : null;
             const location = pickTranslation(event.location_id?.translations, lang ?? "");            
             return (
@@ -77,7 +78,7 @@ const formatTime = (iso: string | null | undefined) =>
                 <div>{formatTime(event.date)}</div>
               </div>
               <div>
-                <div><a class="font-bold text-gmjo-blue underline-link" href={`/${lang}/events/${event.id}`}>{event.title}</a></div>
+                <div><a class="font-bold text-gmjo-blue underline-link" href={`/${lang}/events/${event.id}`}>{_event?.title ?? ''}</a></div>
                 <div>{location?.name ?? ''}</div>
               </div>
               <div>

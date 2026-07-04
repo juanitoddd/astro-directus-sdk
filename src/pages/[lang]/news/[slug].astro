@@ -14,8 +14,7 @@ export async function getStaticPaths() {
       const news = await fetchNewsBySlug(slug);
       return news ? { slug, news } : null;
     }),
-  );
-  console.log("items", items);
+  );  
   const valid = items.filter((i): i is { slug: string; news: News } => i !== null);
 
   return languagePrefixes.flatMap((lang) =>
@@ -31,13 +30,32 @@ const news = await fetchNewsBySlug(slug);
 const sections = news?.sections ?? [];
 const imageSrc = getDirectusAssetUrl(news?.image, { width: 1280, format: "webp", quality: 80 });
 const imageAlt = getDirectusAssetAlt(news?.image);
+
+// Focal point → object-position (%). Pixel coords → percentage of the intrinsic width/height,
+// falling back to center. Only visible when the image is cropped (object-cover + fixed aspect).
+type FocalImage = {
+  focal_point_x?: number | null;
+  focal_point_y?: number | null;
+  width?: number | null;
+  height?: number | null;
+};
+const focal = news?.image as FocalImage | undefined;
+/*
+function opPct(coord?: number | null, size?: number | null): string | null {
+  return coord != null && size ? `${Math.round((coord / size) * 10000) / 100}%` : null;
+}
+const opX = opPct(focal?.focal_point_x, focal?.width);
+const opY = opPct(focal?.focal_point_y, focal?.height);
+const objectPosition = opX || opY ? `object-position:${opX ?? "50%"} ${opY ?? "50%"}` : undefined;
+*/
+const objectPosition = {}
 ---
 
 <Layout>
   <article class="container py-8">
     {news?.name && <div class="mb-8"><h1 class="text-3xl font-bold mb-4">{news?.name}</h1></div>}
     {imageSrc && (
-      <img src={imageSrc} alt={imageAlt} class="news-image object-cover w-full h-auto mb-6" loading="eager" />
+      <img src={imageSrc} alt={imageAlt} class="news-image object-cover w-full aspect-video mb-6" style={objectPosition} loading="eager" />
     )}    
     {sections.map((section) => <SectionRenderer section={section} lang={lang as string} />)}
   </article>
