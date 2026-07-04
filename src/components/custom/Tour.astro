@@ -20,8 +20,9 @@ type Props = {
 
 const { lang, tourId } = Astro.props as Props;
 // const tourId = data.params?.tourId;
-const events = await fetchEventsByTour(tourId, lang);
-console.log("events~~>", events)
+const events = (await fetchEventsByTour(tourId, lang) ?? []).sort(
+  (a: any, b: any) => String(a.date ?? "").localeCompare(String(b.date ?? "")),
+);
 // const interprets = aggregateInterpreters(events)
 const tour = await fetchTourById(tourId, lang);
 // console.log("tour~~>", tour)
