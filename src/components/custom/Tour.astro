@@ -26,6 +26,15 @@ const events = (await fetchEventsByTour(tourId, lang) ?? []).sort(
 // const interprets = aggregateInterpreters(events)
 const tour = await fetchTourById(tourId, lang);
 // console.log("tour~~>", tour)
+
+// ISO date ("2026-01-15T20:00:00") → "15.01.2026". Pure string work, no library needed.
+const formatDate = (iso: string | null | undefined) => {
+  const [y, m, d] = String(iso ?? "").split("T")[0].split("-");
+  return d && m && y ? `${d}.${m}.${y}` : "";
+};
+// "…T20:00:00" → "20:00"
+const formatTime = (iso: string | null | undefined) =>
+  String(iso ?? "").split("T")[1]?.slice(0, 5) ?? "";
 ---
 
 <div class="my-4 p-4 border-t border-black">
@@ -55,8 +64,8 @@ const tour = await fetchTourById(tourId, lang);
             return (
               <div class="grid grid-cols-3 gap-2 py-2" style="grid-template-columns: 100px auto 200px;">
               <div>
-                <div class="font-bold">{event.date.split('T')[0]}</div>
-                <div>{event.date.split('T')[1]}</div>
+                <div class="font-bold">{formatDate(event.date)}</div>
+                <div>{formatTime(event.date)}</div>
               </div>
               <div>
                 <div><a class="font-bold text-gmjo-blue underline-link" href={`/${lang}/events/${event.id}`}>{event.title}</a></div>

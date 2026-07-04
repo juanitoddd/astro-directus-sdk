@@ -16,6 +16,11 @@ const id = Astro.params.id as string;
 const event = await fetchEventById(id, lang);
 const hour = (event.date as string).split('T')[1].slice(0, -3);
 // console.log("event~~>", event.repertoires)
+// ISO date ("2026-01-15T20:00:00") → "15.01.2026". Pure string work, no library needed.
+const formatDate = (iso: string | null | undefined) => {
+  const [y, m, d] = String(iso ?? "").split("T")[0].split("-");
+  return d && m && y ? `${d}.${m}.${y}` : "";
+};
 ---
 
 <Layout>
@@ -24,7 +29,7 @@ const hour = (event.date as string).split('T')[1].slice(0, -3);
       <>
       <div class="md:grid grid-cols-2 gap-4 my-4" style="grid-template-columns: 1fr 70px;">
         <div>
-          <h1 class="text-5xl font-bold text-gmjo-blue" style="font-size: 4rem;">{(event.date as string).split('T')[0]}</h1>
+          <h1 class="text-5xl font-bold text-gmjo-blue" style="font-size: 4rem;">{formatDate(event.date)}</h1>
           <h1 class="text-5xl font-thin" style="font-size: 4rem;">{hour}</h1>
           {/* <h1 class="text-2xl font-bold text-gmjo-blue">{event.title}</h1> */}          
           <div><a href={event.location_id.url} target="_blank" rel="noopener noreferrer" class="uppercase underline-link">{event.location_id.name}</a></div>
