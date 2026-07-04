@@ -139,12 +139,18 @@ function renderListItems(items: ListItem[] = [], style: string): string {
       // the breakpoint width, so a "100%" mobile image isn't requested larger than the breakpoint.
       const MOBILE_BREAKPOINT = 640;
       const transforms: DirectusAssetTransform = {};
-      const widthPx = [
-        toPixelParam(file.widthDesktop),
-        toPixelParam(file.maxWidth),
-        toPixelParam(file.widthMobile, MOBILE_BREAKPOINT),
-        toPixelParam(file.maxWidthMobile, MOBILE_BREAKPOINT),
-      ].filter((v): v is number => v != null);
+      const widthPx = []
+      if(file.widthDesktop) {
+        const w = toPixelParam(file.widthDesktop);
+        if(w) widthPx.push(w)
+      } else {
+        const mw = toPixelParam(file.maxWidth);
+        const mwm = toPixelParam(file.maxWidthMobile, MOBILE_BREAKPOINT);
+        const wm = toPixelParam(file.widthMobile, MOBILE_BREAKPOINT);
+        if(mw) widthPx.push(mw)
+        if(mwm) widthPx.push(mwm)
+        if(wm) widthPx.push(wm)        
+      }      
       const heightPx = [toPixelParam(file.heightDesktop) /*, toPixelParam(file.maxHeight) */]
         .filter((v): v is number => v != null);
       if (widthPx.length) transforms.width = Math.max(...widthPx);

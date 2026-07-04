@@ -86,7 +86,7 @@ const location = pickTranslation(event.location_id?.translations, lang ?? "");
         </div>
       </div>
       <div class="py-4">
-        <div class="uppercase text-gmjo-blue font-bold text-4xl">Upcoming events</div>
+        <div class="uppercase text-gmjo-blue font-bold text-4xl">{lang === 'de' ? 'Kommende Veranstaltungen' : 'Upcoming events'}</div>
       </div>
       </>
     ) : (
