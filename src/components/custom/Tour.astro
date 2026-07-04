@@ -59,7 +59,16 @@ const formatTime = (iso: string | null | undefined) =>
           </span>
         </summary>
         <div class="pb-4">
-          {(events ?? []).map((event: any) => {
+          {(events ?? []).map((event: any) => {            
+            const interpreters = event.interpreters;
+            interpreters.map((interpreter: any) => {
+              const person = interpreter.person_id;            
+              const role = pickTranslation(interpreter.role_id.translations, lang);
+              // console.log("role~~>", role.name, role.id)
+            })
+            const conductorID = 19; // Assuming 19 is the ID for the conductor role
+            const conductor = interpreters.find((i: any) => i.role_id.id === conductorID);            
+            const role = conductor ? pickTranslation(conductor.role_id.translations, lang ?? "") : null;
             const location = pickTranslation(event.location_id?.translations, lang ?? "");            
             return (
               <div class="grid grid-cols-3 gap-2 py-2" style="grid-template-columns: 100px auto 200px;">
@@ -71,7 +80,11 @@ const formatTime = (iso: string | null | undefined) =>
                 <div><a class="font-bold text-gmjo-blue underline-link" href={`/${lang}/events/${event.id}`}>{event.title}</a></div>
                 <div>{location?.name ?? ''}</div>
               </div>
-              <div></div>
+              <div>
+                {conductor && (
+                  <div>{conductor.person_id.first_name} {conductor.person_id.last_name}, {role?.name ?? ''}</div>
+                )}
+              </div>
             </div>
             )
           }
