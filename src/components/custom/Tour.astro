@@ -21,6 +21,7 @@ type Props = {
 const { lang, tourId } = Astro.props as Props;
 // const tourId = data.params?.tourId;
 const events = await fetchEventsByTour(tourId, lang);
+console.log("events~~>", events)
 // const interprets = aggregateInterpreters(events)
 const tour = await fetchTourById(tourId, lang);
 // console.log("tour~~>", tour)

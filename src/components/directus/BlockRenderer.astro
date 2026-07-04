@@ -10,9 +10,10 @@ type Props = {
   block: EditorJsBlock;
   lang?: string;
   depth?: number;
+  isLast?: boolean;
 };
 
-const { block, lang, depth = 0 } = Astro.props as Props;
+const { block, lang, depth = 0, isLast = false } = Astro.props as Props;
 const data = block.data ?? {};
 
 // Alignment tune → literal Tailwind classes (full strings so Tailwind's source scan emits them).
@@ -100,6 +101,12 @@ function renderListItems(items: ListItem[] = [], style: string): string {
   switch (block.type) {
     case "paragraph": {
       const text = (data.text as string) ?? "";
+      // Empty paragraph → render a blank line (<br />) instead of a collapsed <p></p> — EXCEPT
+      // when it's the last block (avoids a stray trailing blank line from a leftover empty block).
+      if (text.trim() === "") {
+        if (isLast) return null;
+        return <p class={`${alignClass} ${widthClass}`} set:html={'<br/>'} />;
+      }
       return <p class={`${alignClass} ${widthClass}`} set:html={text} />;
     }
     case "header": {
@@ -166,6 +173,8 @@ function renderListItems(items: ListItem[] = [], style: string): string {
       if(file.heightMobile) imgAttrs.push(["--ih-m", dimension(file.heightMobile)]);
       if(file.maxWidthMobile) imgAttrs.push(["--imw-m", dimension(file.maxWidthMobile)]);
       if(file.maxHeightMobile) imgAttrs.push(["--imh-m", dimension(file.maxHeightMobile)]);      
+
+      if(file.objectFit) imgAttrs.push(["--of", file.objectFit]);
 
       const imgStyle = imgAttrs
         .filter(([, v]) => v)
@@ -248,28 +257,28 @@ function renderListItems(items: ListItem[] = [], style: string): string {
               style={`flex-grow:${item.grow ? 1 : 0}`}
             >
               {/* Each item is its own nested EditorJS document — render its blocks recursively. */}
-              {(item.content?.blocks ?? []).map((nested) => (
-                <Astro.self block={nested} lang={lang} depth={depth} />
+              {(item.content?.blocks ?? []).map((nested, i, arr) => (
+                <Astro.self block={nested} lang={lang} depth={depth} isLast={i === arr.length - 1} />
               ))}
             </div>
           ))}
         </div>
       );
     }
-    case "gridblock": {      
+    case "gridblock": {
       return (
         <div class={gridStyle.className} style={gridStyle.style}>
           {gridItems.map((item) => (
             <div>
               {/* Each item is its own nested EditorJS document — render its blocks recursively. */}
-              {(item.content?.blocks ?? []).map((nested) => (
-                <Astro.self block={nested} lang={lang} depth={depth} />
+              {(item.content?.blocks ?? []).map((nested, i, arr) => (
+                <Astro.self block={nested} lang={lang} depth={depth} isLast={i === arr.length - 1} />
               ))}
             </div>
           ))}
         </div>
       );
-    }    
+    }
     case "accordionblock": {
       // Both `title` and `content` are nested EditorJS documents (any combination of blocks),
       // like flex/grid items — rendered recursively via Astro.self.
@@ -291,14 +300,14 @@ function renderListItems(items: ListItem[] = [], style: string): string {
               <polyline points="9 6 15 12 9 18" />
             </svg>
             <span class="flex-1">
-              {titleBlocks.map((nested) => (
-                <Astro.self block={nested} lang={lang} depth={depth} />
+              {titleBlocks.map((nested, i, arr) => (
+                <Astro.self block={nested} lang={lang} depth={depth} isLast={i === arr.length - 1} />
               ))}
             </span>
           </summary>
           <div class="pb-4">
-            {contentBlocks.map((nested) => (
-              <Astro.self block={nested} lang={lang} depth={depth} />
+            {contentBlocks.map((nested, i, arr) => (
+              <Astro.self block={nested} lang={lang} depth={depth} isLast={i === arr.length - 1} />
             ))}
           </div>
         </details>

@@ -14,5 +14,5 @@ const blocks: EditorJsBlock[] = content?.blocks ?? [];
 ---
 
 <div class={className}>
-  {blocks.map((block) => <BlockRenderer block={block} lang={lang} depth={depth} />)}
+  {blocks.map((block, i) => <BlockRenderer block={block} lang={lang} depth={depth} isLast={i === blocks.length - 1} />)}
 </div>
