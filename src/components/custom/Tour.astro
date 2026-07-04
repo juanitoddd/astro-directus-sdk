@@ -79,7 +79,8 @@ const formatTime = (iso: string | null | undefined) =>
               </div>
               <div>
                 <div><a class="font-bold text-gmjo-blue underline-link" href={`/${lang}/events/${event.id}`}>{_event?.title ?? ''}</a></div>
-                <div>{location?.name ?? ''}</div>
+                {/* <div>{location?.name ?? ''}</div> */}
+                <div>{event?.organizer ?? ''}</div>
               </div>
               <div>
                 {conductor && (

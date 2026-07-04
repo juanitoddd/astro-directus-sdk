@@ -32,10 +32,11 @@ const location = pickTranslation(event.location_id?.translations, lang ?? "");
       <div class="md:grid grid-cols-2 gap-4 my-4" style="grid-template-columns: 1fr 70px;">
         <div>
           <h1 class="text-5xl font-bold text-gmjo-blue" style="font-size: 4rem;">{formatDate(event.date)}</h1>
-          <h1 class="text-5xl font-thin" style="font-size: 4rem;">{hour}</h1>
-          {/* <h1 class="text-2xl font-bold text-gmjo-blue">{event.title}</h1> */}          
-          <div><a href={event.location_id.url} target="_blank" rel="noopener noreferrer" class="uppercase underline-link font-bold">{location.name}</a></div>
-          <div>{event.organizer}</div>          
+          <h1 class="text-5xl font-thin" style="font-size: 4rem;">{hour}</h1>          
+          {/*  
+            <div><a href={event.location_id.url} target="_blank" rel="noopener noreferrer" class="uppercase underline-link font-bold">{event.organizer}</a></div>          
+          */}
+          <div class="uppercase underline-link font-bold">{event.organizer}</div>          
         </div>        
         <div class="flex items-end uppercase text-2xl font-thin">
           <a class="underline-link" href={event.link_to_ticketsite} target="_blank" rel="noopener noreferrer">
@@ -85,9 +86,11 @@ const location = pickTranslation(event.location_id?.translations, lang ?? "");
           <div>{location.postal_code} {location.address}</div>
         </div>
       </div>
+      {/*
       <div class="py-4">
         <div class="uppercase text-gmjo-blue font-bold text-4xl">{lang === 'de' ? 'Kommende Veranstaltungen' : 'Upcoming events'}</div>
-      </div>
+      </div>      
+      */}
       </>
     ) : (
       <p>Event not found.</p>
