@@ -69,6 +69,7 @@ const tour = await fetchTourById(tourId, lang);
         </div>
       </details>
 
+      {/* Artists */}
       <details class="accordion border-b group">
         <summary class="flex items-center gap-2 cursor-pointer select-none py-3 font-bold list-none [&::-webkit-details-marker]:hidden">
           {/* Custom marker (native one is hidden) — rotates to point down when open. */}
@@ -99,36 +100,7 @@ const tour = await fetchTourById(tourId, lang);
         </div>
       </details>
 
-      <details class="accordion border-b group">
-        <summary class="flex items-center gap-2 cursor-pointer select-none py-3 font-bold list-none [&::-webkit-details-marker]:hidden">
-          {/* Custom marker (native one is hidden) — rotates to point down when open. */}
-          <svg
-            class="w-3 h-3 shrink-0 transition-transform group-open:rotate-90"
-            viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
-          >
-            <polyline points="9 6 15 12 9 18" />
-          </svg>
-          <span class="flex-1">
-            <h2 class="text-gmjo-blue text-lg font-thin">{lang === 'en' ? 'Orchestra members' : 'Orchestermitglieder'}</h2>
-          </span>
-        </summary>
-        <div class="pb-4 md:grid grid-cols-3 gap-4">
-          {(tour?.orchestra ?? []).map((artist: any) => {            
-            const person = artist.people_id;            
-            const url = getDirectusAssetUrl(person.image as DirectusAsset);
-            return(
-              <div class="">
-                <a class="underline-link text-gmjo-blue font-bold" href={`/${lang}/biography/${person.id}`}>
-                  <img src={url} class="object-cover" style="width: 200px; height: 230px;" />
-                  <div class="">{person.first_name} {person.last_name}</div>
-                </a>
-              </div>
-            )
-          })}
-        </div>
-      </details>
-
+      {/* Tutors */}
       <details class="accordion border-b group">
         <summary class="flex items-center gap-2 cursor-pointer select-none py-3 font-bold list-none [&::-webkit-details-marker]:hidden">
           {/* Custom marker (native one is hidden) — rotates to point down when open. */}
@@ -158,6 +130,37 @@ const tour = await fetchTourById(tourId, lang);
           })}
         </div>
       </details>
+
+      {/* Orchestra members */}
+      <details class="accordion border-b group">
+        <summary class="flex items-center gap-2 cursor-pointer select-none py-3 font-bold list-none [&::-webkit-details-marker]:hidden">
+          {/* Custom marker (native one is hidden) — rotates to point down when open. */}
+          <svg
+            class="w-3 h-3 shrink-0 transition-transform group-open:rotate-90"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+          >
+            <polyline points="9 6 15 12 9 18" />
+          </svg>
+          <span class="flex-1">
+            <h2 class="text-gmjo-blue text-lg font-thin">{lang === 'en' ? 'Orchestra members' : 'Orchestermitglieder'}</h2>
+          </span>
+        </summary>
+        <div class="pb-4 md:grid grid-cols-3 gap-4">
+          {(tour?.orchestra ?? []).map((artist: any) => {            
+            const person = artist.people_id;            
+            const url = getDirectusAssetUrl(person.image as DirectusAsset);
+            return(
+              <div class="">
+                <a class="underline-link text-gmjo-blue font-bold" href={`/${lang}/biography/${person.id}`}>
+                  <img src={url} class="object-cover" style="width: 200px; height: 230px;" />
+                  <div class="">{person.first_name} {person.last_name}</div>
+                </a>
+              </div>
+            )
+          })}
+        </div>
+      </details>      
                       
     </div>
   </div>    
