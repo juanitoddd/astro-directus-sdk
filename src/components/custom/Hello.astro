@@ -18,8 +18,6 @@ type Props = {
 const { data = {}, lang } = Astro.props as Props;
 const events = await fetchEventsByTour(103, lang);
 const interprets = aggregateInterpreters(events)
-console.log("interprets~~>", interprets)
-console.log("length~~>", interprets.length)
 const title = typeof data.title === "string" ? data.title : "Hello from a custom block";
 ---
 

@@ -16,8 +16,6 @@ const lang = Astro.params.lang as string;
 const id = Astro.params.id as string;
 const person = await getPersonById(id, lang);
 const translation = pickTranslation(person?.translations, lang ?? "");
-console.log("translation~~>", translation)
-console.log("person.image~~>", person.image)
 const url = getDirectusAssetUrl(person.image as DirectusAsset);
 ---
 

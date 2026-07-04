@@ -95,8 +95,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
 {(() => {
   if(block.type === 'gridblock') {
     console.log();
-  }
-  // console.log("~ block.type ~~>", block.type)
+  }  
   const rendered = (() => {
   switch (block.type) {
     case "paragraph": {
@@ -151,9 +150,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
           : typeof value === "number" ? `${value}px` : value;
       
       // style="--iw:200px; --imw:600px; --iw-m:100px; …"
-      const imgAttrs = []
-
-      console.log("file~~>", file)
+      const imgAttrs = []      
       
       // Default width (--dw): fill the container when no desktop height is set, else auto
       // (so a set height drives the size and width keeps the aspect ratio).
@@ -175,7 +172,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
         .map(([prop, v]) => `${prop}:${v}`)
         .join(";");      
 
-      console.log("imgStyle~~>", imgStyle)
+      // console.log("imgStyle~~>", imgStyle)
       
       return (
         <figure class={`${alignClass} ${widthClass}`}>

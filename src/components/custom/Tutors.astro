@@ -1,0 +1,35 @@
+---
+import { getDirectusAssetUrl, type DirectusAsset } from '@/lib/directus/assets';
+import { fetchGlobals } from '@/lib/directus/globals';
+
+// Example custom block. Copy this file and rename it; the block's `name` must match the
+// filename exactly (e.g. `name: "Hello"` → Hello.astro).
+//
+// Every custom component receives:
+//   - data:  the block's data object (read your own args from here, incl. `name`)
+//   - lang:  the current language code
+//   - depth: nesting depth (for recursion guards, if you render EditorJS content)
+type Props = {
+  data?: Record<string, unknown>;
+  lang?: string;
+  depth?: number;
+};
+
+const { data = {}, lang } = Astro.props as Props;
+const globals = await fetchGlobals(lang);
+---
+
+<div class="md:grid grid-cols-3 gap-4">  
+  {(globals?.tutors ?? []).map((artist: any) => {            
+    const person = artist.people_id;            
+    const url = getDirectusAssetUrl(person.image as DirectusAsset);
+    return(
+      <div class="">
+        <a class="underline-link text-gmjo-blue font-bold" href={`/${lang}/biography/${person.id}`}>
+          <img src={url} class="object-cover" style="width: 200px; height: 230px;" />
+          <div class="">{person.first_name} {person.last_name}</div>
+        </a>
+      </div>
+    )
+  })}
+</div>
