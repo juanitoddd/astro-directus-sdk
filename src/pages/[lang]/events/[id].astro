@@ -21,6 +21,8 @@ const formatDate = (iso: string | null | undefined) => {
   const [y, m, d] = String(iso ?? "").split("T")[0].split("-");
   return d && m && y ? `${d}.${m}.${y}` : "";
 };
+
+const location = pickTranslation(event.location_id?.translations, lang ?? "");
 ---
 
 <Layout>
@@ -32,13 +34,12 @@ const formatDate = (iso: string | null | undefined) => {
           <h1 class="text-5xl font-bold text-gmjo-blue" style="font-size: 4rem;">{formatDate(event.date)}</h1>
           <h1 class="text-5xl font-thin" style="font-size: 4rem;">{hour}</h1>
           {/* <h1 class="text-2xl font-bold text-gmjo-blue">{event.title}</h1> */}          
-          <div><a href={event.location_id.url} target="_blank" rel="noopener noreferrer" class="uppercase underline-link">{event.location_id.name}</a></div>
-          <div>{event.location_id.address}</div>
-          <div>{event.location_id.city}</div>
+          <div><a href={event.location_id.url} target="_blank" rel="noopener noreferrer" class="uppercase underline-link font-bold">{location.name}</a></div>
+          <div>{event.organizer}</div>          
         </div>        
         <div class="flex items-end uppercase text-2xl font-thin">
           <a class="underline-link" href={event.link_to_ticketsite} target="_blank" rel="noopener noreferrer">
-            Tickets
+            {lang === 'de' ? 'Karten' : 'Tickets'}
           </a>
         </div>
 
@@ -53,7 +54,7 @@ const formatDate = (iso: string | null | undefined) => {
             return(
               <div class="">                
                 <a class="underline-link" href={`/${lang}/biography/${person.id}`}>
-                  <div class=""><span class="text-gmjo-blue font-bold">{person.first_name} {person.last_name}</span> - <span class="font-thin">{role?.name ?? ''}</span></div>
+                  <div class=""><span class="text-gmjo-blue font-bold">{person.first_name} {person.last_name}</span> <span class="font-thin">{role.id !== 88 ? `- ${role?.name ?? ''}` : null}</span></div>
                 </a>
               </div>
             )
@@ -79,10 +80,13 @@ const formatDate = (iso: string | null | undefined) => {
       <div class="md:grid grid-cols-2 py-4">
         <div class="uppercase text-gmjo-blue font-bold text-lg">{lang === 'de' ? 'Ort' : 'Place'}</div>
         <div>
-          <div class="text-gmjo-blue font-bold underline-link"><a href={event.location_id.url} target="_blank" rel="noopener noreferrer">{event.location_id.name}</a></div>
-          <div>{event.location_id.city} / {event.location_id.country}</div>
-          <div>{event.location_id.postal_code} {event.location_id.address}</div>
+          <div class="text-gmjo-blue font-bold underline-link"><a href={location.url} target="_blank" rel="noopener noreferrer">{location.name}</a></div>
+          <div>{location.city} / {location.country}</div>
+          <div>{location.postal_code} {location.address}</div>
         </div>
+      </div>
+      <div class="py-4">
+        <div class="uppercase text-gmjo-blue font-bold text-4xl">Upcoming events</div>
       </div>
       </>
     ) : (
