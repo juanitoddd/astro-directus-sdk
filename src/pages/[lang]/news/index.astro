@@ -23,7 +23,7 @@ const news = await fetchAllNews(lang);
     {news.length === 0 ? (
       <p class="opacity-70">No news yet.</p>
     ) : (
-      <ul class="grid gap-6 grid-cols-2 md:grid-cols-3">
+      <ul class="md:grid gap-6 grid-cols-3">
         {news.map((item) => {
           const translation = pickTranslation(item.translations, lang);
           if(translation?.preview?.blocks[0]) translation.preview.blocks = [translation?.preview?.blocks[0]]
