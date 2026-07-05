@@ -73,7 +73,7 @@ const formatTime = (iso: string | null | undefined) =>
             const role = conductor ? pickTranslation(conductor.role_id.translations, lang ?? "") : null;
             // const location = pickTranslation(event.location_id?.translations, lang ?? "");         
             return (
-              <div class="md:grid grid-cols-3 gap-2 py-2" style="grid-template-columns: 100px auto 200px;">
+              <div class="md:grid grid-cols-3 gap-2 py-2 mb-4 md:mb-0" style="grid-template-columns: 100px auto 200px;">
               <div class="">
                 <div class="font-bold">{formatDate(event.date)}</div>
                 <div>{formatTime(event.date)}</div>
