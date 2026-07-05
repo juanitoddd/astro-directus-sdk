@@ -30,7 +30,7 @@ const url = getDirectusAssetUrl(person.image as DirectusAsset);
             <img src={url} alt={person.first_name} class="w-full h-auto" />
           ) : null }
           </div>
-          <div class="text-lg md:text-base mb-4 md:mb-0" set:html={translation.biography}></div>
+          <div class="text-lg md:text-base mt-4 md:mt-0" set:html={translation.biography}></div>
         </div>
       </>
     ) : (
