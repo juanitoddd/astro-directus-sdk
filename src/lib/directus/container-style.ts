@@ -7,18 +7,6 @@ export type ContainerStyle = {
   style: string;
 };
 
-const responsiveClass = (columns: number) : string => {
-  switch (columns) {
-    case 1:
-    case 2:
-    case 3:
-      return `block md:grid grid-cols-${columns}`;
-    case 4:
-      return `grid md:grid-cols-${columns} grid-cols-2`;      
-    default:
-      return `block md:grid grid-cols-${columns}`;
-  }
-};
 /**
  * Build the class + inline CSS for a layout container shared by the flex/grid blocks and the
  * collection block.
@@ -49,16 +37,28 @@ export function buildContainerStyle(config: ContainerConfig = {}): ContainerStyl
   }
 
   if (type === "grid") {
-    const template = config.columnTemplate
-      ? config.columnTemplate
-      : `repeat(${config.columns ?? 2}, minmax(0, 1fr))`;
+    const gapDecl = `gap:${gap ?? DEFAULT_GAP}`;
+    const alignDecl = `align-items:${config.alignItems ?? "stretch"}`;
+
+    // A custom template string can't be "halved" — emit it inline as before (grid from md up).
+    if (config.columnTemplate) {
+      return {
+        className: "md:grid",
+        style: [gapDecl, alignDecl, `grid-template-columns: ${config.columnTemplate}`].join(";"),
+      };
+    }
+
+    // Column count → responsive grid via CSS vars. `.editorjs-grid` (global.css) reads them:
+    // stacked < 640px, halved 640–767px (--grid-cols-r), full ≥768px (--grid-cols).
+    const cols = Number(config.columns ?? 2) || 2;
+    const colsResponsive = Math.max(1, Math.ceil(cols / 2));
     return {
-      // className: responsiveClass(Number.parseInt(`${config.columns ?? 2}`)),
-      className: 'md:grid',
+      className: "editorjs-grid",
       style: [
-        `gap:${gap ?? DEFAULT_GAP}`,
-        `align-items:${config.alignItems ?? "stretch"}`,
-        `grid-template-columns: ${template}`,
+        `--grid-cols:${cols}`,
+        `--grid-cols-r:${colsResponsive}`,
+        gapDecl,
+        alignDecl,
       ].join(";"),
     };
   }

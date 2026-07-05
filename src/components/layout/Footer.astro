@@ -16,7 +16,7 @@ const items = menu?.items ?? [];
 <footer class={className}>
   <div class="container">
     <div class="py-4 border-b border-black">© 2026</div>
-    <div class="block md:grid grid-cols-6 py-4">
+    <div class="block grid md:grid-cols-6 grid-cols-3 py-4">
       {items.map((item) => {
         const translation = pickTranslation(item.translations, lang);
         const label = translation?.label ?? item.url;
@@ -25,11 +25,11 @@ const items = menu?.items ?? [];
         return (
           <div>
             <section class="text-uppercase">
-              <ul class="menu text-gmjo-blue">
+              <ul class="menu text-gmjo-blue text-xl md:text-base py-4 md:py-0">
                 <li>
                   <a class="font-bold" href={href}>{label}</a>
                   {children.length > 0 && (
-                    <ul class="sub-menu">
+                    <ul class="sub-menu py-4 md:py-0">
                       {children.map((child) => {
                         const childTranslation = pickTranslation(child.translations, lang);
                         const childLabel = childTranslation?.label ?? child.url;

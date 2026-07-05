@@ -287,10 +287,13 @@ function renderListItems(items: ListItem[] = [], style: string): string {
       );
     }
     case "gridblock": {
+      for(const item of gridItems) {
+        console.log("item length", !!item.content)
+      }
       return (
         <div class={gridStyle.className} style={gridStyle.style}>
           {gridItems.map((item) => (
-            <div>
+            <div class={`${!!item.content ? 'editorjs-grid-item' : 'editorjs-grid-item-empty'}`}>
               {/* Each item is its own nested EditorJS document — render its blocks recursively. */}
               {(item.content?.blocks ?? []).map((nested, i, arr) => (
                 <Astro.self block={nested} lang={lang} depth={depth} isLast={i === arr.length - 1} />

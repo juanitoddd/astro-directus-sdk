@@ -63,6 +63,36 @@ h4 {
   text-decoration: underline;
 }
 
+/* Responsive grid container (grid/collection blocks). Column counts come as CSS vars so they
+   can change per breakpoint (Tailwind classes can't take a runtime number):
+   stacked < 640px, halved 640–767px (--grid-cols-r), full ≥768px (--grid-cols). */
+.editorjs-grid {
+  display: block;
+}
+.editorjs-grid-item {
+  margin-bottom: 30px;
+}
+.editorjs-grid-item-empty {
+  display: none;
+}
+@media (min-width: 640px) {
+  .editorjs-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--grid-cols-r, var(--grid-cols, 1)), minmax(0, 1fr));
+  }
+  .editorjs-grid-item {
+    margin-bottom: 0px;
+  }  
+}
+@media (min-width: 768px) {
+  .editorjs-grid {
+    grid-template-columns: repeat(var(--grid-cols, 1), minmax(0, 1fr));
+  }
+  .editorjs-grid-item-empty {
+    display: block;
+  }  
+}
+
 .editorjs-image {
   width: var(--iw, var(--dw));
   height: var(--ih, auto);
@@ -71,7 +101,7 @@ h4 {
   object-fit: var(--of, fill);
   object-position: var(--op-x, 50%) var(--op-y, 50%);
 }
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .editorjs-image {
     width: var(--iw-m, var(--iw, var(--dw)));
     height: var(--ih-m, var(--ih, auto));
