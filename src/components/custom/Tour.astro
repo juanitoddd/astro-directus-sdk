@@ -61,18 +61,20 @@ const formatTime = (iso: string | null | undefined) =>
         <div class="pb-4">
           {(events ?? []).map((event: any) => {            
             const interpreters = event.interpreters;
+            /*
             interpreters.map((interpreter: any) => {
               const person = interpreter.person_id;            
               const role = pickTranslation(interpreter.role_id.translations, lang);
               // console.log("role~~>", role.name, role.id)
             })
+            */
             const conductorID = 19; // Assuming 19 is the ID for the conductor role
             const conductor = interpreters.find((i: any) => i.role_id.id === conductorID);            
             const _event =  pickTranslation(event.translations, lang ?? "")            
             const role = conductor ? pickTranslation(conductor.role_id.translations, lang ?? "") : null;
-            const location = pickTranslation(event.location_id?.translations, lang ?? "");            
+            // const location = pickTranslation(event.location_id?.translations, lang ?? "");         
             return (
-              <div class="grid grid-cols-3 gap-2 py-2" style="grid-template-columns: 100px auto 200px;">
+              <div class="md:grid grid-cols-3 gap-2 py-2" style="grid-template-columns: 100px auto 200px;">
               <div>
                 <div class="font-bold">{formatDate(event.date)}</div>
                 <div>{formatTime(event.date)}</div>
@@ -114,7 +116,7 @@ const formatTime = (iso: string | null | undefined) =>
             const person = artist.people_id;            
             const url = getDirectusAssetUrl(person.image as DirectusAsset);
             return(
-              <div class="">
+              <div class="mb-4 md:mb-0">
                 <a class="underline-link text-gmjo-blue font-bold" href={`/${lang}/biography/${person.id}`}>
                   <img src={url} class="object-cover" style="width: 200px; height: 230px;" />
                   <div class="">{person.first_name} {person.last_name}</div>
@@ -145,7 +147,7 @@ const formatTime = (iso: string | null | undefined) =>
             const person = artist.people_id;            
             const url = getDirectusAssetUrl(person.image as DirectusAsset);
             return(
-              <div class="">
+              <div class="mb-4 md:mb-0">
                 <a class="underline-link text-gmjo-blue font-bold" href={`/${lang}/biography/${person.id}`}>
                   <img src={url} class="object-cover" style="width: 200px; height: 230px;" />
                   <div class="">{person.first_name} {person.last_name}</div>
@@ -176,7 +178,7 @@ const formatTime = (iso: string | null | undefined) =>
             const person = artist.people_id;            
             const url = getDirectusAssetUrl(person.image as DirectusAsset);
             return(
-              <div class="">
+              <div class="mb-4 md:mb-0">
                 <a class="underline-link text-gmjo-blue font-bold" href={`/${lang}/biography/${person.id}`}>
                   <img src={url} class="object-cover" style="width: 200px; height: 230px;" />
                   <div class="">{person.first_name} {person.last_name}</div>
