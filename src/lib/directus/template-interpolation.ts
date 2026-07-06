@@ -1,4 +1,4 @@
-import { getDirectusAssetUrl } from "./assets";
+import { getDirectusAssetUrl, toPixelParam } from "./assets";
 import { pickTranslation } from "./types";
 import type { EditorJsContent } from "./types";
 
@@ -22,49 +22,6 @@ function resolvePath(item: unknown, path: string, lang: string): unknown {
   return current;
 }
 
-// ---------------------------------------------------------------------------
-// Image tokens: {{image:<sourceField>, alt=<value>, link=<value>, maxWidth=…, maxHeight=…}}
-// `image:` prefix marks an image. The first arg is the source file field (resolved from the
-// item). Attributes are comma-separated key=value pairs where a quoted value is a literal and
-// an unquoted value is a field reference resolved from the item.
-// ---------------------------------------------------------------------------
-
-/** Split on top-level commas, ignoring commas inside quotes. */
-function splitArgs(input: string): string[] {
-  const args: string[] = [];
-  let current = "";
-  let quote: string | null = null;
-  for (const ch of input) {
-    if (quote) {
-      current += ch;
-      if (ch === quote) quote = null;
-    } else if (ch === "'" || ch === '"') {
-      quote = ch;
-      current += ch;
-    } else if (ch === ",") {
-      args.push(current);
-      current = "";
-    } else {
-      current += ch;
-    }
-  }
-  if (current.trim() !== "") args.push(current);
-  return args.map((a) => a.trim());
-}
-
-function isQuoted(value: string): boolean {
-  return (
-    value.length >= 2 &&
-    ((value[0] === "'" && value.endsWith("'")) || (value[0] === '"' && value.endsWith('"')))
-  );
-}
-
-/** Quoted → literal string; unquoted → field reference resolved from the item. */
-function resolveValue(raw: string, item: unknown, lang: string): unknown {
-  if (isQuoted(raw)) return raw.slice(1, -1);
-  return resolvePath(item, raw, lang);
-}
-
 function escapeAttr(value: string): string {
   return value
     .replace(/&/g, "&amp;")
@@ -73,88 +30,132 @@ function escapeAttr(value: string): string {
     .replace(/"/g, "&quot;");
 }
 
-function toPixels(value: unknown): number | undefined {
-  const n = typeof value === "number" ? value : parseInt(String(value ?? ""), 10);
-  return Number.isFinite(n) && n > 0 ? n : undefined;
-}
-
 function dimensionCss(value: unknown): string | null {
   if (value === undefined || value === null || value === "") return null;
   return typeof value === "number" ? `${value}px` : String(value);
 }
 
-/** Remove any HTML tags the editor may have injected into the token (e.g. `<span>`). */
-function stripTags(input: string): string {
-  return input.replace(/<[^>]*>/g, "");
+// ---------------------------------------------------------------------------
+// Image reference block — replaces the old `{{image:…}}` token. The block's `data` carries:
+//   - static:       width, height, maxWidth, maxHeight, objectFit  (used verbatim)
+//   - interpolated: source, alt, link  (quoted = literal, unquoted = field reference — the
+//                   same convention as the old token attributes)
+// The block is rendered to an <img> and swapped for an `htmlblock`, so BlockRenderer renders it.
+// ---------------------------------------------------------------------------
+
+// The block `type` string(s) as emitted by the editor. Adjust to match your image-reference tool.
+const IMAGE_REFERENCE_TYPES = new Set(["imageReference", "imagereference"]);
+
+function isImageReferenceBlock(node: any): boolean {
+  return (
+    !!node && typeof node === "object" &&
+    typeof node.type === "string" && IMAGE_REFERENCE_TYPES.has(node.type) &&
+    !!node.data && typeof node.data === "object"
+  );
 }
 
-/** Build the `<img>` (optionally linked) HTML for an `image:` token's body. */
-function renderImageToken(spec: string, item: unknown, lang: string): string {
-  const args = splitArgs(stripTags(spec));
-  if (args.length === 0) return "";
-  // First arg = source file field (a reference unless explicitly quoted as a literal id/url).
-  const source = resolveValue(args[0], item, lang);
-  if (source === undefined || source === null || source === "") return "";
+// Alignment tune → text-align class (the wrapper div positions the inline image).
+const ALIGN_CLASS: Record<string, string> = {
+  left: "text-left",
+  center: "text-center",
+  right: "text-right",
+  justify: "text-justify",
+};
 
-  const attrs: Record<string, unknown> = {};
-  for (let i = 1; i < args.length; i++) {
-    const eq = args[i].indexOf("=");
-    if (eq === -1) continue;
-    const key = args[i].slice(0, eq).trim();
-    attrs[key] = resolveValue(args[i].slice(eq + 1).trim(), item, lang);
-  }  
+const MOBILE_BREAKPOINT = 640;
 
-  // Fixed width/height take precedence for the Directus transform; otherwise fall back to max*.
-  const url = getDirectusAssetUrl(source as any, {
-    width: toPixels(attrs.width ?? attrs.maxWidth),
-    height: toPixels(attrs.height ?? attrs.maxHeight),
-  });  
+/** Build the `<img>` (linked + alignment-wrapped) HTML for an image reference block's `data`.
+ *  Uses the same dimension fields + CSS vars as BlockRenderer's image case (`.editorjs-image`). */
+function renderImageBlock(
+  data: Record<string, unknown>,
+  item: unknown,
+  lang: string,
+  alignment?: string | null,
+): string {
+  // Interpolated fields — support inline `{{token}}` interpolation (incl. `{{translations.*}}`).
+  const source = interpolateString(String(data.url ?? data.source ?? ""), item, lang).trim();
+  if (!source) return "";
+  const alt = interpolateString(String(data.alt ?? ""), item, lang);
+  const link = interpolateString(String(data.link ?? ""), item, lang).trim();
+
+  // Same static dimension fields as BlockRenderer's image case.
+  const {
+    widthDesktop, heightDesktop, widthMobile, heightMobile,
+    maxWidth, maxHeight, maxWidthMobile, maxHeightMobile, objectFit,
+  } = data as Record<string, string | number | null | undefined>;
+
+  // Transform params — absolute px only; mobile %/vw resolved against the breakpoint.
+  const widthPx = [
+    toPixelParam(widthDesktop),
+    toPixelParam(maxWidth),
+    toPixelParam(widthMobile, MOBILE_BREAKPOINT),
+    toPixelParam(maxWidthMobile, MOBILE_BREAKPOINT),
+  ].filter((v): v is number => v != null);
+  const heightPx = [toPixelParam(heightDesktop)].filter((v): v is number => v != null);
+  const transforms: { width?: number; height?: number } = {};
+  if (widthPx.length) transforms.width = Math.max(...widthPx);
+  if (heightPx.length) transforms.height = Math.max(...heightPx);
+
+  const url = getDirectusAssetUrl(source as any, transforms);
   if (!url) return "";
 
-  const alt = attrs.alt != null ? String(attrs.alt) : "";
-  const link = attrs.link != null && attrs.link !== "" ? String(attrs.link) : "";
+  // CSS vars consumed by `.editorjs-image` (same as BlockRenderer).
+  const imgAttrs: Array<[string, string | null]> = [];
+  const hasHeight = heightDesktop || maxHeight || heightMobile || maxHeightMobile;
+  imgAttrs.push(["--dw", hasHeight ? "auto" : "100%"]);
+  if (widthDesktop) imgAttrs.push(["--iw", dimensionCss(widthDesktop)]);
+  if (heightDesktop) imgAttrs.push(["--ih", dimensionCss(heightDesktop)]);
+  if (maxWidth) imgAttrs.push(["--imw", dimensionCss(maxWidth)]);
+  if (maxHeight) imgAttrs.push(["--imh", dimensionCss(maxHeight)]);
+  if (widthMobile) imgAttrs.push(["--iw-m", dimensionCss(widthMobile)]);
+  if (heightMobile) imgAttrs.push(["--ih-m", dimensionCss(heightMobile)]);
+  if (maxWidthMobile) imgAttrs.push(["--imw-m", dimensionCss(maxWidthMobile)]);
+  if (maxHeightMobile) imgAttrs.push(["--imh-m", dimensionCss(maxHeightMobile)]);
+  if (objectFit) imgAttrs.push(["--of", String(objectFit)]);
 
-  const styleParts: string[] = [];
-  const w = dimensionCss(attrs.width);
-  const h = dimensionCss(attrs.height);
-  const mw = dimensionCss(attrs.maxWidth);
-  const mh = dimensionCss(attrs.maxHeight);  
-  // Fixed width/height (inline) override the `max-w-full h-auto` class, giving object-fit a box to crop.
-  if (w) styleParts.push(`width:${w}`);
-  if (h) styleParts.push(`height:${h}`);
-  if (mw) styleParts.push(`max-width:${mw}`);
-  if (mh) styleParts.push(`max-height:${mh}`);
-  if (attrs.objectFit) styleParts.push(`object-fit:${attrs.objectFit}`);  
-  const styleAttr = styleParts.length ? ` style="${escapeAttr(styleParts.join(";"))}"` : "";
+  const imgStyle = imgAttrs.filter(([, v]) => v).map(([p, v]) => `${p}:${v}`).join(";");
+  const styleAttr = imgStyle ? ` style="${escapeAttr(imgStyle)}"` : "";
 
-  const img = `<img src="${escapeAttr(url)}" alt="${escapeAttr(alt)}" class="max-w-full h-auto"${styleAttr} />`;
-  return link
+  const img = `<img src="${escapeAttr(url)}" alt="${escapeAttr(alt)}" class="editorjs-image max-w-full h-auto inline-block"${styleAttr} />`;
+  const content = link
     ? `<a href="${escapeAttr(link)}" target="_blank" rel="noopener noreferrer">${img}</a>`
     : img;
+
+  // Wrap in a div so the alignment tune (text-align) positions the image.
+  const alignClass = alignment ? ALIGN_CLASS[alignment] ?? "" : "";
+  const clsAttr = alignClass ? ` class="${alignClass}"` : "";
+  return `<div${clsAttr}>${content}</div>`;
 }
 
 const TOKEN = /\{\{\s*([^}]+?)\s*\}\}/g;
 
-/** Replace every `{{…}}` token in a string. Scalars inline as text; `image:` tokens become `<img>`. */
+/** Replace every `{{path}}` token in a string with the resolved scalar value (missing → ""). */
 function interpolateString(value: string, item: unknown, lang: string): string {
   return value.replace(TOKEN, (_match, raw) => {
-    const token = String(raw).trim();
-    if (token.startsWith("image:")) {
-      return renderImageToken(token.slice("image:".length).trim(), item, lang);
-    }
-    const resolved = resolvePath(item, token, lang);
+    const resolved = resolvePath(item, String(raw).trim(), lang);
     if (resolved === undefined || resolved === null) return "";
-    // Non-image objects (other relations) aren't inlined.
-    if (typeof resolved === "object") return "";
+    if (typeof resolved === "object") return ""; // relations/objects aren't inlined
     return String(resolved);
   });
 }
 
-/** Deep-walk any value, interpolating every string it contains. */
+/** Deep-walk any value, interpolating strings and expanding image reference blocks. */
 function deepInterpolate(node: unknown, item: unknown, lang: string): unknown {
   if (typeof node === "string") return interpolateString(node, item, lang);
   if (Array.isArray(node)) return node.map((n) => deepInterpolate(n, item, lang));
   if (node && typeof node === "object") {
+    // Image reference block → render to <img> and swap for an htmlblock (tunes preserved).
+    if (isImageReferenceBlock(node)) {
+      // console.log("node", node);
+      // console.log("item", item);
+      const alignment = (node as any).tunes?.alignment?.alignment ?? null;
+      // console.log("tag", renderImageBlock((node as any).data ?? {}, item, lang, alignment));
+      return {
+        ...(node as Record<string, unknown>),
+        type: "htmlblock",
+        data: { html: renderImageBlock((node as any).data ?? {}, item, lang, alignment) },
+      };
+    }
     const out: Record<string, unknown> = {};
     for (const [key, val] of Object.entries(node)) out[key] = deepInterpolate(val, item, lang);
     return out;
@@ -164,7 +165,7 @@ function deepInterpolate(node: unknown, item: unknown, lang: string): unknown {
 
 /**
  * Fill a display-template's EditorJS body with values from `item`, using the
- * current `lang` for any `{{translations.*}}` placeholders.
+ * current `lang` for any `{{translations.*}}` placeholders and image reference blocks.
  */
 export function interpolateTemplate(
   template: EditorJsContent,
