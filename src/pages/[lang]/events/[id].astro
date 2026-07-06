@@ -64,7 +64,7 @@ const location = pickTranslation(event.location_id?.translations, lang ?? "");
       </div>
       <hr/>
       <div class="md:grid grid-cols-2 py-4">
-        <div class="uppercase text-gmjo-blue font-bold text-lg mb-4 md:mb-0">{lang === 'de' ? 'Programme' : 'Program'}</div>
+        <div class="uppercase text-gmjo-blue font-bold text-lg mb-4 md:mb-0">{lang === 'de' ? 'Programm' : 'Programme'}</div>
         <div>
           {(event.repertoires ?? []).map((repertoire: any) => {            
             const title = pickTranslation(repertoire.repertoires_id.translations, lang)?.title || repertoire.repertoires_id.title;            
