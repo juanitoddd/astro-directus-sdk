@@ -55,7 +55,7 @@ const location = pickTranslation(event.location_id?.translations, lang ?? "");
             return(
               <div class="">                
                 <a class="underline-link" href={`/${lang}/biography/${person.id}`}>
-                  <div class=""><span class="text-gmjo-blue font-bold">{person.first_name} {person.last_name}</span> <span class="font-thin">{role.id !== 88 ? `- ${role?.name ?? ''}` : null}</span></div>
+                  <div class=""><span class="text-gmjo-blue font-bold">{person.first_name} {person.last_name}</span> <span class="font-thin">{![88, 87].includes(role.id) ? `- ${role?.name ?? ''}` : null}</span></div>
                 </a>
               </div>
             )
