@@ -108,7 +108,7 @@ function renderImageToken(spec: string, item: unknown, lang: string): string {
   const url = getDirectusAssetUrl(source as any, {
     width: toPixels(attrs.width ?? attrs.maxWidth),
     height: toPixels(attrs.height ?? attrs.maxHeight),
-  });
+  });  
   if (!url) return "";
 
   const alt = attrs.alt != null ? String(attrs.alt) : "";
