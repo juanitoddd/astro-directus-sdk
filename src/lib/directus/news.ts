@@ -15,6 +15,7 @@ const newsQueryFields = [
   'translations.id',
   'translations.languages_code',
   'translations.preview',
+  'translations.title',
   // M2A sections, same shape as a page's sections
   'sections.id',
   'sections.sort',

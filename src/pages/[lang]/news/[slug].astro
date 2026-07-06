@@ -40,6 +40,8 @@ type FocalImage = {
   height?: number | null;
 };
 const focal = news?.image as FocalImage | undefined;
+
+const newsTranslation = pickTranslation(news?.translations, lang as string);
 /*
 function opPct(coord?: number | null, size?: number | null): string | null {
   return coord != null && size ? `${Math.round((coord / size) * 10000) / 100}%` : null;
@@ -53,7 +55,7 @@ const objectPosition = {}
 
 <Layout>
   <article class="container py-8">
-    {news?.name && <div class="mb-8"><h1 class="text-3xl font-bold mb-4">{news?.name}</h1></div>}
+    {newsTranslation?.title && <div class="mb-8"><h1 class="text-3xl font-bold mb-4">{newsTranslation.title}</h1></div>}
     {imageSrc && (
       <img src={imageSrc} alt={imageAlt} class="news-image object-cover w-full aspect-video mb-6" style={objectPosition} loading="eager" />
     )}    
