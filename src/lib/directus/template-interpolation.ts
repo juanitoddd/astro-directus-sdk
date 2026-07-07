@@ -145,8 +145,7 @@ function deepInterpolate(node: unknown, item: unknown, lang: string): unknown {
   if (Array.isArray(node)) return node.map((n) => deepInterpolate(n, item, lang));
   if (node && typeof node === "object") {
     // Image reference block → render to <img> and swap for an htmlblock (tunes preserved).
-    if (isImageReferenceBlock(node)) {
-      if((node as any).id  === 'FtAbZLY5fP') console.log("node", node);
+    if (isImageReferenceBlock(node)) {      
       // console.log("item", item);
       const alignment = (node as any).tunes?.alignment?.alignment ?? null;
       // console.log("tag", renderImageBlock((node as any).data ?? {}, item, lang, alignment));

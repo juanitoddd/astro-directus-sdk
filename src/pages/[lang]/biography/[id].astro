@@ -1,5 +1,6 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import BlockRenderer from "@/components/directus/BlockRenderer.astro";
 import { fetchAllPeopleIds, getPersonById } from "@/lib/directus/person";
 import { languagePrefixes } from "@/constants/languages";
 import { pickTranslation } from '@/lib/directus/types/translation';
@@ -17,6 +18,7 @@ const id = Astro.params.id as string;
 const person = await getPersonById(id, lang);
 const translation = pickTranslation(person?.translations, lang ?? "");
 const url = getDirectusAssetUrl(person.image as DirectusAsset);
+const blocks = (translation?.bio as any)?.blocks ?? [];
 ---
 
 <Layout>
@@ -29,8 +31,10 @@ const url = getDirectusAssetUrl(person.image as DirectusAsset);
           {person.image ? (
             <img src={url} alt={person.first_name} class="w-full h-auto" />
           ) : null }
-          </div>
-          <div class="text-lg md:text-base mt-4 md:mt-0" set:html={translation.biography}></div>
+          </div>          
+          <div>
+            {blocks.map((b: any) => <BlockRenderer block={b} lang={lang} />)}
+          </div>          
         </div>
       </>
     ) : (
