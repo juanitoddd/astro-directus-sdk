@@ -82,8 +82,7 @@ function renderImageBlock(
   const {
     widthDesktop, heightDesktop, widthMobile, heightMobile,
     maxWidth, maxHeight, maxWidthMobile, maxHeightMobile, objectFit,
-  } = data as Record<string, string | number | null | undefined>;
-
+  } = data as Record<string, string | number | null | undefined>;  
   // Transform params — absolute px only; mobile %/vw resolved against the breakpoint.
   const widthPx = [
     toPixelParam(widthDesktop),
@@ -94,10 +93,10 @@ function renderImageBlock(
   const heightPx = [toPixelParam(heightDesktop)].filter((v): v is number => v != null);
   const transforms: { width?: number; height?: number } = {};
   if (widthPx.length) transforms.width = Math.max(...widthPx);
-  if (heightPx.length) transforms.height = Math.max(...heightPx);
+  if (heightPx.length) transforms.height = Math.max(...heightPx);  
 
   const url = getDirectusAssetUrl(source as any, transforms);
-  if (!url) return "";
+  if (!url) return "";  
 
   // CSS vars consumed by `.editorjs-image` (same as BlockRenderer).
   const imgAttrs: Array<[string, string | null]> = [];
@@ -117,6 +116,7 @@ function renderImageBlock(
   const styleAttr = imgStyle ? ` style="${escapeAttr(imgStyle)}"` : "";
 
   const img = `<img src="${escapeAttr(url)}" alt="${escapeAttr(alt)}" class="editorjs-image max-w-full h-auto inline-block"${styleAttr} />`;
+  // console.log("img", img);
   const content = link
     ? `<a href="${escapeAttr(link)}" target="_blank" rel="noopener noreferrer">${img}</a>`
     : img;
@@ -140,13 +140,13 @@ function interpolateString(value: string, item: unknown, lang: string): string {
 }
 
 /** Deep-walk any value, interpolating strings and expanding image reference blocks. */
-function deepInterpolate(node: unknown, item: unknown, lang: string): unknown {
+function deepInterpolate(node: unknown, item: unknown, lang: string): unknown {  
   if (typeof node === "string") return interpolateString(node, item, lang);
   if (Array.isArray(node)) return node.map((n) => deepInterpolate(n, item, lang));
   if (node && typeof node === "object") {
     // Image reference block → render to <img> and swap for an htmlblock (tunes preserved).
     if (isImageReferenceBlock(node)) {
-      // console.log("node", node);
+      if((node as any).id  === 'FtAbZLY5fP') console.log("node", node);
       // console.log("item", item);
       const alignment = (node as any).tunes?.alignment?.alignment ?? null;
       // console.log("tag", renderImageBlock((node as any).data ?? {}, item, lang, alignment));

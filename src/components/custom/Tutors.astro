@@ -22,11 +22,11 @@ const globals = await fetchGlobals(lang);
 <div class="md:grid grid-cols-3 gap-4">  
   {(globals?.tutors ?? []).map((artist: any) => {            
     const person = artist.people_id;            
-    const url = getDirectusAssetUrl(person.image as DirectusAsset);
+    const url = getDirectusAssetUrl(person.image as DirectusAsset);    
     return(
       <div class="">
         <a class="underline-link text-gmjo-blue font-bold" href={`/${lang}/biography/${person.id}`}>
-          <img src={url} class="object-cover" style="width: 200px; height: 230px;" />
+          <img src={`${url}?width=200&height=230`} class="object-cover" style="width: 200px; height: 230px;" />
           <div class="">{person.first_name} {person.last_name}</div>
         </a>
       </div>
