@@ -3,7 +3,7 @@ import Layout from "@/layouts/Layout.astro";
 import EditorJs from "@/components/directus/EditorJs.astro";
 import SectionRenderer from "@/components/directus/SectionRenderer.astro";
 import { fetchAllNewsSlugs, fetchNewsBySlug } from "@/lib/directus/news";
-import { getDirectusAssetAlt, getDirectusAssetUrl } from "@/lib/directus/assets";
+import { focalToObjectPosition, getDirectusAssetAlt, getDirectusAssetUrl } from "@/lib/directus/assets";
 import { pickTranslation, type News } from "@/lib/directus/types";
 import { languagePrefixes } from "@/constants/languages";
 
@@ -31,34 +31,19 @@ const sections = news?.sections ?? [];
 const imageSrc = getDirectusAssetUrl(news?.image, { width: 1280, format: "webp", quality: 80 });
 const imageAlt = getDirectusAssetAlt(news?.image);
 
-// Focal point → object-position (%). Pixel coords → percentage of the intrinsic width/height,
-// falling back to center. Only visible when the image is cropped (object-cover + fixed aspect).
-type FocalImage = {
-  focal_point_x?: number | null;
-  focal_point_y?: number | null;
-  width?: number | null;
-  height?: number | null;
-};
-const focal = news?.image as FocalImage | undefined;
-
 const newsTranslation = pickTranslation(news?.translations, lang as string);
-/*
-function opPct(coord?: number | null, size?: number | null): string | null {
-  return coord != null && size ? `${Math.round((coord / size) * 10000) / 100}%` : null;
-}
-const opX = opPct(focal?.focal_point_x, focal?.width);
-const opY = opPct(focal?.focal_point_y, focal?.height);
-const objectPosition = opX || opY ? `object-position:${opX ?? "50%"} ${opY ?? "50%"}` : undefined;
-*/
-const objectPosition = {}
+// Focal point → object-position (only visible while the image is cropped: object-cover + aspect).
+const objectPosition = focalToObjectPosition(news?.image as any);
 ---
 
 <Layout>
   <article class="container py-8">
     {newsTranslation?.title && <div class="mb-8"><h1 class="text-3xl font-bold mb-4">{newsTranslation.title}</h1></div>}
     {imageSrc && (
-      <img src={imageSrc} alt={imageAlt} class="news-image object-cover w-full aspect-video" style={objectPosition} loading="eager" />
-      <div class="text-sm text-gray-500">{news?.image?.image_credits}</div>
+      <>
+        <img src={imageSrc} alt={imageAlt} class="news-image object-cover w-full aspect-video" style={objectPosition} loading="eager" />
+        <div class="text-sm text-gray-500">{(news?.image as any)?.image_credits}</div>
+      </>
     )}
     <div class="mt-6">
       {sections.map((section) => <SectionRenderer section={section} lang={lang as string} />)}

@@ -1,5 +1,5 @@
 ---
-import { getDirectusAssetUrl, toPixelParam, type DirectusAsset, type DirectusAssetTransform } from "@/lib/directus/assets";
+import { focalPointPercent, getDirectusAssetUrl, toPixelParam, type DirectusAsset, type DirectusAssetTransform } from "@/lib/directus/assets";
 import { buildContainerStyle } from "@/lib/directus/container-style";
 import Reference from "@/components/directus/Reference.astro";
 import Collection from "@/components/directus/Collection.astro";
@@ -190,13 +190,8 @@ function renderListItems(items: ListItem[] = [], style: string): string {
 
       if(file.objectFit) imgAttrs.push(["--of", file.objectFit]);
 
-      // Focal point → object-position (%). Converts pixel coords to a percentage of the
-      // intrinsic width/height. Only emitted when both the coord and the dimension are known;
-      // CSS falls back to 50% (center) otherwise.
-      const pct = (coord: number | null | undefined, size: number | null | undefined) =>
-        coord != null && size ? `${Math.round((coord / size) * 10000) / 100}%` : null;
-      const opX = pct(file.focal_point_x, file.width);
-      const opY = pct(file.focal_point_y, file.height);
+      // Focal point → object-position vars (CSS falls back to 50% per axis).
+      const { x: opX, y: opY } = focalPointPercent(file);
       if (opX) imgAttrs.push(["--op-x", opX]);
       if (opY) imgAttrs.push(["--op-y", opY]);
 

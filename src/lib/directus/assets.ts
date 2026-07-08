@@ -61,6 +61,38 @@ export function toPixelParam(
   return undefined; // "auto", "rem", "vh", or %/vw without a base
 }
 
+export type DirectusFocalPoint = {
+  focal_point_x?: number | null;
+  focal_point_y?: number | null;
+  width?: number | null;
+  height?: number | null;
+};
+
+/**
+ * Focal point (pixel coords) → object-position percentages, one per axis.
+ * Returns `null` for an axis when the coord or the intrinsic dimension is missing.
+ */
+export function focalPointPercent(
+  file: DirectusFocalPoint | null | undefined,
+): { x: string | null; y: string | null } {
+  const pct = (coord?: number | null, size?: number | null) =>
+    coord != null && size ? `${Math.round((coord / size) * 10000) / 100}%` : null;
+  return {
+    x: pct(file?.focal_point_x, file?.width),
+    y: pct(file?.focal_point_y, file?.height),
+  };
+}
+
+/**
+ * Focal point → inline `object-position:X% Y%` declaration (center fallback per axis).
+ * Returns `undefined` when no focal point is set, so `style={…}` can be omitted.
+ * Only visible when the image is cropped (`object-fit: cover` with a fixed height/aspect).
+ */
+export function focalToObjectPosition(file: DirectusFocalPoint | null | undefined): string | undefined {
+  const { x, y } = focalPointPercent(file);
+  return x || y ? `object-position:${x ?? "50%"} ${y ?? "50%"}` : undefined;
+}
+
 function buildAssetUrl(id: string) {
   return `${directus_url.replace(/\/$/, "")}/assets/${id}`;
 }
