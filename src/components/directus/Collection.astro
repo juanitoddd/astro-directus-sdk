@@ -36,7 +36,7 @@ if (directus && collection && template && depth < MAX_DEPTH) {
   try {
     body = await fetchDisplayTemplateBody(collection, template);
     if (body) {
-      const query: Record<string, unknown> = { fields: ["*", "translations.*"] };
+      const query: Record<string, unknown> = { fields: ["*", "image.*", "translations.*"] };
       const filter = toDirectusFilter(filters);
       if (filter) query.filter = filter;
       if (typeof limit === "number") query.limit = limit;

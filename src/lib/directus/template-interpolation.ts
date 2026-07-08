@@ -73,7 +73,7 @@ function renderImageBlock(
   alignment?: string | null,
 ): string {
   // Interpolated fields — support inline `{{token}}` interpolation (incl. `{{translations.*}}`).
-  const source = interpolateString(String(data.url ?? data.source ?? ""), item, lang).trim();
+  const source = interpolateString(String(data.url ?? data.source ?? ""), item, lang).trim();  
   if (!source) return "";
   const alt = interpolateString(String(data.alt ?? ""), item, lang);
   const link = interpolateString(String(data.link ?? ""), item, lang).trim();
@@ -94,8 +94,8 @@ function renderImageBlock(
   const transforms: { width?: number; height?: number } = {};
   if (widthPx.length) transforms.width = Math.max(...widthPx);
   if (heightPx.length) transforms.height = Math.max(...heightPx);  
-
-  const url = getDirectusAssetUrl(source as any, transforms);
+    
+  const url = getDirectusAssetUrl(source as any, transforms);  
   if (!url) return "";  
 
   // CSS vars consumed by `.editorjs-image` (same as BlockRenderer).
@@ -115,16 +115,18 @@ function renderImageBlock(
   const imgStyle = imgAttrs.filter(([, v]) => v).map(([p, v]) => `${p}:${v}`).join(";");
   const styleAttr = imgStyle ? ` style="${escapeAttr(imgStyle)}"` : "";
 
-  const img = `<img src="${escapeAttr(url)}" alt="${escapeAttr(alt)}" class="editorjs-image max-w-full h-auto inline-block"${styleAttr} />`;
-  // console.log("img", img);
+  const img = `<img src="${escapeAttr(url)}" alt="${escapeAttr(alt)}" class="editorjs-image max-w-full h-auto inline-block"${styleAttr} />`;    
   const content = link
     ? `<a href="${escapeAttr(link)}" target="_blank" rel="noopener noreferrer">${img}</a>`
     : img;
 
   // Wrap in a div so the alignment tune (text-align) positions the image.
+  const contClasses = ['relative']
   const alignClass = alignment ? ALIGN_CLASS[alignment] ?? "" : "";
-  const clsAttr = alignClass ? ` class="${alignClass}"` : "";
-  return `<div${clsAttr}>${content}</div>`;
+  if(alignClass) contClasses.push(alignClass)    
+  //const clsAttr = alignClass ? ` class="${alignClass}"` : "";
+  const credits = item.image.image_credits ? `<span class="absolute font-thin bottom-0 left-0 overflow-hidden bg-black p-1 text-xs text-gray-100">${item.image.image_credits}</span>` : ''
+  return `<div class="${contClasses.join(' ')}">${content}${credits}</div>`;
 }
 
 const TOKEN = /\{\{\s*([^}]+?)\s*\}\}/g;
@@ -140,7 +142,7 @@ function interpolateString(value: string, item: unknown, lang: string): string {
 }
 
 /** Deep-walk any value, interpolating strings and expanding image reference blocks. */
-function deepInterpolate(node: unknown, item: unknown, lang: string): unknown {  
+function deepInterpolate(node: unknown, item: unknown, lang: string): unknown {   
   if (typeof node === "string") return interpolateString(node, item, lang);
   if (Array.isArray(node)) return node.map((n) => deepInterpolate(n, item, lang));
   if (node && typeof node === "object") {

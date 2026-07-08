@@ -27,6 +27,7 @@ export async function fetchGlobals(lang?: string): Promise<DirectusGlobals | nul
           "*",
           "tutors.*",
           "tutors.people_id.*",
+          "tutors.people_id.image.*",
           "tutors.people_id.translations.*",
           //"translations.*"
         ],

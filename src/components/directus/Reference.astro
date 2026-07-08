@@ -31,7 +31,7 @@ if (directus && collection && template && itemId != null && depth < MAX_DEPTH) {
         // @ts-expect-error — dynamic collection isn't in the typed SDK schema
         readItems(collection, {
           filter: { id: { _eq: itemId } },
-          fields: ["*", "translations.*"],
+          fields: ["*", "image.*",  "translations.*"],
           limit: 1,
         }),
       );
