@@ -14,6 +14,7 @@ export type DirectusAsset = {
   fileId?: string | null;
   fileURL?: string | null;
   url?: string | null;
+  image_credits?: string | null;
 };
 
 export type DirectusAssetTransform = {
@@ -133,7 +134,7 @@ export function getDirectusAssetUrl(
 
 export function getDirectusAssetAlt(asset: DirectusAsset | string | null | undefined) {
   if (!asset || typeof asset === "string") return "";
-  return asset.description ?? asset.title ?? asset.filename_download ?? asset.name ?? "";
+  return asset.image_credits ?? asset.description ?? asset.title ?? asset.filename_download ?? asset.name ?? "";
 }
 
 export function getDirectusAssetSrcset(

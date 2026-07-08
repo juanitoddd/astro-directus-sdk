@@ -131,7 +131,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
         // Focal point (pixel coords relative to intrinsic width/height), stored by the editor.
         focal_point_x?: number | null;
         focal_point_y?: number | null;
-        image_credits?: String | null;
+        image_credits?: string | null;
       } & DirectusAsset;
 
       // console.log("block~~>", block);
@@ -204,11 +204,12 @@ function renderListItems(items: ListItem[] = [], style: string): string {
         <figure class={`${alignClass} ${widthClass}`}>
           {file.link ? (
             <a href={file.link} target="_blank" rel="noopener noreferrer">
-              <img src={url} alt={caption} class="w-full editorjs-image max-w-full h-auto inline-block" style={imgStyle || undefined} />              
+              <img src={url} alt={caption} class="w-full editorjs-image max-w-full h-auto inline-block" style={imgStyle || undefined} />                            
             </a>
-          ) : (
-            <img src={url} alt={caption} class="w-full editorjs-image max-w-full h-auto inline-block" style={imgStyle || undefined} />
+          ) : (            
+            <img src={url} alt={caption} class="w-full editorjs-image max-w-full h-auto inline-block" style={imgStyle || undefined} />            
           )}
+          <div class="text-sm text-gray-500">{file.image_credits}</div>
           {caption && <figcaption class="text-sm opacity-70 mt-1" set:html={caption} />}
         </figure>
       );

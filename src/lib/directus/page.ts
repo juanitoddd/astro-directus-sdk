@@ -20,7 +20,8 @@ export const sectionsItemFields = {
   grid: ['id', ...gridTranslationsFields],
   hero: [
     'id',
-    'image.id', 'image.filename_disk', 'image.title', 'image.description', 'image.width', 'image.height',
+    'image.*',
+    // 'image.id', 'image.filename_disk', 'image.title', 'image.description', 'image.width', 'image.height',
     'background.id', 'background.filename_disk', 'background.title', 'background.description', 'background.width', 'background.height',
     ...translationsFields,
   ],
@@ -42,12 +43,18 @@ export const sectionsItemFields = {
     'slides.item:hero.image.description',
     'slides.item:hero.image.width',
     'slides.item:hero.image.height',
+    'slides.item:hero.image.image_credits',
+    'slides.item:hero.image.focal_point_x',
+    'slides.item:hero.image.focal_point_y',
     'slides.item:hero.background.id',
     'slides.item:hero.background.filename_disk',
     'slides.item:hero.background.title',
     'slides.item:hero.background.description',
     'slides.item:hero.background.width',
     'slides.item:hero.background.height',
+    'slides.item:hero.background.image_credits',
+    'slides.item:hero.background.focal_point_x',
+    'slides.item:hero.background.focal_point_y',
     'slides.item:hero.translations.id',
     'slides.item:hero.translations.languages_code',
     'slides.item:hero.translations.content',
@@ -60,6 +67,10 @@ export const sectionsItemFields = {
     'slides.item:news.image.description',
     'slides.item:news.image.width',
     'slides.item:news.image.height',
+    'slides.item:news.image.width',
+    'slides.item:news.image.image_credits',
+    'slides.item:news.image.focal_point_x',
+    'slides.item:news.image.focal_point_y',
     'slides.item:news.translations.id',
     'slides.item:news.translations.languages_code',
     'slides.item:news.translations.preview',
@@ -95,7 +106,7 @@ export async function fetchPageBySlug(slug: string): Promise<Page | null> {
       fields: pageQueryFields,
       limit: 1,
     }),
-  );
+  );  
   const list = pages as Page[];
   if (!list || list.length === 0) return null;
   const page = list[0];

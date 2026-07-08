@@ -14,7 +14,6 @@ const { news, lang, eager = false } = Astro.props as Props;
 const translation = pickTranslation(news.translations, lang);
 
 const href = news.slug ? `/${lang}/news/${news.slug}` : undefined;
-
 const imageSrc = getDirectusAssetUrl(news.image, { width: 1280, format: "webp", quality: 80 });
 const imageSrcset = getDirectusAssetSrcset(news.image, [640, 960, 1280], { format: "webp", quality: 80 });
 const imageAlt = getDirectusAssetAlt(news.image) || news.name || "";
@@ -39,7 +38,7 @@ const editable: DirectusVisualEditable = {
     class="news-image overflow-hidden"
     data-directus={getDirectusEditAttr(editable, "image", { translated: false })}
   >
-    {imageSrc && (
+    {imageSrc && (      
       <img
         src={imageSrc}
         srcset={imageSrcset}
@@ -50,17 +49,19 @@ const editable: DirectusVisualEditable = {
         fetchpriority={eager ? "high" : "auto"}
       />
     )}
+    <div class="md:hidden text-sm text-black">{news?.image?.image_credits}</div>
   </div>
   <div class="news-content" data-directus={getDirectusEditAttr(editable, "preview")}>
     {/*news.name && (
       <h2 class="text-2xl font-bold mb-2 group-hover:underline">{news.name}</h2>
-    )*/}
+    )*/}    
     <EditorJs content={translation?.preview} lang={lang} />
   </div>
 
   {href && (
     <a href={href} class="absolute inset-0 z-10" aria-label={news.name ?? "Read more"}>
       <span class="sr-only">{news.name ?? "Read more"}</span>
+      <div class="md:block text-sm text-gray-500 absolute -bottom-1 left-4">{news?.image?.image_credits}</div>
     </a>
   )}
 </article>

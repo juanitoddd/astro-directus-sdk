@@ -28,19 +28,22 @@ const editable: DirectusVisualEditable = {
 ---
 
 <section
-  class="relative w-full min-h-[80vh] flex items-center justify-center text-white overflow-hidden"
+  class="relative w-full min-h-[80vh] text-white overflow-hidden"
   data-directus={getDirectusEditAttr(editable, "background", { translated: false })}
 >
   {imageSrc && (
-    <img
-      src={imageSrc}
-      srcset={imageSrcset}
-      sizes="100vw"
-      alt={imageAlt}
-      class="absolute inset-0 w-full h-full object-cover"
-      loading={eager ? "eager" : "lazy"}
-      fetchpriority={eager ? "high" : "auto"}
-    />
+    <>
+      <img
+        src={imageSrc}
+        srcset={imageSrcset}
+        sizes="100vw"
+        alt={imageAlt}
+        class="absolute inset-0 w-full h-full object-cover"
+        loading={eager ? "eager" : "lazy"}
+        fetchpriority={eager ? "high" : "auto"}
+      />
+      <div class="bg-black p-2 text-sm text-gray-100 absolute bottom-0 right-0">{hero?.background?.image_credits}</div>
+    </>    
   )}
   <div class="absolute inset-0 bg-black/40" aria-hidden="true"></div>
   <div
