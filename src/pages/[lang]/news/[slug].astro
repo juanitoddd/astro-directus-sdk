@@ -57,8 +57,11 @@ const objectPosition = {}
   <article class="container py-8">
     {newsTranslation?.title && <div class="mb-8"><h1 class="text-3xl font-bold mb-4">{newsTranslation.title}</h1></div>}
     {imageSrc && (
-      <img src={imageSrc} alt={imageAlt} class="news-image object-cover w-full aspect-video mb-6" style={objectPosition} loading="eager" />
-    )}    
-    {sections.map((section) => <SectionRenderer section={section} lang={lang as string} />)}
+      <img src={imageSrc} alt={imageAlt} class="news-image object-cover w-full aspect-video" style={objectPosition} loading="eager" />
+      <div class="text-sm text-gray-500">{news?.image?.image_credits}</div>
+    )}
+    <div class="mt-6">
+      {sections.map((section) => <SectionRenderer section={section} lang={lang as string} />)}
+    </div>
   </article>
 </Layout>

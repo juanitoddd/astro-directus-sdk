@@ -30,6 +30,7 @@ const blocks = (translation?.bio as any)?.blocks ?? [];
           <div>
           {person.image ? (
             <img src={url} alt={person.first_name} class="w-full h-auto" />
+            <div class="text-sm text-gray-500">{person.image?.image_credits}</div>
           ) : null }
           </div>          
           <div>

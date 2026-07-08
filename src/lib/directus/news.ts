@@ -32,7 +32,7 @@ const newsListFields = [
   'name',
   'status',
   'sort',
-  'image.id', 'image.filename_disk', 'image.title', 'image.description', 'image.width', 'image.height',
+  'image.id', 'image.filename_disk', 'image.title', 'image.description', 'image.width', 'image.height', 'image.image_credits',
   'translations.id',
   'translations.languages_code',
   'translations.preview',

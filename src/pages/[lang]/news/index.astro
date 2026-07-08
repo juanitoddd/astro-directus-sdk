@@ -30,7 +30,7 @@ const news = await fetchAllNews(lang);
           const href = `/${lang}/news/${item.slug}`;
           const imageSrc = getDirectusAssetUrl(item.image, { width: 640, format: "webp", quality: 80 });
           const imageSrcset = getDirectusAssetSrcset(item.image, [320, 640, 960], { format: "webp", quality: 80 });
-          const imageAlt = getDirectusAssetAlt(item.image) || item.name || "";
+          const imageAlt = getDirectusAssetAlt(item.image) || item.name || "";          
           return (
             <li class="overflow-hidden">
               <a href={href} class="block hover:opacity-90">
@@ -43,6 +43,7 @@ const news = await fetchAllNews(lang);
                     class="w-full h-50 object-cover"
                     loading="lazy"
                   />
+                  <div class="text-sm text-gray-500">{item.image?.image_credits}</div>
                 )}
                 <div class="p-4">
                   {/* item.name && <h2 class="text-xl font-bold mb-2">{item.name}</h2> */}

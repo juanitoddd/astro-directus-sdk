@@ -94,8 +94,8 @@ function renderListItems(items: ListItem[] = [], style: string): string {
 ---
 
 {(() => {
-  if(block.type === 'gridblock') {
-    console.log();
+  if(block.type === 'image') {
+    // console.log("block ~~>", block);
   }  
   const rendered = (() => {
   switch (block.type) {
@@ -131,6 +131,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
         // Focal point (pixel coords relative to intrinsic width/height), stored by the editor.
         focal_point_x?: number | null;
         focal_point_y?: number | null;
+        image_credits?: String | null;
       } & DirectusAsset;
 
       // console.log("block~~>", block);
@@ -202,15 +203,13 @@ function renderListItems(items: ListItem[] = [], style: string): string {
       const imgStyle = imgAttrs
         .filter(([, v]) => v)
         .map(([prop, v]) => `${prop}:${v}`)
-        .join(";");      
-
-      // console.log("imgStyle~~>", imgStyle)
+        .join(";");
       
       return (
         <figure class={`${alignClass} ${widthClass}`}>
           {file.link ? (
             <a href={file.link} target="_blank" rel="noopener noreferrer">
-              <img src={url} alt={caption} class="w-full editorjs-image max-w-full h-auto inline-block" style={imgStyle || undefined} />
+              <img src={url} alt={caption} class="w-full editorjs-image max-w-full h-auto inline-block" style={imgStyle || undefined} />              
             </a>
           ) : (
             <img src={url} alt={caption} class="w-full editorjs-image max-w-full h-auto inline-block" style={imgStyle || undefined} />
