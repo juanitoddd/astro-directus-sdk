@@ -37,6 +37,12 @@ const currentLang = getLangFromUrl(Astro.url);
 			<Font cssVariable="--font-playfair-display" preload />		
 		-->
 		<title>{title}</title>
+
+		<link rel="icon" href="https://old.gmjo.at/wp-content/uploads/2022/08/cropped-Favicon-GMJO-32x32.png" sizes="32x32" />
+		<link rel="icon" href="https://old.gmjo.at/wp-content/uploads/2022/08/cropped-Favicon-GMJO-192x192.png" sizes="192x192" />
+		<link rel="apple-touch-icon" href="https://old.gmjo.at/wp-content/uploads/2022/08/cropped-Favicon-GMJO-180x180.png" />
+		
+		
 		<script>
 		const VISUAL_EDITING_PARAM = 'visual-editing';
 		const isVisualEditing = new URLSearchParams(location.search).get(VISUAL_EDITING_PARAM) === 'true';
