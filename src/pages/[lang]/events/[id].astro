@@ -25,7 +25,7 @@ const formatDate = (iso: string | null | undefined) => {
   return d && m && y ? `${d}.${m}.${y}` : "";
 };
 
-const location = pickTranslation(event.location_id?.translations, lang ?? "");
+const location = pickTranslation(event?.location_id?.translations, lang ?? "");
 ---
 
 <Layout>
@@ -39,10 +39,10 @@ const location = pickTranslation(event.location_id?.translations, lang ?? "");
           {/*  
             <div><a href={event.location_id.url} target="_blank" rel="noopener noreferrer" class="uppercase underline-link font-bold">{event.organizer}</a></div>          
           */}
-          <div class="uppercase underline-link font-bold">{event.organizer}</div>          
+          <div class="uppercase underline-link font-bold">{event?.organizer}</div>          
         </div>        
         <div class="flex items-end uppercase text-2xl font-thin">
-          <a class="underline-link" href={event.link_to_ticketsite} target="_blank" rel="noopener noreferrer">
+          <a class="underline-link" href={event?.link_to_ticketsite} target="_blank" rel="noopener noreferrer">
             {lang === 'de' ? 'Karten' : 'Tickets'}
           </a>
         </div>
@@ -53,12 +53,12 @@ const location = pickTranslation(event.location_id?.translations, lang ?? "");
         <div class="uppercase text-gmjo-blue font-bold text-lg mb-4 md:mb-0">{lang === 'de' ? 'Interpreten' : 'Interpreters'}</div>
         <div>
           {(event.interpreters ?? []).map((interpreter: any) => {
-            const person = interpreter.person_id;            
-            const role = pickTranslation(interpreter.role_id.translations, lang);            
+            const person = interpreter?.person_id;            
+            const role = pickTranslation(interpreter?.role_id?.translations, lang);            
             return(
               <div class="">                
                 <a class="underline-link" href={`/${lang}/biography/${person.id}`}>
-                  <div class=""><span class="text-gmjo-blue font-bold">{person.first_name} {person.last_name}</span> <span class="font-thin">{![88, 87].includes(role.id) ? `- ${role?.name ?? ''}` : null}</span></div>
+                  <div class=""><span class="text-gmjo-blue font-bold">{person?.first_name} {person?.last_name}</span> <span class="font-thin">{![88, 87].includes(role?.id) ? `- ${role?.name ?? ''}` : null}</span></div>
                 </a>
               </div>
             )
@@ -70,8 +70,8 @@ const location = pickTranslation(event.location_id?.translations, lang ?? "");
         <div class="uppercase text-gmjo-blue font-bold text-lg mb-4 md:mb-0">{lang === 'de' ? 'Programm' : 'Programme'}</div>
         <div>
           {(event.repertoires ?? []).map((repertoire: any) => {            
-            const title = pickTranslation(repertoire.repertoires_id.translations, lang)?.title || repertoire.repertoires_id.title;            
-            const author = repertoire.repertoires_id.person_id;            
+            const title = pickTranslation(repertoire?.repertoires_id?.translations, lang)?.title || repertoire?.repertoires_id?.title;            
+            const author = repertoire?.repertoires_id?.person_id;            
             return (              
               <div class="">              
                 <span><a href={`/${lang}/biography/${author?.id}`} class="underline-link font-bold text-gmjo-blue">{author?.first_name} {author?.last_name}</a></span> <span>{title}</span>
@@ -84,9 +84,9 @@ const location = pickTranslation(event.location_id?.translations, lang ?? "");
       <div class="md:grid grid-cols-2 py-4">
         <div class="uppercase text-gmjo-blue font-bold text-lg mb-4 md:mb-0">{lang === 'de' ? 'Ort' : 'Place'}</div>
         <div>
-          <div class="text-gmjo-blue font-bold underline-link"><a href={location.url} target="_blank" rel="noopener noreferrer">{location.name}</a></div>
-          <div>{location.city} / {location.country}</div>
-          <div>{location.postal_code} {location.address}</div>
+          <div class="text-gmjo-blue font-bold underline-link"><a href={location?.url} target="_blank" rel="noopener noreferrer">{location?.name}</a></div>
+          <div>{location?.city} / {location?.country}</div>
+          <div>{location?.postal_code} {location?.address}</div>
         </div>
       </div>
       {/*

@@ -33,7 +33,7 @@ export type Schema = {
   menus_items_translations: MenuItemTranslation[];
 };
 
-const raw_url = import.meta.env.DIRECTUS_URL || process.env.DIRECTUS_URL || 'http://cms.uponthe.top/';
+const raw_url = import.meta.env.DIRECTUS_URL || process.env.DIRECTUS_URL || 'http://cms.gmjo.at/';
 export const directus_url = /^https?:\/\//.test(raw_url) ? raw_url : `http://${raw_url}`;
 const directus_token = import.meta.env.DIRECTUS_TOKEN || process.env.DIRECTUS_TOKEN;
 
