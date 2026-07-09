@@ -8,7 +8,7 @@ import LanguageSwitcher from "@/components/layout/LanguageSwitcher.astro";
 import Footer from "@/components/layout/Footer.astro";
 
 type Props = { title?: string; menuName?: string; footerName?: string };
-const { title = "Gustav Mahler JUGENDORCHESTER", menuName = "main", footerName = "footer" } = Astro.props as Props;
+const { title = "Gustav Mahler Jugendorchester", menuName = "main", footerName = "footer" } = Astro.props as Props;
 const currentLang = getLangFromUrl(Astro.url);
 ---
 
