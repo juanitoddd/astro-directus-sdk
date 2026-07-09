@@ -10,7 +10,9 @@ import { getDirectusAssetUrl, type DirectusAsset } from '@/lib/directus/assets';
 export async function getStaticPaths() {
   // Only prebuild bios changed since the last deployment (null → first build, prebuild all).
   const lastDeploy = await fetchLastDate();
+  console.log("lastDeploy ~~>", lastDeploy)
   const ids = await fetchAllPeopleIds(lastDeploy);
+  console.log("ids ~~~>", ids);
   return languagePrefixes.flatMap((lang) =>
     ids.map((id) => ({ params: { lang, id: String(id) } })),
   );

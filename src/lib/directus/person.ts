@@ -19,8 +19,9 @@ export async function fetchAllPeopleIds(
   modifiedSince?: string | null,
 ): Promise<Array<number | string>> {
   if (!directus) return [];
-  const query: Record<string, unknown> = { fields: ["id"], limit: -1 };
+  const query: Record<string, unknown> = { fields: ["id", "modified"], limit: 100 };
   if (modifiedSince) query.filter = { modified: { _gt: modifiedSince } };
+  console.log("query ~~>", query)
   const rows = await directus.request(
     // @ts-expect-error — `people` isn't in the typed SDK schema
     readItems("people", query),
