@@ -43,7 +43,7 @@ const currentLang = getLangFromUrl(Astro.url);
 
 		const initDirectusVisualEditor = async () => {
 			if (!isVisualEditing) return;
-			const directusUrl = 'https://cms.uponthe.top';
+			const directusUrl = 'https://cms.gmjo.at';
 			try {
 				const { apply } = await import('@directus/visual-editing');
 				await apply({ directusUrl });

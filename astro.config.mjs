@@ -84,11 +84,11 @@ export default defineConfig({
     // "/en": "/en/goals",
   },
   server: {
-    allowedHosts: ["preview.uponthe.top", "cms.uponthe.top"],
+    allowedHosts: ["gmjo.at", "preview.gmjo.at", "cms.gmjo.at"],
     headers: {
       // Do not set X-Frame-Options to DENY or SAMEORIGIN if another origin must embed this app.
       // Prefer CSP frame-ancestors for fine-grained control:
-      'Content-Security-Policy': "frame-ancestors 'self' cms.uponthe.top preview.uponthe.top",
+      'Content-Security-Policy': "frame-ancestors 'self' gmjo.at cms.gmjo.at preview.gmjo.at",
     },
   }
 });
