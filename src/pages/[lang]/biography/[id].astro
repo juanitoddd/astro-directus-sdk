@@ -2,12 +2,15 @@
 import Layout from "@/layouts/Layout.astro";
 import BlockRenderer from "@/components/directus/BlockRenderer.astro";
 import { fetchAllPeopleIds, getPersonById } from "@/lib/directus/person";
+import { fetchLastDate } from "@/lib/directus/deployments";
 import { languagePrefixes } from "@/constants/languages";
 import { pickTranslation } from '@/lib/directus/types/translation';
 import { getDirectusAssetUrl, type DirectusAsset } from '@/lib/directus/assets';
 
 export async function getStaticPaths() {
-  const ids = await fetchAllPeopleIds();
+  // Only prebuild bios changed since the last deployment (null → first build, prebuild all).
+  const lastDeploy = await fetchLastDate();
+  const ids = await fetchAllPeopleIds(lastDeploy);
   return languagePrefixes.flatMap((lang) =>
     ids.map((id) => ({ params: { lang, id: String(id) } })),
   );
@@ -17,7 +20,7 @@ const lang = Astro.params.lang as string;
 const id = Astro.params.id as string;
 const person = await getPersonById(id, lang);
 const translation = pickTranslation(person?.translations, lang ?? "");
-const url = getDirectusAssetUrl(person.image as DirectusAsset);
+const url = getDirectusAssetUrl(person?.image as DirectusAsset);
 const blocks = (translation?.bio as any)?.blocks ?? [];
 ---
 
@@ -29,8 +32,10 @@ const blocks = (translation?.bio as any)?.blocks ?? [];
         <div class="md:grid grid-cols-2 gap-4 my-4">
           <div>
           {person.image ? (
-            <img src={url} alt={person.first_name} class="w-full h-auto" />
-            <div class="text-sm text-gray-500">{person.image?.image_credits}</div>
+            <>
+              <img src={url} alt={person.first_name} class="w-full h-auto" />
+              <div class="text-sm text-gray-500">{(person.image as any)?.image_credits}</div>
+            </>
           ) : null }
           </div>          
           <div>

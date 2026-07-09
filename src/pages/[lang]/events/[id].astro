@@ -1,11 +1,14 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import { fetchAllEventIds, fetchEventById } from "@/lib/directus/events";
+import { fetchLastDate } from "@/lib/directus/deployments";
 import { languagePrefixes } from "@/constants/languages";
 import { pickTranslation } from '@/lib/directus/types/translation';
 
 export async function getStaticPaths() {
-  const ids = await fetchAllEventIds();
+  // Only prebuild events changed since the last deployment (null → first build, prebuild all).
+  const lastDeploy = await fetchLastDate();
+  const ids = await fetchAllEventIds(lastDeploy);
   return languagePrefixes.flatMap((lang) =>
     ids.map((id) => ({ params: { lang, id: String(id) } })),
   );

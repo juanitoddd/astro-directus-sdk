@@ -10,8 +10,10 @@ set -euo pipefail
 # per-file atomic. A request mid-rsync sees either the old file or the new
 # file (or for a brief moment, both — duplicates aren't a problem in HTML).
 #
-# Previous releases are retained for rollback. Rollback:
-#   rsync -a --delete-after releases/<older>/client/ dist/
+# Previous releases are retained for rollback. Use the same `protect` filters so a rollback
+# doesn't delete the biography/event pages accumulated in dist/ (see the sync step below):
+#   rsync -a --delete-after --filter='protect /*/biography/**' --filter='protect /*/events/**' \
+#     releases/<older>/client/ dist/
 
 cd "$(dirname "$0")/.."
 
@@ -42,8 +44,17 @@ if [ -L dist ]; then
 fi
 mkdir -p dist
 
-rsync -a --delete-after "$FINAL_DIR/client/" dist/
-echo "[deploy $TIMESTAMP] synced: dist/ <- $FINAL_DIR/client/"
+# Biography and event pages are built incrementally (only records modified since the last
+# deploy), so the new build contains just the changed ones. The `protect` filters keep existing
+# bios/events in dist/ from being deleted by --delete-after — changed pages (present in the
+# build) still overwrite, unchanged ones are preserved. So dist/ accumulates them across deploys.
+# NOTE: this makes rollback for those pages lossy — a rollback restores other pages fully but
+# leaves whatever bios/events are currently in dist/ (release dirs only hold each build's changes).
+rsync -a --delete-after \
+  --filter='protect /*/biography/**' \
+  --filter='protect /*/events/**' \
+  "$FINAL_DIR/client/" dist/
+echo "[deploy $TIMESTAMP] synced: dist/ <- $FINAL_DIR/client/ (biography + events merged)"
 
 # Garbage collect: keep the most recent KEEP_RELEASES timestamped dirs.
 KEEP_RELEASES_TAIL=$((KEEP_RELEASES + 1))
