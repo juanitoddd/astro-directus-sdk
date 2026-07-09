@@ -6,9 +6,7 @@ import { languagePrefixes } from "@/constants/languages";
 import { pickTranslation } from '@/lib/directus/types/translation';
 
 export async function getStaticPaths() {
-  // Only prebuild events changed since the last deployment (null → first build, prebuild all).
-  const lastDeploy = await fetchLastDate();
-  const ids = await fetchAllEventIds(lastDeploy);
+  const ids = await fetchAllEventIds();
   return languagePrefixes.flatMap((lang) =>
     ids.map((id) => ({ params: { lang, id: String(id) } })),
   );
@@ -17,7 +15,7 @@ export async function getStaticPaths() {
 const lang = Astro.params.lang as string;
 const id = Astro.params.id as string;
 const event = await fetchEventById(id, lang);
-const hour = (event.date as string).split('T')[1].slice(0, -3);
+const hour = (event?.date as string).split('T')[1].slice(0, -3);
 // console.log("event~~>", event.repertoires)
 // ISO date ("2026-01-15T20:00:00") → "15.01.2026". Pure string work, no library needed.
 const formatDate = (iso: string | null | undefined) => {
@@ -34,7 +32,7 @@ const location = pickTranslation(event?.location_id?.translations, lang ?? "");
       <>
       <div class="md:grid grid-cols-2 gap-4 my-4" style="grid-template-columns: 1fr 70px;">
         <div>
-          <h1 class="text-5xl font-bold text-gmjo-blue" style="font-size: 4rem;">{formatDate(event.date)}</h1>
+          <h1 class="text-5xl font-bold text-gmjo-blue" style="font-size: 4rem;">{formatDate(event?.date)}</h1>
           <h1 class="text-5xl font-thin" style="font-size: 4rem;">{hour}</h1>          
           {/*  
             <div><a href={event.location_id.url} target="_blank" rel="noopener noreferrer" class="uppercase underline-link font-bold">{event.organizer}</a></div>          

@@ -7,20 +7,12 @@ export type DirectusEvent = {
   [key: string]: unknown;
 };
 
-/**
- * Event ids — used to prebuild the per-event detail routes. When `modifiedSince` is given,
- * returns only events whose `modified` date is after it (e.g. the last deployment), so a build
- * can skip unchanged events. Without it, returns every id.
- */
-export async function fetchAllEventIds(
-  modifiedSince?: string | null,
-): Promise<Array<number | string>> {
+/** All `events` ids — used to prebuild the per-event detail routes. */
+export async function fetchAllEventIds(): Promise<Array<number | string>> {
   if (!directus) return [];
-  const query: Record<string, unknown> = { fields: ["id"], limit: -1 };
-  if (modifiedSince) query.filter = { modified: { _gt: modifiedSince } };
   const rows = await directus.request(
     // @ts-expect-error — `events` isn't in the typed SDK schema
-    readItems("events", query),
+    readItems("events", { fields: ["id"], limit: -1 }),
   );
   return (rows as Array<{ id: number | string }>).map((r) => r.id).filter((id) => id != null);
 }
