@@ -41,6 +41,25 @@ function runDeploy(triggeredBy) {
   return startedAt;
 }
 
+function runRestart(triggeredBy) {
+  const startedAt = new Date().toISOString();
+  inFlight = true;
+  console.log(`[webhook] restart at ${startedAt}${triggeredBy ? ` (by ${triggeredBy})` : ""}`);
+
+  const proc = spawn("bash", ["scripts/restart.sh"], { cwd: root, stdio: ["ignore", "pipe", "pipe"] });
+  proc.stdout.on("data", (d) => process.stdout.write(d));
+  proc.stderr.on("data", (d) => process.stderr.write(d));
+  proc.on("close", (code) => {
+    inFlight = false;
+    const finishedAt = new Date().toISOString();
+    const status = code === 0 ? "success" : "failure";
+    lastBuild = { startedAt, finishedAt, status, exitCode: code, triggeredBy };
+    console.log(`[webhook] restart ${status} (exit ${code})`);
+  });
+
+  return startedAt;
+}
+
 app.post("/rebuild", (req, res) => {
   if (req.header("Authorization") !== `Bearer ${TOKEN}`) {
     return res.status(401).json({ error: "unauthorized" });

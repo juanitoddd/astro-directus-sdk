@@ -10,7 +10,7 @@ type Props = {
 
 const { name, lang, class: className } = Astro.props as Props;
 const menu = await fetchMenuByName(name);
-const items = menu?.items ?? [];
+const items = menu?.items ?? []; 
 ---
 
 <footer class={className}>

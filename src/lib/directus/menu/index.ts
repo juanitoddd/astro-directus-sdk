@@ -55,7 +55,8 @@ export function buildMenuTree(items: MenuItem[]): MenuItem[] {
   for (const node of nodes) {
     const pid = parentId(node.parent);
     const parent = pid != null ? byId.get(pid) : undefined;
-    if (parent) parent.children.push(node);
+    const exists = parent?.children.find((menuItem: MenuItem) => menuItem.id === node.id)
+    if (parent && !exists) parent.children.push(node);
     else roots.push(node);
   }
   return roots;

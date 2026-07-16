@@ -1,0 +1,29 @@
+
+---
+
+type Props = {  
+  lang?: string;  
+};
+const { lang } = Astro.props as Props;
+---
+<div class="">
+  <form class="border-0">
+    <div class="mb-2">
+      <label class="block w-full">Name</label>
+      <input class="w-full border p-2" type="text"></input>
+    </div>
+    <div class="mb-2">
+      <label class="block w-full">Email</label>
+      <input class="w-full border p-2" type="text"></input>
+    </div>
+    <div class="mb-2">
+      <label class="block w-full">{lang === 'en' ? 'Subject' : 'Betreff'}</label>
+      <input class="w-full border p-2" type="text"></input>
+    </div>
+    <div class="mb-2">
+      <label class="block w-full">{lang === 'en' ? 'Message' : 'Nachricht'}</label>
+      <textarea class="w-full border p-2"></textarea>      
+    </div>
+    <button class="bg-gmjo-blue text-white p-2 rounded" type="submit">{lang === 'en' ? 'Send' : 'Senden'}</button>
+  </form>
+</div>
