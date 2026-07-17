@@ -1,3 +1,4 @@
+import { BlockList } from 'node:net';
 import { getDirectusAssetUrl, toPixelParam } from "./assets";
 import { pickTranslation } from "./types";
 import type { EditorJsContent } from "./types";
@@ -13,12 +14,12 @@ function resolvePath(item: unknown, path: string, lang: string): unknown {
   let current: any = item;
   for (const key of parts) {
     if (current == null) return undefined;
-    if (key === "translations" && Array.isArray(current.translations)) {
-      current = pickTranslation(current.translations, lang);
+    if (key === "translations" && Array.isArray(current.translations)) {      
+      current = pickTranslation(current.translations, lang);      
       continue;
     }
     current = current[key];
-  }
+  }  
   return current;
 }
 
@@ -133,17 +134,36 @@ const TOKEN = /\{\{\s*([^}]+?)\s*\}\}/g;
 
 /** Replace every `{{path}}` token in a string with the resolved scalar value (missing → ""). */
 function interpolateString(value: string, item: unknown, lang: string): string {
+  // console.log("value~~>", value)
+  // console.log("item~~>", item)
   return value.replace(TOKEN, (_match, raw) => {
-    const resolved = resolvePath(item, String(raw).trim(), lang);
+    const resolved = resolvePath(item, String(raw).trim(), lang);    
     if (resolved === undefined || resolved === null) return "";
-    if (typeof resolved === "object") return ""; // relations/objects aren't inlined
+    if (typeof resolved === "object") return interpolateEditorJs(resolved, item, lang); // return ""; // relations/objects aren't inlined
     return String(resolved);
   });
 }
 
+function interpolateEditorJs(value: any, item: unknown, lang: string): string {
+  if(!value.blocks || !Array.isArray(value.blocks)) return ''
+  let out = ''
+  for(const block of value.blocks) {
+    switch(block.type) {
+      case 'paragraph': {
+        console.log("block.data ~~>", block.data)
+        out = out.concat(`<p>${block.data.text}</p>`)
+      }
+      // TODO: Other types
+    }
+  }
+  return out;
+}
+
 /** Deep-walk any value, interpolating strings and expanding image reference blocks. */
-function deepInterpolate(node: unknown, item: unknown, lang: string): unknown {   
-  if (typeof node === "string") return interpolateString(node, item, lang);
+function deepInterpolate(node: unknown, item: unknown, lang: string): unknown {
+  // console.log("node--->", node)
+  // console.log("item--->", item)
+  if (typeof node === "string") return interpolateString(node, item, lang);  
   if (Array.isArray(node)) return node.map((n) => deepInterpolate(n, item, lang));
   if (node && typeof node === "object") {
     // Image reference block → render to <img> and swap for an htmlblock (tunes preserved).
@@ -157,8 +177,10 @@ function deepInterpolate(node: unknown, item: unknown, lang: string): unknown {
         data: { html: renderImageBlock((node as any).data ?? {}, item, lang, alignment) },
       };
     }
-    const out: Record<string, unknown> = {};
-    for (const [key, val] of Object.entries(node)) out[key] = deepInterpolate(val, item, lang);
+    const out: Record<string, unknown> = {};    
+    for (const [key, val] of Object.entries(node)) {
+      out[key] = deepInterpolate(val, item, lang);
+    }
     return out;
   }
   return node;
@@ -172,6 +194,6 @@ export function interpolateTemplate(
   template: EditorJsContent,
   item: unknown,
   lang: string,
-): EditorJsContent {
+): EditorJsContent {  
   return deepInterpolate(template, item, lang) as EditorJsContent;
 }

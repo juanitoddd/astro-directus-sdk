@@ -93,10 +93,7 @@ function renderListItems(items: ListItem[] = [], style: string): string {
 }
 ---
 
-{(() => {
-  if(block.type === 'image') {
-    // console.log("block ~~>", block);
-  }  
+{(() => {  
   const rendered = (() => {
   switch (block.type) {
     case "paragraph": {
