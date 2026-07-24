@@ -116,7 +116,7 @@ const formatTime = (iso: string | null | undefined) =>
         <div class="pb-4 md:grid grid-cols-3 gap-4">
           {(tour?.artists ?? []).map((artist: any) => {            
             const person = artist.people_id;            
-            const url = getDirectusAssetUrl(person.image as DirectusAsset);
+            const url = getDirectusAssetUrl(person.image as DirectusAsset, {width: 200, height: 230});
             return(
               <div class="mb-4 md:mb-0">
                 <a class="underline-link text-gmjo-blue font-bold" href={`/${lang}/biography/${person.id}`}>
@@ -147,7 +147,7 @@ const formatTime = (iso: string | null | undefined) =>
         <div class="pb-4 md:grid grid-cols-3 gap-4">
           {(tour?.tutors ?? []).map((artist: any) => {            
             const person = artist.people_id;            
-            const url = getDirectusAssetUrl(person.image as DirectusAsset);
+            const url = getDirectusAssetUrl(person.image as DirectusAsset, {width: 200, height: 230});
             return(
               <div class="mb-4 md:mb-0">
                 <a class="underline-link text-gmjo-blue font-bold" href={`/${lang}/biography/${person.id}`}>
