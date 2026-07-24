@@ -18,7 +18,9 @@ export async function fetchTourById(
   // When a language is given, filter translations to it in the query (`_starts_with` mirrors
   // pickTranslation: app "en" matches code "en-US"). Otherwise all translations are returned.
   const deep = lang
-    ? { translations: { _filter: { languages_code: { _starts_with: lang } } }, people: {_limit: -1 } }
+    ? { 
+      translations: { _filter: { languages_code: { _starts_with: lang } } }, 
+      people: {_limit: -1, _sort: ["person_id.last_name"], } }
     : undefined;
 
   try {
@@ -31,6 +33,7 @@ export async function fetchTourById(
           "people.role_id.id",
           "people.role_id.name",
           "people.role_id.translations.*",
+          "people.is_master",
           "people.person_id.id",
           "people.person_id.first_name",
           "people.person_id.last_name",
@@ -50,13 +53,24 @@ export async function fetchTourById(
 }
 
 export function aggregateByRole (people: any[], lang: string | undefined): Record<string, any[]> {  
-  const roles: Record<string, any[]> = {};  
-  for(const person of people) {    
+  const roles: Record<string, any[]> = {};
+  const masters: Record<string, any> = {}
+  for(const person of people) {
     const roleName = pickTranslation(person.role_id.translations, lang ?? 'en-US')
     const name = roleName?.name ?? person.role_id.name
-    if(!roles[name]) roles[name] = [];  
-    roles[name].push(person.person_id)
+    if(!roles[name]) roles[name] = [];
+    if(person.is_master) {
+      masters[name] = person.person_id;
+    } else {
+      roles[name].push(person.person_id)
+    }
   }
+
+  // Re-order with concert master
+  for(const role of Object.keys(roles)) {
+    if(masters[role]) roles[role].unshift(masters[role]);    
+  }
+
   return roles;  
 }
 
