@@ -18,7 +18,7 @@ export async function fetchTourById(
   // When a language is given, filter translations to it in the query (`_starts_with` mirrors
   // pickTranslation: app "en" matches code "en-US"). Otherwise all translations are returned.
   const deep = lang
-    ? { translations: { _filter: { languages_code: { _starts_with: lang } } } }
+    ? { translations: { _filter: { languages_code: { _starts_with: lang } } }, people: {_limit: -1 } }
     : undefined;
 
   try {

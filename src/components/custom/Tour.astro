@@ -27,6 +27,7 @@ const events = (await fetchEventsByTour(tourId, lang) ?? []).sort(
 const tour = await fetchTourById(tourId, lang);
 
 const roles = aggregateByRole(tour?.people as unknown as any[], lang);
+// console.log("roles ~~~>", roles);
 
 
 // ISO date ("2026-01-15T20:00:00") → "15.01.2026". Pure string work, no library needed.

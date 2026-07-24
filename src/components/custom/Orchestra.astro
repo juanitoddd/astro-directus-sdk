@@ -1,0 +1,66 @@
+---
+import { getDirectusAssetUrl, type DirectusAsset } from '@/lib/directus/assets';
+import { fetchEventsByTour, aggregateInterpreters } from '@/lib/directus/events';
+import { fetchTourById, fetchToursByYear, aggregateByRole } from '@/lib/directus/tours';
+import { pickTranslation } from '@/lib/directus/types';
+
+// Every custom component receives:
+//   - data:  the block's data object (read your own args from here, incl. `name`)
+//   - lang:  the current language code
+//   - depth: nesting depth (for recursion guards, if you render EditorJS content)
+
+type Props = {
+  data?: Record<string, unknown>;
+  lang?: string;
+  depth?: number;
+};
+
+const { data = {}, lang } = Astro.props as Props;
+const tours = await fetchToursByYear(2026);
+
+let people: any[] = []
+for(const id of tours) {
+  const tour = await fetchTourById(id, lang);
+  if(tour?.people) people = [...people, ...(tour.people as any[])]
+}
+
+const roles = aggregateByRole(people as unknown as any[], lang);
+console.log("roles~~>", roles)
+// const roles: Array<Record<string, any[]>> = []
+---
+
+<div class="">  
+  {Object.keys(roles).map((role: string) =>
+    (
+      <details class="accordion group">
+        <summary class="flex items-center gap-2 cursor-pointer select-none py-3 font-bold list-none [&::-webkit-details-marker]:hidden">
+          {/* Custom marker (native one is hidden) — rotates to point down when open. */}
+          <svg
+            class="w-3 h-3 shrink-0 transition-transform group-open:rotate-90"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+          >
+            <polyline points="9 6 15 12 9 18" />
+          </svg>
+          <span class="flex-1">
+            <h4 class="text-gmjo-blue font-bold">{role}</h4>
+          </span>
+        </summary>
+        <div class="pb-4 md:grid grid-cols-3 gap-4">
+          {roles[role].map((person: any) => {
+            const url = getDirectusAssetUrl(person.image as DirectusAsset, { width:200, height:230 });
+            return(
+              <div>
+                <a class="underline-link text-gmjo-blue font-bold" href={`/${lang}/biography/${person.id}`}>
+                  <img src={url} class="object-cover" style="width: 200px; height: 230px;" />
+                  <div class="">{person.first_name} {person.last_name}</div>
+                </a>
+              </div>
+            )
+          }                    
+          )}
+        </div>                
+      </details>
+    )
+  )} 
+</div>
