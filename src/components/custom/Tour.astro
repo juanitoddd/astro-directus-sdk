@@ -1,7 +1,7 @@
 ---
 import { getDirectusAssetUrl, type DirectusAsset } from '@/lib/directus/assets';
 import { fetchEventsByTour, aggregateInterpreters } from '@/lib/directus/events';
-import { fetchTourById } from '@/lib/directus/tours';
+import { fetchTourById, aggregateByRole } from '@/lib/directus/tours';
 import { pickTranslation } from '@/lib/directus/types';
 
 // Example custom block. Copy this file and rename it; the block's `name` must match the
@@ -25,7 +25,9 @@ const events = (await fetchEventsByTour(tourId, lang) ?? []).sort(
 );
 // const interprets = aggregateInterpreters(events)
 const tour = await fetchTourById(tourId, lang);
-// console.log("tour~~>", tour)
+
+const roles = aggregateByRole(tour?.people as unknown as any[], lang);
+
 
 // ISO date ("2026-01-15T20:00:00") → "15.01.2026". Pure string work, no library needed.
 const formatDate = (iso: string | null | undefined) => {
@@ -172,19 +174,40 @@ const formatTime = (iso: string | null | undefined) =>
             <h2 class="text-gmjo-blue font-thin">{lang === 'en' ? 'Orchestra members' : 'Orchestermitglieder'}</h2>
           </span>
         </summary>
-        <div class="pb-4 md:grid grid-cols-3 gap-4">
-          {(tour?.orchestra ?? []).map((artist: any) => {            
-            const person = artist.people_id;            
-            const url = getDirectusAssetUrl(person.image as DirectusAsset);
-            return(
-              <div class="mb-4 md:mb-0">
-                <a class="underline-link text-gmjo-blue font-bold" href={`/${lang}/biography/${person.id}`}>
-                  <img src={url} class="object-cover" style="width: 200px; height: 230px;" />
-                  <div class="">{person.first_name} {person.last_name}</div>
-                </a>
-              </div>
+        <div class="pb-4 pl-2">
+          {Object.keys(roles).map((role: string) =>
+            (
+              <details class="accordion group">
+                <summary class="flex items-center gap-2 cursor-pointer select-none py-3 font-bold list-none [&::-webkit-details-marker]:hidden">
+                  {/* Custom marker (native one is hidden) — rotates to point down when open. */}
+                  <svg
+                    class="w-3 h-3 shrink-0 transition-transform group-open:rotate-90"
+                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+                  >
+                    <polyline points="9 6 15 12 9 18" />
+                  </svg>
+                  <span class="flex-1">
+                    <h4 class="text-gmjo-blue font-bold">{role}</h4>
+                  </span>
+                </summary>
+                <div class="pb-4 md:grid grid-cols-3 gap-4">
+                  {roles[role].map((person: any) => {
+                    const url = getDirectusAssetUrl(person.image as DirectusAsset, { width:200, height:230 });
+                    return(
+                      <div>
+                        <a class="underline-link text-gmjo-blue font-bold" href={`/${lang}/biography/${person.id}`}>
+                          <img src={url} class="object-cover" style="width: 200px; height: 230px;" />
+                          <div class="">{person.first_name} {person.last_name}</div>
+                        </a>
+                      </div>
+                    )
+                  }                    
+                  )}
+                </div>                
+              </details>
             )
-          })}
+          )}          
         </div>
       </details>      
                       

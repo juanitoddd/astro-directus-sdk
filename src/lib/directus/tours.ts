@@ -1,5 +1,6 @@
 import { readItem, readItems } from "@directus/sdk";
 import directus from "./directusSDK";
+import { pickTranslation } from './types';
 
 // Loose type — adjust once the `tours` fields are known.
 export type DirectusTour = {
@@ -26,19 +27,37 @@ export async function fetchTourById(
       readItem("tours", id, {
         fields: [
           "*",
-          "translations.*",
-          "orchestra.people_id.*",
+          "translations.*",          
+          "people.role_id.id",
+          "people.role_id.name",
+          "people.role_id.translations.*",
+          "people.person_id.id",
+          "people.person_id.first_name",
+          "people.person_id.last_name",
+          "people.person_id.image",
           "artists.people_id.*",
           "tutors.people_id.*"
         ],
         ...(deep ? { deep } : {}),
       }),
-    );
+    );        
+
     return (tour as DirectusTour) ?? null;
   } catch {
     // readItem throws on 403/404 — treat a missing tour as null rather than a hard error.
     return null;
   }
+}
+
+export function aggregateByRole (people: any[], lang: string | undefined): Record<string, any[]> {  
+  const roles: Record<string, any[]> = {};  
+  for(const person of people) {    
+    const roleName = pickTranslation(person.role_id.translations, lang ?? 'en-US')
+    const name = roleName?.name ?? person.role_id.name
+    if(!roles[name]) roles[name] = [];  
+    roles[name].push(person.person_id)
+  }
+  return roles;  
 }
 
 /**
