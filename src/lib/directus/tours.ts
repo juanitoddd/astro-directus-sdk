@@ -32,6 +32,7 @@ export async function fetchTourById(
           "translations.*",          
           "people.role_id.id",
           "people.role_id.name",
+          "people.role_id.sort",
           "people.role_id.translations.*",
           "people.is_master",
           "people.person_id.id",
@@ -52,8 +53,23 @@ export async function fetchTourById(
   }
 }
 
+function compare( a:any, b:any ) {
+  if ( a.sort < b.sort) return -1;  
+  if ( a.sort > b.sort ) return 1;  
+  return 0;
+}
+
+function compareSimple( a:number, b:number ) {
+  if ( a < b) return -1;  
+  if ( a > b ) return 1;  
+  return 0;
+}
+
 export function aggregateByRole (people: any[], lang: string | undefined): Record<string, any[]> {  
+  const result: Record<string, any[]> = {};
   const roles: Record<string, any[]> = {};
+  // const order: Record<string, number> = {};
+  const order: any[] = [];
   const masters: Record<string, any> = {}
   for(const person of people) {
     const roleName = pickTranslation(person.role_id.translations, lang ?? 'en-US')
@@ -64,14 +80,15 @@ export function aggregateByRole (people: any[], lang: string | undefined): Recor
     } else {
       roles[name].push(person.person_id)
     }
-  }
-
+    if(!order.find((item) => item.name === name)) order.push({name, sort: person.role_id.sort});
+  }  
+  
   // Re-order with concert master
-  for(const role of Object.keys(roles)) {
-    if(masters[role]) roles[role].unshift(masters[role]);    
-  }
+  order.sort( compare );  
+  for(const role of Object.keys(roles)) if(masters[role]) roles[role].unshift(masters[role]); 
+  for(const item of order) result[item.name] = roles[item.name];      
 
-  return roles;  
+  return result;  
 }
 
 /**
