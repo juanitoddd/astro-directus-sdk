@@ -54,6 +54,31 @@ export function aggregateInterpreters(
  * Fetch all `events` belonging to a given tour. `events` has a M2O to `tours`, so we filter
  * the FK field (`tour`) by the tour id.
  */
+export async function fetchEventsUpcoming(lang?: string): Promise<DirectusEvent[]> {
+  if (!directus) return [];
+
+  const events = await directus.request(
+    // @ts-expect-error — `events` (and nested relation fields) aren't in the typed SDK schema
+    readItems("events", {
+      filter: { date: { _gt: `$NOW` } },
+      sort: ["date"],
+      limit: 10,
+      fields: [
+        "*",
+        "image.*",
+        "location_id.*",
+        "location_id.translations.*",
+        "translations.*",        
+      ],
+    }),
+  );
+  return (events as DirectusEvent[]) ?? [];
+}
+
+/**
+ * Fetch all `events` belonging to a given tour. `events` has a M2O to `tours`, so we filter
+ * the FK field (`tour`) by the tour id.
+ */
 export async function fetchEventsByTour(
   tourId: number | string | null | undefined,
   lang?: string,
@@ -141,6 +166,8 @@ export async function fetchEventById(
           "interpreters.person_id.translations.*",
           "interpreters.role_id.*",
           "interpreters.role_id.translations.*",
+          "logos.*",
+          "logos.logo.*"
         ],
         ...(deep ? { deep } : {}),
       }),

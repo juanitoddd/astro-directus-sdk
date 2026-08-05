@@ -4,6 +4,7 @@ import { fetchAllEventIds, fetchEventById } from "@/lib/directus/events";
 import { fetchLastDate } from "@/lib/directus/deployments";
 import { languagePrefixes } from "@/constants/languages";
 import { pickTranslation } from '@/lib/directus/types/translation';
+import { getDirectusAssetUrl } from '@/lib/directus/assets';
 
 export async function getStaticPaths() {
   const ids = await fetchAllEventIds();
@@ -16,7 +17,7 @@ const lang = Astro.params.lang as string;
 const id = Astro.params.id as string;
 const event = await fetchEventById(id, lang);
 const hour = (event?.date as string).split('T')[1].slice(0, -3);
-// console.log("event~~>", event.repertoires)
+
 // ISO date ("2026-01-15T20:00:00") → "15.01.2026". Pure string work, no library needed.
 const formatDate = (iso: string | null | undefined) => {
   const [y, m, d] = String(iso ?? "").split("T")[0].split("-");
@@ -82,9 +83,21 @@ const location = pickTranslation(event?.location_id?.translations, lang ?? "");
       <div class="md:grid grid-cols-2 py-4">
         <div class="uppercase text-gmjo-blue font-bold text-lg mb-4 md:mb-0">{lang === 'de' ? 'Ort' : 'Place'}</div>
         <div>
-          <div class="text-gmjo-blue font-bold underline-link"><a href={location?.url} target="_blank" rel="noopener noreferrer">{location?.name}</a></div>
-          <div>{location?.city} / {location?.country}</div>
-          <div>{location?.postal_code} {location?.address}</div>
+          <div>
+            <div class="text-gmjo-blue font-bold underline-link"><a href={location?.url} target="_blank" rel="noopener noreferrer">{location?.name}</a></div>
+            <div>{location?.city} / {location?.country}</div>
+            <div>{location?.postal_code} {location?.address}</div>
+          </div>
+          <div class="flex flex-wrap gap-4 mt-6">
+            {(event.logos ?? []).map((logo:any) => {
+              const imageSrc = getDirectusAssetUrl(logo.logo, { width: 150, format: "webp", quality: 80 });
+              return(
+                <div>
+                  <img src={imageSrc} alt={logo.logo.title} />
+                </div>
+              )
+            })}            
+          </div>
         </div>
       </div>
       {/*
