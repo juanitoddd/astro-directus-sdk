@@ -1,0 +1,376 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import directus from "@/lib/directus/directusSDK";
+import { readItems, readItem } from "@directus/sdk";
+import { fetchAllTourYears } from '@/lib/directus/tours';
+import { pickTranslation } from "@/lib/directus/types";
+
+export const prerender = false;
+
+const lang = Astro.params.lang ?? "en";
+const tour = Astro.url.searchParams.get("tour")?.trim() ?? "";
+const year = Astro.url.searchParams.get("year")?.trim() ?? "";
+const author = Astro.url.searchParams.get("author")?.trim() ?? "";
+const repertoire = Astro.url.searchParams.get("repertoire")?.trim() ?? "";
+const location = Astro.url.searchParams.get("location")?.trim() ?? "";
+const hasSearch = Boolean(tour || year || author || repertoire || location);
+
+const formatDate = (iso: string | null | undefined) => {
+  const [y, m, d] = String(iso ?? "").split("T")[0].split("-");
+  return d && m && y ? `${d}.${m}.${y}` : "";
+};
+
+const intersectById = <T extends { id: PropertyKey }>(arrays: T[][]): T[] => {
+  const nonEmptyArrays = arrays.filter((items) => items.length > 0);
+  if (nonEmptyArrays.length === 0) return [];
+
+  const remainingIds = nonEmptyArrays
+    .slice(1)
+    .map((items) => new Set(items.map(({ id }) => id)));
+  const includedIds = new Set<PropertyKey>();
+
+  return nonEmptyArrays[0].filter(({ id }) => {
+    if (includedIds.has(id) || !remainingIds.every((ids) => ids.has(id))) {
+      return false;
+    }
+
+    includedIds.add(id);
+    return true;
+  });
+};
+
+const orderByDate = <T, K extends keyof T>(
+  items: T[],
+  dateParameter: K,
+  direction: "asc" | "desc" = "asc",
+): T[] => {
+  return [...items].sort((a, b) => {
+    const aTime = new Date(String(a[dateParameter] ?? "")).getTime();
+    const bTime = new Date(String(b[dateParameter] ?? "")).getTime();
+    const aIsInvalid = Number.isNaN(aTime);
+    const bIsInvalid = Number.isNaN(bTime);
+
+    if (aIsInvalid && bIsInvalid) return 0;
+    if (aIsInvalid) return 1;
+    if (bIsInvalid) return -1;
+
+    return direction === "asc" ? aTime - bTime : bTime - aTime;
+  });
+};
+
+const filterByYear = <T extends { date?: string | null }>(
+  items: T[],
+  year: number,
+): T[] => {
+  if (!Number.isInteger(year)) return [];
+
+  return items.filter(({ date }) => {
+    const parsedDate = new Date(date ?? "");
+    return !Number.isNaN(parsedDate.getTime()) && parsedDate.getUTCFullYear() === year;
+  });
+};
+
+const years = await fetchAllTourYears();
+
+// async function searchArchive(): Promise<EditorJsContent[]> {
+async function searchArchive(): Promise<any[]> {
+  if (!directus || !hasSearch) return [];  
+  let result_events: any[] = [];    
+
+  let author_events: any[] = []
+  if (author) {        
+    const authors_q = await directus.request(
+      // @ts-expect-error -- the project schema does not include the events collection
+      readItems("people", {        
+        filter: {
+          '_or' : [
+            {'first_name': { _icontains: author } },
+            {'last_name': { _icontains: author } }
+          ]
+        },
+        fields: ["*"],
+        limit: 1,
+      }),
+    );
+    console.log("[archive] authors_q", authors_q);
+    if(authors_q[0]) {
+
+      const interpreters_q: any[] = await directus.request(
+        // @ts-expect-error -- the project schema does not include the events collection
+        readItems("interpreters", {
+          filter: { '_and': [
+            {'person_id': { _eq: authors_q[0].id } },
+            {'role_id': { _eq: 19} }
+          ] },
+          fields: ["event_id"],
+          limit: -1,
+        }),
+      );
+      
+      const event_ids = interpreters_q.map((interpret) => interpret.event_id);         
+      
+      author_events = await directus.request(
+        // @ts-expect-error -- the project schema does not include the events collection
+        readItems("events", {
+          filter: { id: { _in: event_ids }},
+          fields: [
+            "*",            
+            "location_id.*",
+            "location_id.translations.*",
+            "translations.*",
+          ],
+        }),
+      );            
+    }    
+  }
+
+  let repertoire_events: any[] = []
+  if (repertoire) {
+    console.log("repertoire ~~>", repertoire)
+    const repertoires_q: any[] = await directus.request(
+      // @ts-expect-error -- the project schema does not include the events collection
+      readItems("repertoires_translations", {
+        filter: { 'title': { _icontains: repertoire } },
+        fields: ["*"],
+        limit: -1,
+      }),
+    );    
+    console.log("repertoires_q ~~>", repertoires_q)
+    let all_event_repertoires: any[] = [];
+    for(const rep of repertoires_q) {
+      const event_repertoires = await directus.request(
+        // @ts-expect-error -- the project schema does not include the events collection
+        readItems("events_repertoires", {
+          filter: { repertoires_id: { _eq: rep.repertoires_id } },
+          fields: ["*"],
+          limit: -1,
+        }),
+      );
+      all_event_repertoires = [...all_event_repertoires, ...event_repertoires];
+    }
+    // console.log("all_event_repertoires ~~>", all_event_repertoires)
+
+    for(const event_rep of all_event_repertoires) {
+      const events_q = await directus.request(
+        // @ts-expect-error -- the project schema does not include the events collection
+        readItem("events", event_rep.events_id, {
+          fields: [
+            "*",            
+            "location_id.*",
+            "location_id.translations.*",
+            "translations.*",
+          ]
+        })        
+      );      
+      repertoire_events = [...repertoire_events, events_q];
+    }        
+  }  
+
+  let location_events: any[] = []
+  if (location) {
+    console.log("location ~~~>", location)
+    const locations_q: any[] = await directus.request(
+      // @ts-expect-error -- the project schema does not include the events collection
+      readItems("locations_translations", {
+        filter: { 
+          '_or': [
+            { 'city': { _icontains: location } }, 
+            { 'country': { _icontains: location } }, 
+            { 'name': { _icontains: location } }
+          ] 
+        },
+        fields: ["*"],
+        limit: -1,
+      }),
+    );
+    // console.log("locations_q ~~~>", locations_q)
+    for (const loc of locations_q) {
+      const events_q = await directus.request(
+        // @ts-expect-error -- the project schema does not include the events collection
+        readItems("events", {
+          filter: { location_id: { _eq: loc.locations_id } },
+          fields: [
+            "*",            
+            "location_id.*",
+            "location_id.translations.*",
+            "translations.*",
+          ],
+          limit: -1,
+        }),
+      );
+      location_events = [...location_events, ...events_q];
+    }
+    result_events = [...result_events, ...location_events];    
+  }
+  
+  let tour_events: any[] = [];
+  if (tour) {
+    const tours:any[] = await directus.request(
+      // @ts-expect-error -- the project schema does not include the events collection
+      readItems("tours_translations", {
+        filter: { 'title': { _icontains: tour } },
+        fields: ["tours_id"],
+        limit: -1,
+      }),
+    );
+    
+    const tour_ids = tours.map((tour) => tour.tours_id)
+
+    tour_events = await directus.request(
+      // @ts-expect-error -- the project schema does not include the events collection
+      readItems("events", {
+        filter: { id: { _in: tour_ids }},
+        fields: [
+          "*",            
+          "location_id.*",
+          "location_id.translations.*",
+          "translations.*",
+        ],
+      }),
+    )
+
+    // const tours_ids_unique = new Set(...tours.map((tourItem: any) => tourItem.tours_id), ...tours_ids);
+    // console.log("[archive] tours_ids_unique", tours_ids_unique);
+  }
+
+  let year_events: any[] = [];
+  const selectedYear = Number(year);
+  if (Number.isInteger(selectedYear)) {
+    year_events = await directus.request(
+      // @ts-expect-error -- the project schema does not include the events collection
+      readItems("events", {
+        filter: {
+          date: {
+            _gte: selectedYear + "-01-01T00:00:00",
+            _lt: (selectedYear + 1) + "-01-01T00:00:00",
+          },
+        },
+        fields: [
+          "*",            
+          "location_id.*",
+          "location_id.translations.*",
+          "translations.*",
+        ],
+        limit: -1,
+      }),
+    );    
+  }
+
+  // Attach Tours
+  for(const evt of result_events) {
+    // console.log("result_events~~~~>", evt)
+    /*
+    const tour_q = await directus.request(
+      // @ts-expect-error -- the project schema does not include the events collection
+      readItem("tours", evt.tour_id),
+    );
+    evt.tour = tour_q
+    */
+  }
+  console.log("tour_events", tour_events.length)
+  console.log("author_events", author_events.length)
+  console.log("repertoire_events", repertoire_events.length)
+  console.log("location_events", location_events.length)
+  console.log("year_events", year_events.length)
+
+  const sharedItems = intersectById([tour_events, author_events, repertoire_events, location_events, year_events]);
+
+  // console.log("[archive] result_events", sharedItems.length);
+  
+  return sharedItems;
+}
+
+// let results: EditorJsContent[] = [];
+let results: any[] = [];
+let searchError = false;
+if (hasSearch) {
+  try {
+    results = orderByDate(await searchArchive(), "date");
+    // console.log("[results]~~~>", results)
+  } catch (error) {
+    searchError = true;
+    console.error("[archive] search failed", error);
+  }
+}
+---
+<Layout>
+  <section class="container py-8">
+    <h1>Tour Archive</h1>
+
+    <div class="md:grid block gap-4" style="grid-template-columns: 40% 60%;">
+      <div class="pr-4">
+        <form method="get" class="my-8">
+          <div class="grid "></div>
+          <div class="grid my-2" style="grid-template-columns: 35% 65%;">
+            <label>Year</label>
+            <select class="border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" name="year">
+              <option value="">-</option>
+              {years.map((year) => (
+                <option value={year} selected={Astro.url.searchParams.get("year") === String(year)}>{year}</option>
+              ))}
+            </select>            
+          </div>
+          <div class="grid my-2" style="grid-template-columns: 35% 65%;">
+            <label>Tour name</label>
+            <input class="border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" type="search" name="tour" value={tour} />            
+          </div>      
+          <div class="grid my-2" style="grid-template-columns: 35% 65%;">
+            <label>Author</label>
+            <input class="border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" type="search" name="author" value={author} />            
+          </div>            
+          <div class="grid my-2" style="grid-template-columns: 35% 65%;">
+            <label>Repertoire</label>
+            <input class="border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" type="search" name="repertoire" value={repertoire} />            
+          </div>
+          <div class="grid my-2" style="grid-template-columns: 35% 65%;">
+            <label>Location</label>
+            <input class="border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" type="search" name="location" value={location} />            
+          </div>
+          <div class="mt-3 flex gap-2">
+            <button type="submit" class="md:col-span-3 p-2 bg-blue-500 text-white rounded">Search</button>
+            <button
+              type="button"
+              class="p-2 border border-gray-300 rounded"
+              onclick="window.location.href = window.location.pathname"
+            >
+              Reset
+            </button>
+          </div>
+        </form>
+      </div>
+      <div class="pt-4">
+        {searchError && <p role="alert">The archive could not be searched.</p>}
+        {hasSearch && !searchError && results.length === 0 && <p>No archive entries found.</p>}
+        {results.length > 0 && (
+          <div class="grid gap-8">
+            {results.map((event) => {
+              const _event = pickTranslation(event.translations as unknown as any, lang ?? "")
+              const _location = event.location_id ? pickTranslation(event.location_id.translations as unknown as any, lang ?? "") : null;
+              const hour = (event?.date as string).split('T')[1].slice(0, -3);
+              return (
+                <div class="border-b border-solid border-gmjo-blue">                  
+                  <a href={`/en/events/${event.id}`} target="_blank" >                                        
+
+                    <div class="flex items-center justify-between">
+                      <h2 class="md:text-3xl text-lg text-gmjo-blue font-bold">{_event?.title}</h2>
+                      <h4 class="text-black text-right">{_location?.city}, {_location?.country}</h4>
+                    </div>
+                    <div class="flex gap-2 mt-2">
+                      <div class="text-lg text-gmjo-blue font-bold">{formatDate(event?.date)}</div> - 
+                      <div class="text-lg font-thin text-black">{hour}</div>
+                    </div>
+
+                  </a>
+                </div>
+              )
+            }
+            )}
+
+            {/* results.map((content) => <EditorJs content={content} lang={lang} />) */}
+            
+          </div>
+        )}
+      </div>
+    </div>
+  </section>
+</Layout>

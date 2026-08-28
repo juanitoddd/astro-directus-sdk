@@ -129,3 +129,17 @@ export async function fetchTourYears(): Promise<number[]> {
   }
   return [...years].sort((a, b) => a - b).filter((y) => y < 2026);
 }
+
+export async function fetchAllTourYears(): Promise<number[]> {
+  if (!directus) return [];
+  const rows = await directus.request(
+    // @ts-expect-error — `tours` isn't in the typed SDK schema
+    readItems("tours", { fields: ["year"], sort: ["year"], limit: -1 }),
+  );
+  const years = new Set<number>();
+  for (const r of rows as Array<{ year?: number | string }>) {
+    const y = Number(r.year);
+    if (Number.isFinite(y)) years.add(y);
+  }
+  return [...years].sort((a, b) => a - b);
+}
