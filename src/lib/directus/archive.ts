@@ -64,6 +64,7 @@ export async function searchArchive(filters: ArchiveFilters, lang: string): Prom
     const translations: any[] = await directus.request(
       // @ts-expect-error -- archive collections are not in the typed SDK schema
       readItems("repertoires_translations", {
+        // filter: { title_search: { _icontains: filters.repertoire } },
         filter: { title: { _icontains: filters.repertoire } },
         fields: ["repertoires_id"],
         limit: -1,
