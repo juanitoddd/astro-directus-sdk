@@ -1,6 +1,4 @@
-
 ---
-
 type Props = {  
   lang?: string;  
 };
@@ -10,15 +8,15 @@ const { lang } = Astro.props as Props;
   <form class="border-0">
     <div class="mb-2">
       <label class="block w-full">Name</label>
-      <input class="w-full border p-2" type="text"></input>
+      <input class="w-full border p-2" type="text" />
     </div>
     <div class="mb-2">
       <label class="block w-full">Email</label>
-      <input class="w-full border p-2" type="text"></input>
+      <input class="w-full border p-2" type="text" />
     </div>
     <div class="mb-2">
       <label class="block w-full">{lang === 'en' ? 'Subject' : 'Betreff'}</label>
-      <input class="w-full border p-2" type="text"></input>
+      <input class="w-full border p-2" type="text" />
     </div>
     <div class="mb-2">
       <label class="block w-full">{lang === 'en' ? 'Message' : 'Nachricht'}</label>

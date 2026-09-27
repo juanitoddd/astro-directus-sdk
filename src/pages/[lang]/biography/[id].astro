@@ -8,10 +8,16 @@ import { pickTranslation } from '@/lib/directus/types/translation';
 import { getDirectusAssetUrl, type DirectusAsset } from '@/lib/directus/assets';
 
 export async function getStaticPaths() {
-  const ids = await fetchAllPeopleIds();  
-  return languagePrefixes.flatMap((lang) =>
-    ids.map((id) => ({ params: { lang, id: String(id) } })),
-  );
+  const people = await fetchAllPeopleIds();  
+  const pages = languagePrefixes.flatMap((lang) =>
+    people.map((person) => {
+      const translation = pickTranslation(person?.translations, lang ?? "");      
+      const key = `${lang}:${person.id}:${person.modified}:${translation?.modified ?? ""}`;
+      console.log("key", key);
+      return { params: { lang, id: String(person.id), cacheKey: key } }
+    })
+  );  
+  return pages;
 }
 
 const lang = Astro.params.lang as string;

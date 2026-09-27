@@ -9,87 +9,89 @@ import react from '@astrojs/react';
 export default defineConfig({
   site: 'https://gmjo.at',
   experimental: {
+    incrementalBuild: true,
   },
   fonts: [
     {
       provider: fontProviders.local(),
-      name: "GTEestiProText",
-      cssVariable: "--font-GTEestiProText",
+      name: 'GTEestiProText',
+      cssVariable: '--font-GTEestiProText',
       options: {
         variants: [
           {
             src: ['./src/assets/fonts/GTEestiProText-Bold.ttf'],
             weight: '700',
-            style: 'normal'
+            style: 'normal',
           },
           {
             src: ['./src/assets/fonts/GTEestiProText-Medium.ttf'],
             weight: '500',
-            style: 'normal'
+            style: 'normal',
           },
           {
             src: ['./src/assets/fonts/GTEestiProText-Regular.ttf'],
             weight: 'normal',
-            style: 'normal'
+            style: 'normal',
           },
           {
             src: ['./src/assets/fonts/GTEestiProText-Thin.ttf'],
             weight: '300',
-            style: 'normal'
+            style: 'normal',
           },
           {
             src: ['./src/assets/fonts/GTEestiProText-Light.ttf'],
             weight: '200',
-            style: 'normal'
-          },          
+            style: 'normal',
+          },
           {
             src: ['./src/assets/fonts/GTEestiProText-UltraLight.ttf'],
             weight: '100',
-            style: 'normal'
-          }
-        ]
-      }
+            style: 'normal',
+          },
+        ],
+      },
     },
     {
       provider: fontProviders.google(),
-      name: "Playfair",
-      cssVariable: "--font-playfair-display"
+      name: 'Playfair',
+      cssVariable: '--font-playfair-display',
     },
     {
       provider: fontProviders.google(),
-      name: "Roboto",
-      cssVariable: "--font-roboto"
+      name: 'Roboto',
+      cssVariable: '--font-roboto',
     },
     {
       provider: fontProviders.google(),
-      name: "Montserrat",
-      cssVariable: "--font-montserrat"
+      name: 'Montserrat',
+      cssVariable: '--font-montserrat',
     },
   ],
   adapter: node({
     mode: 'standalone',
   }),
   vite: {
-    plugins: [tailwindcss()]
+    plugins: [tailwindcss()],
   },
   i18n: {
-    locales: ["en", "de", "it"],
-    defaultLocale: "en",
+    locales: ['en', 'de', 'it'],
+    defaultLocale: 'en',
   },
 
   integrations: [react()],
   redirects: {
-    "/": "/en",
-    "/en/home": "/en",
-    "/de/home": "/de",
+    '/': '/en',
+    '/en/home': '/en',
+    '/de/home': '/de',
     // "/en": "/en/goals",
   },
   server: {
-    allowedHosts: ["gmjo.at", "preview.gmjo.at", "cms.gmjo.at"],
+    allowedHosts: ['gmjo.at', 'preview.gmjo.at', 'cms.gmjo.at'],
     headers: {
       // Do not set X-Frame-Options to DENY or SAMEORIGIN if another origin must embed this app.
       // Prefer CSP frame-ancestors for fine-grained control:
-      'Content-Security-Policy': "frame-ancestors 'self' gmjo.at cms.gmjo.at preview.gmjo.at",
+      'Content-Security-Policy':
+        "frame-ancestors 'self' gmjo.at cms.gmjo.at preview.gmjo.at",
     },
-  }
+  },
 });
