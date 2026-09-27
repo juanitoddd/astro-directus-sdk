@@ -1,5 +1,5 @@
-import { readItem, readItems } from "@directus/sdk";
-import directus from "./directusSDK";
+import { readItem, readItems } from '@directus/sdk';
+import directus from './directusSDK';
 
 // Loose type — adjust once the `events` fields are known.
 export type DirectusEvent = {
@@ -8,13 +8,21 @@ export type DirectusEvent = {
 };
 
 /** All `events` ids — used to prebuild the per-event detail routes. */
-export async function fetchAllEventIds(): Promise<Array<number | string>> {
+export async function fetchAllEventIds(): Promise<Array<any>> {
   if (!directus) return [];
   const rows = await directus.request(
     // @ts-expect-error — `events` isn't in the typed SDK schema
-    readItems("events", { fields: ["id"], limit: -1 }),
+    readItems('events', {
+      fields: [
+        'id',
+        'modified',
+        'translations.modified',
+        'translations.languages_code',
+      ],
+      limit: -1,
+    }),
   );
-  return (rows as Array<{ id: number | string }>).map((r) => r.id).filter((id) => id != null);
+  return (rows as Array<any>).filter((id) => id != null);
 }
 
 export type Interpreter = {
@@ -39,7 +47,7 @@ export function aggregateInterpreters(
   for (const event of events ?? []) {
     for (const interpreter of (event?.interpreters as Interpreter[]) ?? []) {
       const key = keyOf(interpreter);
-      if (key != null && key !== "") {
+      if (key != null && key !== '') {
         const k = String(key);
         if (seen.has(k)) continue;
         seen.add(k);
@@ -54,21 +62,23 @@ export function aggregateInterpreters(
  * Fetch all `events` belonging to a given tour. `events` has a M2O to `tours`, so we filter
  * the FK field (`tour`) by the tour id.
  */
-export async function fetchEventsUpcoming(lang?: string): Promise<DirectusEvent[]> {
+export async function fetchEventsUpcoming(
+  lang?: string,
+): Promise<DirectusEvent[]> {
   if (!directus) return [];
 
   const events = await directus.request(
     // @ts-expect-error — `events` (and nested relation fields) aren't in the typed SDK schema
-    readItems("events", {
+    readItems('events', {
       filter: { date: { _gt: `$NOW` } },
-      sort: ["date"],
+      sort: ['date'],
       limit: 10,
       fields: [
-        "*",
-        "image.*",
-        "location_id.*",
-        "location_id.translations.*",
-        "translations.*",        
+        '*',
+        'image.*',
+        'location_id.*',
+        'location_id.translations.*',
+        'translations.*',
       ],
     }),
   );
@@ -83,11 +93,13 @@ export async function fetchEventsByTour(
   tourId: number | string | null | undefined,
   lang?: string,
 ): Promise<DirectusEvent[]> {
-  if (!directus || tourId == null || tourId === "") return [];
+  if (!directus || tourId == null || tourId === '') return [];
 
   // When a language is given, filter the nested translations to that language in the query via
   // Directus `deep`. `_starts_with` mirrors pickTranslation (app "en" matches code "en-US").
-  const translationFilter = { _filter: { languages_code: { _starts_with: lang } } };
+  const translationFilter = {
+    _filter: { languages_code: { _starts_with: lang } },
+  };
   const deep = lang
     ? {
         interpreters: {
@@ -99,22 +111,22 @@ export async function fetchEventsByTour(
 
   const events = await directus.request(
     // @ts-expect-error — `events` (and nested relation fields) aren't in the typed SDK schema
-    readItems("events", {
+    readItems('events', {
       filter: { tour_id: { _eq: tourId } },
       // Expand each interpreter row's `person_id` (People) and `role_id` (roles) M2O relations
       // inline, with their translations so the component can render by language.
       fields: [
-        "*",
-        "translations.*",
-        "location_id.*",
-        "location_id.translations.*",
-        "interpreters.*",
-        "interpreters.person_id.id",
-        "interpreters.person_id.first_name",
-        "interpreters.person_id.last_name",
-        "interpreters.person_id.translations.*",
-        "interpreters.role_id.id",
-        "interpreters.role_id.translations.*",
+        '*',
+        'translations.*',
+        'location_id.*',
+        'location_id.translations.*',
+        'interpreters.*',
+        'interpreters.person_id.id',
+        'interpreters.person_id.first_name',
+        'interpreters.person_id.last_name',
+        'interpreters.person_id.translations.*',
+        'interpreters.role_id.id',
+        'interpreters.role_id.translations.*',
       ],
       ...(deep ? { deep } : {}),
       limit: -1,
@@ -132,9 +144,11 @@ export async function fetchEventById(
   id: number | string | null | undefined,
   lang?: string,
 ): Promise<DirectusEvent | null> {
-  if (!directus || id == null || id === "") return null;
+  if (!directus || id == null || id === '') return null;
 
-  const translationFilter = { _filter: { languages_code: { _starts_with: lang } } };
+  const translationFilter = {
+    _filter: { languages_code: { _starts_with: lang } },
+  };
   const deep = lang
     ? {
         translations: translationFilter,
@@ -149,25 +163,25 @@ export async function fetchEventById(
   try {
     const event = await directus.request(
       // @ts-expect-error — `events` (and nested relation fields) aren't in the typed SDK schema
-      readItem("events", id, {
+      readItem('events', id, {
         fields: [
-          "*",
-          "translations.*",
-          "tour_id.*",
-          "tour_id.translations.*",
-          "repertoires.repertoires_id.*",
-          "repertoires.repertoires_id.translations.*",
-          "repertoires.repertoires_id.person_id.*",
-          "repertoires.repertoires_id.translations.*",
-          "location_id.*",
-          "location_id.translations.*",
-          "interpreters.*",
-          "interpreters.person_id.*",
-          "interpreters.person_id.translations.*",
-          "interpreters.role_id.*",
-          "interpreters.role_id.translations.*",
-          "logos.*",
-          "logos.logo.*"
+          '*',
+          'translations.*',
+          'tour_id.*',
+          'tour_id.translations.*',
+          'repertoires.repertoires_id.*',
+          'repertoires.repertoires_id.translations.*',
+          'repertoires.repertoires_id.person_id.*',
+          'repertoires.repertoires_id.translations.*',
+          'location_id.*',
+          'location_id.translations.*',
+          'interpreters.*',
+          'interpreters.person_id.*',
+          'interpreters.person_id.translations.*',
+          'interpreters.role_id.*',
+          'interpreters.role_id.translations.*',
+          'logos.*',
+          'logos.logo.*',
         ],
         ...(deep ? { deep } : {}),
       }),

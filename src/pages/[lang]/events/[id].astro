@@ -7,9 +7,13 @@ import { pickTranslation } from '@/lib/directus/types/translation';
 import { getDirectusAssetUrl } from '@/lib/directus/assets';
 
 export async function getStaticPaths() {
-  const ids = await fetchAllEventIds();
+  const events = await fetchAllEventIds();
   return languagePrefixes.flatMap((lang) =>
-    ids.map((id) => ({ params: { lang, id: String(id) } })),
+    events.map((event) => {
+      const translation = pickTranslation(event?.translations, lang ?? "");      
+      const key = `${lang}:${event.id}:${event.modified}:${translation?.modified ?? ""}`;
+      return { params: { lang, id: String(event.id) }, cacheKey: key }
+    })    
   );
 }
 
