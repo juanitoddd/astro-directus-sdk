@@ -13,8 +13,7 @@ export async function getStaticPaths() {
     people.map((person) => {
       const translation = pickTranslation(person?.translations, lang ?? "");      
       const key = `${lang}:${person.id}:${person.modified}:${translation?.modified ?? ""}`;
-      // console.log("key", key);
-      return { params: { lang, id: String(person.id), cacheKey: key } }
+      return { params: { lang, id: String(person.id)}, cacheKey: key }
     })
   );  
   return pages;
