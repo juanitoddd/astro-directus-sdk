@@ -15,12 +15,15 @@ export async function getStaticPaths() {
   );
   const valid = pages.filter((p): p is { slug: string; page: Page } => p !== null);
 
-  return languagePrefixes.flatMap((lang) =>
+  const languagePages = languagePrefixes.flatMap((lang) =>
     valid.map(({ slug, page }) => ({
       params: { lang, slug },
       props: { page },
+      cacheKey: `${lang}:${slug}:${page.modified ?? ''}`,
     })),
   );
+
+  return languagePages;
 }
 
 type Props = { page: Page };

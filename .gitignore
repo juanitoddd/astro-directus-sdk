@@ -5,6 +5,10 @@ dist/
 releases/
 logs/
 
+# symlink to the live release, repointed on each deploy
+current
+current.tmp
+
 # transient route variant backups produced by scripts/build-static.mjs
 # (should only exist while a build is mid-flight, but guard against crashes)
 src/pages/**/*.ssr.bak

@@ -22,7 +22,12 @@ export const sectionsItemFields = {
     'id',
     'image.*',
     // 'image.id', 'image.filename_disk', 'image.title', 'image.description', 'image.width', 'image.height',
-    'background.id', 'background.filename_disk', 'background.title', 'background.description', 'background.width', 'background.height',
+    'background.id',
+    'background.filename_disk',
+    'background.title',
+    'background.description',
+    'background.width',
+    'background.height',
     ...translationsFields,
   ],
   slider: [
@@ -35,7 +40,7 @@ export const sectionsItemFields = {
     'slides.item:block.id',
     'slides.item:block.translations.id',
     'slides.item:block.translations.languages_code',
-    'slides.item:block.translations.content',    
+    'slides.item:block.translations.content',
     'slides.item:hero.id',
     'slides.item:hero.image.id',
     'slides.item:hero.image.filename_disk',
@@ -80,6 +85,7 @@ export const sectionsItemFields = {
 const pageQueryFields = [
   'id',
   'slug',
+  'modified',
   'sections.id',
   'sections.sort',
   'sections.collection',
@@ -106,12 +112,14 @@ export async function fetchPageBySlug(slug: string): Promise<Page | null> {
       fields: pageQueryFields,
       limit: 1,
     }),
-  );  
+  );
   const list = pages as Page[];
   if (!list || list.length === 0) return null;
   const page = list[0];
   if (page.sections) {
-    page.sections = [...page.sections].sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0));
+    page.sections = [...page.sections].sort(
+      (a, b) => (a.sort ?? 0) - (b.sort ?? 0),
+    );
     for (const section of page.sections) {
       if (section.collection === 'slider' && section.item?.slides) {
         section.item.slides = [...section.item.slides].sort(

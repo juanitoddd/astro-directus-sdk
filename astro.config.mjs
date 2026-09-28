@@ -4,6 +4,7 @@ import node from '@astrojs/node';
 import tailwindcss from '@tailwindcss/vite';
 
 import react from '@astrojs/react';
+import { astroRedirects } from './redirects.config.mjs';
 
 // https://astro.build/config
 export default defineConfig({
@@ -67,26 +68,32 @@ export default defineConfig({
       cssVariable: '--font-montserrat',
     },
   ],
+  // Middleware mode: the build emits `server/entry.mjs` exporting `handler`,
+  // and `scripts/server.mjs` wraps it in Express so we control static file
+  // serving and Cache-Control tiers (what deploy/nginx.conf used to do).
   adapter: node({
-    mode: 'standalone',
+    mode: 'middleware',
   }),
   vite: {
     plugins: [tailwindcss()],
   },
+  /*
   i18n: {
     locales: ['en', 'de', 'it'],
     defaultLocale: 'en',
   },
-
+  */
   integrations: [react()],
-  redirects: {
-    '/': '/en',
-    '/en/home': '/en',
-    '/de/home': '/de',
-    // "/en": "/en/goals",
-  },
+  // Defined in redirects.config.mjs, shared with scripts/server.mjs. Note that
+  // Astro emits these as 301 regardless of the `status` given here, so in
+  // production scripts/server.mjs serves them as 302s before the SSR handler.
+  redirects: astroRedirects,
   server: {
-    allowedHosts: ['gmjo.at', 'preview.gmjo.at', 'cms.gmjo.at'],
+    // Dev/preview port, stated explicitly rather than relying on astro's 4321
+    // default: production (scripts/server.mjs) runs on 4322 on the same host,
+    // and the split needs to be obvious from config rather than implied.
+    port: 4321,
+    allowedHosts: ['gmjo.at', 'preview.gmjo.at', 'cms.gmjo.at', 'localhost'],
     headers: {
       // Do not set X-Frame-Options to DENY or SAMEORIGIN if another origin must embed this app.
       // Prefer CSP frame-ancestors for fine-grained control:

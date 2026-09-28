@@ -7,6 +7,9 @@ import { languagePrefixes } from "@/constants/languages";
 import { pickTranslation } from '@/lib/directus/types/translation';
 import { getDirectusAssetUrl, type DirectusAsset } from '@/lib/directus/assets';
 
+export const prerender = false;
+
+/*
 export async function getStaticPaths() {
   const people = await fetchAllPeopleIds();  
   const pages = languagePrefixes.flatMap((lang) =>
@@ -18,6 +21,7 @@ export async function getStaticPaths() {
   );  
   return pages;
 }
+*/
 
 const lang = Astro.params.lang as string;
 const id = Astro.params.id as string;

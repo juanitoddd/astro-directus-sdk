@@ -6,6 +6,9 @@ import { languagePrefixes } from "@/constants/languages";
 import { pickTranslation } from '@/lib/directus/types/translation';
 import { getDirectusAssetUrl } from '@/lib/directus/assets';
 
+export const prerender = false;
+
+/*
 export async function getStaticPaths() {
   const events = await fetchAllEventIds();
   return languagePrefixes.flatMap((lang) =>
@@ -16,6 +19,7 @@ export async function getStaticPaths() {
     })    
   );
 }
+*/
 
 const lang = Astro.params.lang as string;
 const id = Astro.params.id as string;
