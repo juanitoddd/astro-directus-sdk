@@ -52,6 +52,7 @@ export async function searchRepertoire(query: string) {
     )
     SELECT
       t.id,
+      t.repertoires_id,
       t.title,
       t.title_search,
       similarity(t.title_search, q.query) AS score
@@ -60,15 +61,7 @@ export async function searchRepertoire(query: string) {
     WHERE
       t.title_search % q.query
 
-      AND NOT EXISTS (
-        SELECT 1
-        FROM unnest(q.tokens) AS token
-        WHERE token ~ '^[0-9]+$'
-          AND NOT (
-            regexp_split_to_array(t.title_search, '\\s+')
-            @> ARRAY[token]
-          )
-      )
+      AND regexp_split_to_array(t.title_search, '\\s+') @> q.tokens
 
     ORDER BY score DESC    
   `;
@@ -135,7 +128,7 @@ export async function searchArchive(
   if (filters.repertoire) {
     const rows = await searchRepertoire(filters.repertoire);
     // console.log('searchRepertoire', rows);
-    const repertoireIds = rows.map((row) => row.id);
+    const repertoireIds = rows.map((row) => row.repertoires_id);
 
     /*
     const translations: any[] = await directus.request(
