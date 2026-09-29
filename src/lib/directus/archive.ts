@@ -4,7 +4,7 @@ import { pickTranslation } from './types';
 import pg from 'pg';
 
 export type ArchiveFilters = Record<
-  'tour' | 'year' | 'author' | 'repertoire' | 'location',
+  'tour' | 'year' | 'author' | 'interpreter' | 'repertoire' | 'location',
   string
 >;
 export type ArchiveResult = {
@@ -91,6 +91,55 @@ export async function searchArchive(
   const groups: any[][] = [];
 
   if (filters.author) {
+    const people: any[] = await directus.request(
+      // @ts-expect-error -- archive collections are not in the typed SDK schema
+      readItems('people', {
+        filter: {
+          _or: [
+            { first_name: { _icontains: filters.author } },
+            { last_name: { _icontains: filters.author } },
+          ],
+        },
+        fields: ['id'],
+        limit: -1,
+      }),
+    );
+    const personIds = people.map(({ id }) => id);
+
+    const repertoires: any[] = await directus.request(
+      // @ts-expect-error -- archive collections are not in the typed SDK schema
+      readItems('repertoires', {
+        // filter: { title_search: { _icontains: filters.repertoire } },
+        filter: { person_id: { _in: personIds } },
+        fields: ['id'],
+        limit: -1,
+      }),
+    );
+
+    const repertoireIds = repertoires.map(({ id }) => id);
+
+    const junctions: any[] = repertoireIds.length
+      ? await directus.request(
+          // @ts-expect-error -- archive collections are not in the typed SDK schema
+          readItems('events_repertoires', {
+            filter: { repertoires_id: { _in: repertoireIds } },
+            fields: ['events_id'],
+            limit: -1,
+          }),
+        )
+      : [];
+    const events = await Promise.all(
+      junctions.map(({ events_id }) =>
+        directus!.request(
+          // @ts-expect-error -- archive collections are not in the typed SDK schema
+          readItem('events', events_id, { fields: eventFields }),
+        ),
+      ),
+    );
+    groups.push(events);
+  }
+
+  if (filters.interpreter) {
     const people: any[] = await directus.request(
       // @ts-expect-error -- archive collections are not in the typed SDK schema
       readItems('people', {
