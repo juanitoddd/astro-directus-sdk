@@ -145,8 +145,8 @@ export async function searchArchive(
       readItems('people', {
         filter: {
           _or: [
-            { first_name: { _icontains: filters.author } },
-            { last_name: { _icontains: filters.author } },
+            { first_name: { _icontains: filters.interpreter } },
+            { last_name: { _icontains: filters.interpreter } },
           ],
         },
         fields: ['id'],

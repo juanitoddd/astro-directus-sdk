@@ -129,8 +129,8 @@ const years = await fetchAllTourYears();
       const query = params.toString();
       history.pushState({}, "", `${location.pathname}${query ? `?${query}` : ""}`);
     }
+    renderResults([], root.dataset.lang ?? "en");
     if (!params.size) {
-      renderResults([], root.dataset.lang ?? "en");
       setStatus("");
       return;
     }
