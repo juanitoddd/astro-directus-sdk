@@ -5,7 +5,6 @@ import { searchArchive, type ArchiveFilters } from '@/lib/directus/archive';
 export const prerender = false;
 
 const names = [
-  'tour',
   'year',
   'author',
   'interpreter',

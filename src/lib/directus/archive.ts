@@ -95,16 +95,15 @@ export async function searchArchive(
       // @ts-expect-error -- archive collections are not in the typed SDK schema
       readItems('people', {
         filter: {
-          _or: [
-            { first_name: { _icontains: filters.author } },
-            { last_name: { _icontains: filters.author } },
-          ],
+          name: { _icontains: filters.author },
         },
         fields: ['id'],
         limit: -1,
       }),
     );
     const personIds = people.map(({ id }) => id);
+
+    console.log('[author] personIds', personIds);
 
     const repertoires: any[] = await directus.request(
       // @ts-expect-error -- archive collections are not in the typed SDK schema
@@ -117,6 +116,8 @@ export async function searchArchive(
     );
 
     const repertoireIds = repertoires.map(({ id }) => id);
+
+    console.log('[author] repertoireIds', repertoireIds);
 
     const junctions: any[] = repertoireIds.length
       ? await directus.request(

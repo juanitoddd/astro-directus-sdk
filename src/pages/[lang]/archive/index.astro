@@ -25,11 +25,7 @@ const years = await fetchAllTourYears();
               <option value="">-</option>
               {years.map((year) => <option value={year}>{year}</option>)}
             </select>
-          </div>
-          <div class="grid my-2" style="grid-template-columns: 35% 65%;">
-            <label for="archive-tour">Tour name</label>
-            <input id="archive-tour" class="border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" type="search" name="tour" />
-          </div>
+          </div>          
           <div class="grid my-2" style="grid-template-columns: 35% 65%;">
             <label for="archive-author">Author</label>
             <input id="archive-author" class="border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" type="search" name="author" />
