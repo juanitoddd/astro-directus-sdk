@@ -66,8 +66,8 @@ const events = await fetchEventsUpcoming(lang);
                   <h1 class="md:text-5xl text-lg text-gmjo-blue font-bold">{date}</h1>
                   <h1 class="md:text-5xl text-lg font-thin text-black">{time}</h1>
                 </div>
-                <h3 class="text-black">{_event.title}</h3>
-                <h4 class="text-black">{_location.city}, {_location.country}</h4>
+                <h3 class="text-black">{_event?.title}</h3>
+                <h4 class="text-black">{_location?.city}, {_location?.country}</h4>
               </div>
               <div>
                 {url ? (

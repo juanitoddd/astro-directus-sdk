@@ -1,0 +1,28 @@
+---
+import { fetchTourById, fetchToursByYear } from '@/lib/directus/tours';
+import Person from './Person.astro';
+
+type Props = {
+  data?: Record<string, unknown>;
+  lang?: string;
+  depth?: number;
+};
+
+const { data = {}, lang } = Astro.props as Props;
+const tours = await fetchToursByYear(2026);
+const artists = [];
+for(const tour of tours) {  
+  const _tour = await fetchTourById(tour, lang);  
+  for(const _artist of _tour.artists) {
+    if(!artists.find((a: any) => a.people_id.id === _artist.people_id.id)) artists.unshift(_artist)
+  }
+}
+
+artists.sort((a, b) =>
+  a.people_id.last_name.localeCompare(b.people_id.last_name)
+);
+
+---
+<div class="flex gap-2">
+  {artists.filter((artist: any) => artist.role_id.id === 19).map((artist: any) => <Person lang={lang} person={artist.people_id} />)}
+</div>

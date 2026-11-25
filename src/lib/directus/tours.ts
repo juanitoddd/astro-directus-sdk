@@ -40,6 +40,8 @@ export async function fetchTourById(
           "people.person_id.last_name",
           "people.person_id.image",
           "artists.people_id.*",
+          "artists.people_id.image.*",
+          "artists.role_id.*",
           "tutors.people_id.*"
         ],
         ...(deep ? { deep } : {}),

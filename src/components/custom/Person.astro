@@ -11,7 +11,10 @@ const url = getDirectusAssetUrl(person.image as DirectusAsset);
 ---
 <div class="">
   <a class="underline-link text-gmjo-blue font-bold" href={`/${lang}/biography/${person.id}`}>
-    <img src={url} class="object-cover" style="width: 200px; height: 230px;" />
+    <div class="relative">
+      <img src={url} class="object-cover" style="width: 200px; height: 230px;" />
+      <span class="absolute font-thin bottom-0 left-0 overflow-hidden bg-black p-1 text-xs text-gray-100">{person.image?.image_credits}</span>
+    </div>
     <div class="">{person.first_name} {person.last_name}</div>
   </a>
 </div>
